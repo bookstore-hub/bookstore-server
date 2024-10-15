@@ -1,0 +1,31 @@
+name: Deploy to Azure App Service
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Deploy to Azure'
+        
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 21
+        uses: actions/setup-java@v1
+        with:
+          java-version: 21
+      - name: Cache Maven archetypes
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build with Maven
+        run: mvn clean package
+      - uses: azure/webapps-deploy@v1
+        with:
+          app-name: assist-server
+          publish-profile: ${{ secrets.azureWebAppPublishProfile }}
+          package: '${{ github.workspace }}/target/*.jar'
