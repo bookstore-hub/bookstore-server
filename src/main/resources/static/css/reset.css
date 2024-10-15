@@ -1,0 +1,98 @@
+body {
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+  
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+header {
+    display: flex;
+    height: 30%;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 70%;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 3%;
+}
+
+h1 {
+    color: #919191;
+    font-size: 24;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 3%;
+    width: 80%;
+    max-width: 350px;
+    align-items: center;
+}
+
+label {
+    font-size: 14px;
+    color: #919191;
+    font-weight: bold;
+    margin-bottom: 8px;
+    align-self: flex-start;
+}
+
+input {
+    margin-bottom: 20px;
+    border: 1px solid #DDD;
+    border-radius: 5px;
+    height: 45px;
+    width: 100%;
+    padding: 0 15px;
+    font-size: 16px;
+    text-align: left;
+}
+
+button {
+    border-radius: 5px;
+    height: 42px;
+    padding: 0 40px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #919191;
+    cursor: pointer;
+    border: 1px solid #DDD;
+    background-color: #FFF;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #DDD;
+}
+
+#errorMessage {
+    display: none;
+    text-align: center;
+    margin-bottom: 10px;
+    color: red;
+    font-size: 16px;
+}
+
+#successMessage {
+    display: none;
+    text-align: center;
+    margin-bottom: 10px;
+    color: green;
+    font-size: 16px;
+}

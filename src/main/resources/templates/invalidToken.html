@@ -1,0 +1,17 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="stylesheet" href="/css/confirm.css">
+    <title>Invalide</title>
+</head>
+<body>
+    <header>
+        <img th:src="@{/images/logo.png}" alt="Assist logo" height="30%">
+    </header>
+    <div>
+        <h1 style="text-align:center;" th:text="${invalidToken}"></h1>
+    </div>
+</body>
+</html>

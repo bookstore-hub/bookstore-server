@@ -1,0 +1,102 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/rdv-central-db?sslmode=prefer
+    username: postgres
+    password: admin
+    hikari:
+      connectionTimeout: 20000
+      maximumPoolSize: 5
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: none
+      show-sql: true
+  data:
+    mongodb:
+      uri: mongodb://assist-mongodb:lPK6s8xDyzbUrjNyrFwbpUKrdU25DvgDBcUBnETUPK78SFN9cpkmCUyBHUkYJTHauE6Mg2v0VjSVQOlu3MqkkQ==@assist-mongodb.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@assist-mongodb@&retrywrites=false
+      database: rdv-chat-db
+  sendgrid:
+    api-key:
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+  security:
+    user:
+      name: adminrdv
+      password: ERatajkowski!
+  main:
+    allow-bean-definition-overriding: true
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+  lifecycle:
+    timeout-per-shutdown-phase: 2m
+
+management:
+  health:
+    probes:
+      enabled: true
+  endpoint:
+    shutdown:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info,health,shutdown
+endpoint:
+  health:
+    show-details: always
+
+server:
+  shutdown: graceful
+
+#azure storage
+azure:
+  storage:
+    ConnectionString: DefaultEndpointsProtocol=https;AccountName=rdv-filestorage;AccountKey=aFELNWSRCGz/q/l3Yzi11nfvKwglrKjizxAm6jfvhM8sFQ1f+U2DH+/eO0w9mMq7o69eR/XkEBcmCQ3ZL0SMQw==;EndpointSuffix=core.windows.net
+    container:
+      name: images
+  backend:
+    domain: 'https://service.assist-e.eu'
+
+#sendgrid
+sender:
+  email: ''
+  email2: ''
+  name: 'Rendez-vous MTL'
+
+email:
+  template1:
+  template2:
+  template3:
+
+app:
+  url: http://localhost:8080
+  firebase-config: 'firebase-service-account.json'
+
+#JWT
+jwt:
+  signing:
+    key:
+      secret:
+  http:
+    request:
+      header: Authorization
+  token:
+    expiration.in.seconds: 5184000
+
+
+#########################################################################
+#logging
+
+logging:
+  level:
+    org.springframework.data: debug
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
