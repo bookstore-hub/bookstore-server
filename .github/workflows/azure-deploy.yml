@@ -26,6 +26,6 @@ jobs:
         run: mvn clean package
       - uses: azure/webapps-deploy@v1
         with:
-          app-name: assist-server
+          app-name: rdv-server
           publish-profile: ${{ secrets.azureWebAppPublishProfile }}
           package: '${{ github.workspace }}/target/*.jar'
