@@ -12,7 +12,7 @@ import java.util.Locale;
  */
 public class DateUtil {
 
-    public static String formatDateAndTime(OffsetDateTime dateAndTime, Locale locale) {
+    public static String formatDateAndTime(OffsetDateTime dateAndTime, Locale locale) {//
         String dateAndTimeFormatted = null;
         if(dateAndTime != null) {
 
