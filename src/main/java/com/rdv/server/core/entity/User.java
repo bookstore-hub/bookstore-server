@@ -64,7 +64,7 @@ public class User extends DomainObject {
     @Column(name = "short_bio" , length = 150)
     private String shortBio;
 
-    @Column(name = "messaging_token" , length = 200)
+    @Column(name = "messaging_token", length = 200)
     private String messagingToken;
 
     @Column(name = "selected_location")
@@ -96,6 +96,18 @@ public class User extends DomainObject {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "following_id"))
     private List<User> usersFollowed = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility_email", length = 10)
+    private FieldVisibility visibilityEmail;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility_phone_nr", length = 10)
+    private FieldVisibility visibilityPhoneNr;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility_birth_date", length = 30)
+    private FieldVisibility visibilityBirthDate;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "userInvited")
     private List<UserEventInvitation> eventInvitationsReceived = new ArrayList<>();
@@ -496,6 +508,60 @@ public class User extends DomainObject {
      */
     public void setUsersFollowed(List<User> usersFollowed) {
         this.usersFollowed = usersFollowed;
+    }
+
+    /**
+     * Returns the visibilityEmail
+     *
+     * @return Returns the visibilityEmail
+     */
+    public FieldVisibility getVisibilityEmail() {
+        return visibilityEmail;
+    }
+
+    /**
+     * Sets the visibilityEmail
+     *
+     * @param visibilityEmail The visibilityEmail to set
+     */
+    public void setVisibilityEmail(FieldVisibility visibilityEmail) {
+        this.visibilityEmail = visibilityEmail;
+    }
+
+    /**
+     * Returns the visibilityPhoneNr
+     *
+     * @return Returns the visibilityPhoneNr
+     */
+    public FieldVisibility getVisibilityPhoneNr() {
+        return visibilityPhoneNr;
+    }
+
+    /**
+     * Sets the visibilityPhoneNr
+     *
+     * @param visibilityPhoneNr The visibilityPhoneNr to set
+     */
+    public void setVisibilityPhoneNr(FieldVisibility visibilityPhoneNr) {
+        this.visibilityPhoneNr = visibilityPhoneNr;
+    }
+
+    /**
+     * Returns the visibilityBirthDate
+     *
+     * @return Returns the visibilityBirthDate
+     */
+    public FieldVisibility getVisibilityBirthDate() {
+        return visibilityBirthDate;
+    }
+
+    /**
+     * Sets the visibilityBirthDate
+     *
+     * @param visibilityBirthDate The visibilityBirthDate to set
+     */
+    public void setVisibilityBirthDate(FieldVisibility visibilityBirthDate) {
+        this.visibilityBirthDate = visibilityBirthDate;
     }
 
     /**

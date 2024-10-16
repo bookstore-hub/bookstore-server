@@ -66,7 +66,16 @@ public class UserTo {
         @Size(max = 150)
         String shortBio,
         @Parameter (description = "The user selected location")
-        Location selectedLocation
+        Location selectedLocation,
+        @Parameter (description = "The email visibility")
+        @Size(max = 10)
+        FieldVisibility visibilityEmail,
+        @Parameter (description = "The phone number visibility")
+        @Size(max = 10)
+        FieldVisibility visibilityPhoneNr,
+        @Parameter (description = "The birth date visibility")
+        @Size(max = 30)
+        FieldVisibility visibilityBirthDate
     ) {}
 
 
@@ -79,11 +88,13 @@ public class UserTo {
 
     /** Full Data **/
     public record FullData(Long id, String email, String userFirstName, String userLastName, String username, String userPhoto, UserGender gender, LocalDate birthDate,
-                           String phoneNr, SubscriptionStatus userSubscriptionStatus, String shortBio, String messagingToken, Location selectedLocation) {
+                           String phoneNr, SubscriptionStatus userSubscriptionStatus, String shortBio, String messagingToken, Location selectedLocation,
+                           FieldVisibility visibilityEmail, FieldVisibility visibilityPhoneNr, FieldVisibility visibilityBirthDate) {
 
         public FullData(User user) {
             this(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getPhoto(), user.getGender(), user.getBirthDate(),
-                    user.getPhoneNr(), user.getStatus(), user.getShortBio(), user.getMessagingToken(), Location.fromCode(user.getSelectedLocation()));
+                    user.getPhoneNr(), user.getStatus(), user.getShortBio(), user.getMessagingToken(), Location.fromCode(user.getSelectedLocation()),
+                    user.getVisibilityEmail(), user.getVisibilityPhoneNr(), user.getVisibilityBirthDate());
         }
 
     }
