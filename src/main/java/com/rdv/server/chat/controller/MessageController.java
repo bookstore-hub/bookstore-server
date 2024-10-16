@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
@@ -33,13 +32,15 @@ public class MessageController {
 
     private static final Log LOGGER = LogFactory.getLog(MessageController.class);
 
-    @Autowired
-    private MessageService messageService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private EventConversationRepository eventConversationRepository;
+    private final MessageService messageService;
+    private final UserRepository userRepository;
+    private final EventConversationRepository eventConversationRepository;
 
+    public MessageController(MessageService messageService, UserRepository userRepository, EventConversationRepository eventConversationRepository) {
+        this.messageService = messageService;
+        this.userRepository = userRepository;
+        this.eventConversationRepository = eventConversationRepository;
+    }
 
 
     /**

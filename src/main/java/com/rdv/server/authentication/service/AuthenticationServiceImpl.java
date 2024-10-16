@@ -1,6 +1,5 @@
 package com.rdv.server.authentication.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -16,8 +15,12 @@ import java.util.Objects;
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthenticationServiceImpl(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
 
     public boolean authenticate(String username, String password) {
         boolean authenticated = true;

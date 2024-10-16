@@ -8,7 +8,7 @@ public class RandomSequenceGenerator {
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int SEQUENCE_LENGTH = 10;
 
-    public String generateAlphaNumericSequence() {
+    public static String generateAlphaNumericSequence() {
         StringBuilder builder = new StringBuilder();
         int count = SEQUENCE_LENGTH;
         while (count-- != 0) {

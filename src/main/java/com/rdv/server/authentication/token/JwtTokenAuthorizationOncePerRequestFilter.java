@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,14 +25,17 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private UserDetailsService jwtInMemoryUserDetailsService;
+    private final UserDetailsService jwtInMemoryUserDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final String tokenHeader;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+    public JwtTokenAuthorizationOncePerRequestFilter(UserDetailsService jwtInMemoryUserDetailsService, JwtTokenUtil jwtTokenUtil,
+                                                     @Value("${jwt.http.request.header}") String tokenHeader) {
+        this.jwtInMemoryUserDetailsService = jwtInMemoryUserDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.tokenHeader = tokenHeader;
+    }
 
-    @Value("${jwt.http.request.header}")
-    private String tokenHeader;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {

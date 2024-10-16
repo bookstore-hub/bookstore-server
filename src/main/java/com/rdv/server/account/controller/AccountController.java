@@ -21,7 +21,6 @@ import jakarta.validation.Valid;
 import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
@@ -82,21 +81,25 @@ public class AccountController {
     private final static String USER_NOT_FOUND = "userNotFound";
     private final static String INVALID_OLD_PASSWORD = "invalidOldPassword";
 
-    @Autowired
-    private AccountService accountService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-    @Autowired
-    private SendGridService sendgridService;
-    @Autowired
-    private AuthenticationService authenticationService;
-    @Autowired
-    MessageSource messageSource;
+    private final AccountService accountService;
+    private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final SendGridService sendgridService;
+    private final AuthenticationService authenticationService;
+    private final MessageSource messageSource;
+    private final String domain;
 
-    @Value("${azure.backend.domain}")
-    private String domain;
+    public AccountController(AccountService accountService, UserRepository userRepository, ApplicationEventPublisher eventPublisher,
+                             SendGridService sendgridService, AuthenticationService authenticationService, MessageSource messageSource,
+                             @Value("${azure.backend.domain}") String domain) {
+        this.accountService = accountService;
+        this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
+        this.sendgridService = sendgridService;
+        this.authenticationService = authenticationService;
+        this.messageSource = messageSource;
+        this.domain = domain;
+    }
 
 
     /**

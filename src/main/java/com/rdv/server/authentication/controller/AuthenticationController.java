@@ -7,7 +7,6 @@ import com.rdv.server.authentication.token.JwtTokenResponse;
 import com.rdv.server.authentication.util.JwtTokenUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,17 +18,18 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "AuthenticationController", description = "Set of endpoints to handle the JWT Authentication")
 public class AuthenticationController {
 
-  @Value("${jwt.http.request.header}")
-  private String tokenHeader;
+  private final String tokenHeader;
+  private final JwtTokenUtil jwtTokenUtil;
+  private final UserDetailsService jwtUserDetailsService;
+  private final AuthenticationService authenticationService;
 
-  @Autowired
-  private JwtTokenUtil jwtTokenUtil;
-
-  @Autowired
-  private UserDetailsService jwtUserDetailsService;
-
-  @Autowired
-  private AuthenticationService authenticationService;
+  public AuthenticationController(  @Value("${jwt.http.request.header}") String tokenHeader, JwtTokenUtil jwtTokenUtil,
+                                    UserDetailsService jwtUserDetailsService, AuthenticationService authenticationService) {
+      this.tokenHeader = tokenHeader;
+      this.jwtTokenUtil = jwtTokenUtil;
+      this.jwtUserDetailsService = jwtUserDetailsService;
+      this.authenticationService = authenticationService;
+  }
 
 
   @PostMapping(value = "/authenticate")

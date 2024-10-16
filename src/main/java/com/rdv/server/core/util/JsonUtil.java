@@ -1,6 +1,5 @@
 package com.rdv.server.core.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -19,8 +18,12 @@ public class JsonUtil {
     private static final String JSON_EXTENSION = ".json";
     private static final String TEXTS_DIRECTORY = "texts";
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+    private final ResourceLoader resourceLoader;
+
+    public JsonUtil(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
 
     public String readJSonFile(String languageCode) throws IOException {
         String text;

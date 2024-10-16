@@ -5,7 +5,6 @@ import com.rdv.server.storage.adapter.AzureBlobAdapter;
 import com.rdv.server.storage.to.ContainerType;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,8 +21,11 @@ import java.net.URI;
 @Tag(name = "FileStorageController", description = "Set of endpoints to handle the azure file storage logic")
 public class FileStorageController {
 
-    @Autowired
-    private AzureBlobAdapter azureBlobAdapter;
+    private final AzureBlobAdapter azureBlobAdapter;
+
+    public FileStorageController(AzureBlobAdapter azureBlobAdapter) {
+        this.azureBlobAdapter = azureBlobAdapter;
+    }
 
 
     @PostMapping("/upload")

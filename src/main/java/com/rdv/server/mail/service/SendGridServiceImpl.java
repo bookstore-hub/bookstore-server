@@ -12,7 +12,6 @@ import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -42,32 +41,25 @@ public class SendGridServiceImpl implements SendGridService {
     private static final String LINK = "link";
     private static final String SIGNATURE = "signature";
 
+    private final String senderEmail;
+    private final String senderEmail2;
+    private final String senderName;
+    private final String TEMPLATE_1;
+    private final String TEMPLATE_2;
+    private final String TEMPLATE_3;
+    private final MessageSource messageSource;
+    private final SendGrid sendGridClient;
 
-    @Value("${sender.email}")
-    String senderEmail;
-
-    @Value("${sender.email2}")
-    String senderEmail2;
-
-    @Value("${sender.name}")
-    String senderName;
-
-    @Value("${email.template1}")
-    private String TEMPLATE_1;
-
-    @Value("${email.template2}")
-    private String TEMPLATE_2;
-
-    @Value("${email.template3}")
-    private String TEMPLATE_3;
-
-    @Autowired
-    MessageSource messageSource;
-
-    private SendGrid sendGridClient;
-
-    @Autowired
-    public SendGridServiceImpl(SendGrid sendGridClient) {
+    public SendGridServiceImpl(@Value("${sender.email}") String senderEmail, @Value("${sender.email2}") String senderEmail2, @Value("${sender.name}") String senderName,
+                               @Value("${email.template1}") String TEMPLATE_1, @Value("${email.template2}") String TEMPLATE_2,
+                               @Value("${email.template3}") String TEMPLATE_3, MessageSource messageSource, SendGrid sendGridClient) {
+        this.senderEmail = senderEmail;
+        this.senderEmail2 = senderEmail2;
+        this.senderName = senderName;
+        this.TEMPLATE_1 = TEMPLATE_1;
+        this.TEMPLATE_2 = TEMPLATE_2;
+        this.TEMPLATE_3 = TEMPLATE_3;
+        this.messageSource = messageSource;
         this.sendGridClient = sendGridClient;
     }
 

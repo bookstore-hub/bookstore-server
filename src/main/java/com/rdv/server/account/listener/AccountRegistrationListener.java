@@ -12,7 +12,6 @@ import com.sendgrid.Response;
 import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -28,17 +27,20 @@ public class AccountRegistrationListener implements ApplicationListener<OnAccoun
 
     private static final String REGISTRATION_CONFIRMATION_CALL = "/user/registrationConfirm";
 
-    @Autowired
-    private AccountService accountService;
-    @Autowired
-    private SendGridService sendgridService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private FirebaseMessagingService firebaseMessagingService;
+    private final AccountService accountService;
+    private final SendGridService sendgridService;
+    private final UserRepository userRepository;
+    private final FirebaseMessagingService firebaseMessagingService;
+    private final String domain;
 
-    @Value("${azure.backend.domain}")
-    private String domain;
+    public AccountRegistrationListener(AccountService accountService, SendGridService sendgridService, UserRepository userRepository,
+                                       FirebaseMessagingService firebaseMessagingService, @Value("${azure.backend.domain}") String domain) {
+        this.accountService = accountService;
+        this.sendgridService = sendgridService;
+        this.userRepository = userRepository;
+        this.firebaseMessagingService = firebaseMessagingService;
+        this.domain = domain;
+    }
 
 
     @Override

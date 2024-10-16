@@ -11,7 +11,6 @@ import com.rdv.server.storage.adapter.AzureBlobAdapter;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,16 +25,20 @@ public class AccountServiceImpl implements AccountService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private VerificationTokenRepository tokenRepository;
-    @Autowired
-    private PasswordResetTokenRepository passwordTokenRepository;
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-    @Autowired
-    private AzureBlobAdapter azureBlobAdapter;
+    private final UserRepository userRepository;
+    private final VerificationTokenRepository tokenRepository;
+    private final PasswordResetTokenRepository passwordTokenRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final AzureBlobAdapter azureBlobAdapter;
+
+    public AccountServiceImpl(UserRepository userRepository, VerificationTokenRepository tokenRepository, PasswordResetTokenRepository passwordTokenRepository,
+                              BCryptPasswordEncoder passwordEncoder, AzureBlobAdapter azureBlobAdapter) {
+        this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
+        this.passwordTokenRepository = passwordTokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.azureBlobAdapter = azureBlobAdapter;
+    }
 
 
     @Override

@@ -31,28 +31,25 @@ import java.io.IOException;
 public class SecurityConfig {
 
 
-    @Autowired
-    private JwtUnAuthorizedResponseAuthenticationEntryPoint jwtUnAuthorizedResponseAuthenticationEntryPoint;
+    private final JwtUnAuthorizedResponseAuthenticationEntryPoint jwtUnAuthorizedResponseAuthenticationEntryPoint;
+    private final UserDetailsService jwtUserDetailsService;
+    private final JwtTokenAuthorizationOncePerRequestFilter jwtAuthenticationTokenFilter;
+    private final String firebaseConfig;
 
-    @Autowired
-    private UserDetailsService jwtUserDetailsService;
-
-    @Autowired
-    private UserDetailsService jwtBackOfficeUserDetailsService;
-
-    @Autowired
-    private JwtTokenAuthorizationOncePerRequestFilter jwtAuthenticationTokenFilter;
-
-    @Value("${app.firebase-config}")
-    private String firebaseConfig;
+    public SecurityConfig(JwtUnAuthorizedResponseAuthenticationEntryPoint jwtUnAuthorizedResponseAuthenticationEntryPoint,
+                          UserDetailsService jwtUserDetailsService, JwtTokenAuthorizationOncePerRequestFilter jwtAuthenticationTokenFilter,
+                          @Value("${app.firebase-config}") String firebaseConfig) {
+        this.jwtUnAuthorizedResponseAuthenticationEntryPoint = jwtUnAuthorizedResponseAuthenticationEntryPoint;
+        this.jwtUserDetailsService = jwtUserDetailsService;
+        this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
+        this.firebaseConfig = firebaseConfig;
+    }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-
         auth
             .userDetailsService(jwtUserDetailsService)
             .passwordEncoder(passwordEncoderBean());
-
     }
 
     @Bean
@@ -68,7 +65,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    FirebaseMessaging firebaseMessaging() throws IOException {
+    public FirebaseMessaging firebaseMessaging() throws IOException {
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new ClassPathResource(firebaseConfig).getInputStream());
         FirebaseOptions firebaseOptions = FirebaseOptions

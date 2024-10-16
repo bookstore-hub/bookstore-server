@@ -4,7 +4,6 @@ import com.rdv.server.authentication.to.GrantedAuthority;
 import com.rdv.server.authentication.to.JwtUserDetails;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.core.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,8 +16,12 @@ import java.util.regex.Pattern;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-  @Autowired
-  private UserRepository userRepository;
+
+  private final UserRepository userRepository;
+
+  public JwtUserDetailsService(UserRepository userRepository) {
+      this.userRepository = userRepository;
+  }
 
 
   @Override

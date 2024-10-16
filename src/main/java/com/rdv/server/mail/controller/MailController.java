@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
@@ -27,8 +26,12 @@ public class MailController {
 
     private static final Log LOGGER = LogFactory.getLog(MailController.class);
 
-    @Autowired
-    private SendGridService sendgridService;
+    private final SendGridService sendgridService;
+
+    public MailController(SendGridService sendgridService) {
+        this.sendgridService = sendgridService;
+    }
+
 
     /**
      * Sends a test email

@@ -7,7 +7,6 @@ import com.microsoft.azure.storage.blob.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,17 +22,18 @@ public class AzureBlobAdapter {
     private static final String USER_PROFILE_PHOTOS_URL = "https://rdv-filestorage.blob.core.windows.net/userphotos/";
     private static final String EVENT_POSTERS_URL = "https://rdv-filestorage.blob.core.windows.net/eventposters/";
 
-    @Autowired
-    private CloudBlobClient cloudBlobClient;
-    @Autowired
-    private RandomSequenceGenerator randomSequenceGenerator;
+    private final CloudBlobClient cloudBlobClient;
+
+    public AzureBlobAdapter(CloudBlobClient cloudBlobClient) {
+        this.cloudBlobClient = cloudBlobClient;
+    }
 
 
     public URI uploadFile(MultipartFile multipartFile, ContainerType containerType, Long userId){
         URI uri = null;
         CloudBlockBlob blob;
 
-        String blobName = userId != null ? userId + "__" + randomSequenceGenerator.generateAlphaNumericSequence() + "_" + multipartFile.getOriginalFilename() : randomSequenceGenerator.generateAlphaNumericSequence() + "_" + multipartFile.getOriginalFilename();
+        String blobName = userId != null ? userId + "__" + RandomSequenceGenerator.generateAlphaNumericSequence() + "_" + multipartFile.getOriginalFilename() : RandomSequenceGenerator.generateAlphaNumericSequence() + "_" + multipartFile.getOriginalFilename();
 
         try {
             CloudBlobContainer container = cloudBlobClient.getContainerReference(containerType.getValue());

@@ -16,8 +16,6 @@ import com.rdv.server.chat.to.ChatMessageTo;
 import com.rdv.server.core.entity.User;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -43,18 +41,21 @@ public class MessageServiceImpl implements MessageService {
     private static final String INITIAL_MESSAGE_2 = "assistance.initialtext2";
 
 
-    @Autowired
-    private ChatMessageRepository chatMessageRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private EventConversationRepository eventConversationRepository;
-    @Autowired
-    private UserEventConversationRepository userEventConversationRepository;
-    @Autowired
-    MessageSource messageSource;
-    @Autowired
-    private FirebaseMessagingService firebaseMessagingService;
+    private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
+    private final EventConversationRepository eventConversationRepository;
+    private final UserEventConversationRepository userEventConversationRepository;
+    private final FirebaseMessagingService firebaseMessagingService;
+
+    public MessageServiceImpl(ChatMessageRepository chatMessageRepository, UserRepository userRepository,
+                              EventConversationRepository eventConversationRepository, UserEventConversationRepository userEventConversationRepository,
+                              FirebaseMessagingService firebaseMessagingService) {
+        this.chatMessageRepository = chatMessageRepository;
+        this.userRepository = userRepository;
+        this.eventConversationRepository = eventConversationRepository;
+        this.userEventConversationRepository = userEventConversationRepository;
+        this.firebaseMessagingService = firebaseMessagingService;
+    }
 
 
     @Override
