@@ -9,14 +9,16 @@ import org.apache.commons.lang3.LocaleUtils;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 
 public class EventTo {
 
     /** Creation or Update of Data **/
     public record CreationOrUpdate(
-
+        @Parameter (description = "The event title")
+        @Size(max = 70)
+        @NotNull
+        String title,
         @Parameter (description = "The start date")
         @NotNull
         OffsetDateTime startDate,
@@ -50,8 +52,7 @@ public class EventTo {
         @Parameter (description = "The category")
         @Size(max = 150)
         String category,
-        List<EventTitleTo.EventTitleCreationOrUpdate> titles,
-        List<EventDescriptionTo.EventDescriptionCreationOrUpdate> descriptions
+        List<EventDescriptionTo.CreationOrUpdate> descriptions
     ) {}
 
 
@@ -60,7 +61,7 @@ public class EventTo {
         public MinimalData(Event event, Language language) {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
-                    event.getSite(), event.getCost(), event.getPoster(), getTitle(event, language));
+                    event.getSite(), event.getCost(), event.getPoster(), event.getTitle());
         }
     }
 
@@ -71,21 +72,8 @@ public class EventTo {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getType(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
-                    event.getDetailsLink(), event.getTicketingLink(), getTitle(event, language), event.getCategory());
+                    event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getCategory());
         }
-    }
-
-
-
-    private static String getTitle(Event event, Language language) {
-        Optional<String> title = getTitleInLanguage(event, language);
-        return title.orElseGet(() -> String.valueOf(getTitleInLanguage(event, Language.fr)));
-    }
-
-    private static Optional<String> getTitleInLanguage(Event event, Language language) {
-        return  event.getTitles().stream()
-                .filter(eventTitle -> language.equals(eventTitle.getLanguage()))
-                .map(EventTitle::getTitle).findFirst();
     }
 
 }

@@ -18,6 +18,9 @@ public class Event extends DomainObject {
     @SequenceGenerator(name = "event_sequence", sequenceName = "rdv.event_id_seq", allocationSize = 50)
     private Long id;
 
+    @Column(name = "title", length = 70)
+    private String title;
+
     @Column(name = "creation_date")
     private OffsetDateTime creationDate;
 
@@ -57,9 +60,6 @@ public class Event extends DomainObject {
     private String category;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
-    private List<EventTitle> titles = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
     private List<EventDescription> descriptions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
@@ -84,6 +84,24 @@ public class Event extends DomainObject {
      */
     public void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Returns the title
+     *
+     * @return Returns the title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the title
+     *
+     * @param title The title to set
+     */
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**
@@ -300,24 +318,6 @@ public class Event extends DomainObject {
      */
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    /**
-     * Returns the titles
-     *
-     * @return Returns the titles
-     */
-    public List<EventTitle> getTitles() {
-        return titles;
-    }
-
-    /**
-     * Sets the titles
-     *
-     * @param titles The titles to set
-     */
-    public void setTitles(List<EventTitle> titles) {
-        this.titles = titles;
     }
 
     /**

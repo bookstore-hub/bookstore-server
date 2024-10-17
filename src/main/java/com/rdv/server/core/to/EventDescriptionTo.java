@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 public class EventDescriptionTo {
 
     /** Creation or Update of Data **/
-    public record EventDescriptionCreationOrUpdate(
+    public record CreationOrUpdate(
 
         @Parameter (description = "The description")
         @Size(max = 250)
