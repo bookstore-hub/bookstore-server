@@ -154,10 +154,9 @@ public class SendGridServiceImpl implements SendGridService {
 
         mailContent.setSubject(messageSource.getMessage(type.getCode() + DOT + SUBJECT, objects.toArray(Object[]::new), localeToApply));
         mailContent.setContent(messageSource.getMessage(type.getCode() + DOT + CONTENT, objects.toArray(Object[]::new), localeToApply));
+        mailContent.setContent2(messageSource.getMessage(type.getCode() + DOT + CONTENT_2, null, localeToApply));
 
         if(MessageType.INVITATION.equals(type)) {
-            mailContent.setContent2(messageSource.getMessage(type.getCode() + DOT + CONTENT_2, null, localeToApply));
-            mailContent.setContent3(messageSource.getMessage(type.getCode() + DOT + CONTENT_3, null, localeToApply));
             mailContent.setContent3(messageSource.getMessage(type.getCode() + DOT + CONTENT_3, null, localeToApply));
             mailContent.setContent4(messageSource.getMessage(type.getCode() + DOT + CONTENT_4, null, localeToApply));
         }

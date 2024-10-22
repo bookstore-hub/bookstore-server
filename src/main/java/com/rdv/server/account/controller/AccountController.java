@@ -51,14 +51,13 @@ public class AccountController {
     private static final String PASSWORD_RESET_PAGE = "passwordReset";
     private static final String RESET_TOKEN_TAG = "resetToken";
     private static final String CONFIRMATION_TEXT_TAG = "confirmationText";
-    private static final String CONNECTION_TEXT_TAG = "connectionText";
     private static final String CHANGE_PASSWORD_TITLE_TAG = "changePasswordTitle";
-    private static final String NEW_PASSWORD_TEXT_TAG = "newPasswordText";
+    private static final String NEW_PASSWORD_TEXT_TAG = "newPasswordTextFr";
     private static final String CONFIRM_NEW_PASSWORD_TEXT_TAG = "confirmNewPassword";
     private static final String FUNCTION_SAVE_TAG = "functionSave";
     private static final String PASSWORD_CHANGED_TEXT_TAG = "passwordChanged";
+
     private static final String ACCOUNT_CONFIRMED = "account.confirmed";
-    private static final String ACCOUNT_CONNECTION = "account.connection";
     private static final String ACCOUNT_CHANGE_PASSWORD = "account.changePassword";
     private static final String ACCOUNT_NEW_PASSWORD = "account.newPassword";
     private static final String ACCOUNT_CONFIRM_NEW_PASSWORD = "account.confirmNewPassword";
@@ -365,7 +364,6 @@ public class AccountController {
 
         if(TokenStatus.TOKEN_VALID.equals(status)) {
             model.addAttribute(CONFIRMATION_TEXT_TAG, messageSource.getMessage(ACCOUNT_CONFIRMED, null, locale));
-            model.addAttribute(CONNECTION_TEXT_TAG, messageSource.getMessage(ACCOUNT_CONNECTION, null, locale));
             return REGISTRATION_CONFIRMATION_PAGE;
         } else if(TokenStatus.TOKEN_EXPIRED.equals(status)) {
             model.addAttribute(INVALID_TOKEN_TEXT_TAG, UNAUTHORIZED_ACCESS);
@@ -382,11 +380,12 @@ public class AccountController {
                                    @Parameter (description = "The password reset token") @PathVariable("token") String token,
                                    @Parameter (description = "The model associated") Model model) {
 
-        Locale locale = LocaleUtils.toLocale(languageCode);
         String result = accountService.validatePasswordResetToken(token);
         User user = accountService.getUserByPasswordResetToken(token);
 
         if(result == null && user != null) {
+            Locale locale = LocaleUtils.toLocale(user.getPreferredLanguage().name()); //For now. Later on: LocaleUtils.toLocale(languageCode);
+
             model.addAttribute(RESET_TOKEN_TAG, token);
             model.addAttribute(CHANGE_PASSWORD_TITLE_TAG, messageSource.getMessage(ACCOUNT_CHANGE_PASSWORD, null, locale));
             model.addAttribute(NEW_PASSWORD_TEXT_TAG, messageSource.getMessage(ACCOUNT_NEW_PASSWORD, null, locale));
@@ -397,6 +396,7 @@ public class AccountController {
             model.addAttribute(PASSWORD_NOT_MATCHING_TEXT_TAG, messageSource.getMessage(PASSWORD_NOT_MATCHING, null, locale));
             model.addAttribute(PASSWORD_FORMAT_TEXT_TAG, messageSource.getMessage(PASSWORD_FORMAT, null, locale));
             model.addAttribute(EMPTY_FIELD_TEXT_TAG, messageSource.getMessage(EMPTY_FIELD, null, locale));
+
             return PASSWORD_RESET_PAGE;
         } else {
             model.addAttribute(INVALID_TOKEN_TEXT_TAG, UNAUTHORIZED_ACCESS);
