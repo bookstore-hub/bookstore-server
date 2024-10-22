@@ -10,6 +10,7 @@ import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,26 +149,22 @@ public class SendGridServiceImpl implements SendGridService {
 
         List<Object> objects = Arrays.asList(parameter, date != null ? DateUtil.formatLongDateAndTime(date, Locale.FRENCH) : null);
 
-        Locale localeToApply = Locale.forLanguageTag("mtl"); //MTL : French followed by English. For now we only use this one
-
         MailContent mailContent = new MailContent();
 
-        mailContent.setSubject(messageSource.getMessage(type.getCode() + DOT + SUBJECT, objects.toArray(Object[]::new), localeToApply));
-        mailContent.setContent(messageSource.getMessage(type.getCode() + DOT + CONTENT, objects.toArray(Object[]::new), localeToApply));
-        mailContent.setContent2(messageSource.getMessage(type.getCode() + DOT + CONTENT_2, null, localeToApply));
+        mailContent.setSubject(messageSource.getMessage(type.getCode() + DOT + SUBJECT, objects.toArray(Object[]::new), locale));
+        mailContent.setContent(messageSource.getMessage(type.getCode() + DOT + CONTENT, objects.toArray(Object[]::new), locale));
 
         if(MessageType.INVITATION.equals(type)) {
-            mailContent.setContent3(messageSource.getMessage(type.getCode() + DOT + CONTENT_3, null, localeToApply));
-            mailContent.setContent4(messageSource.getMessage(type.getCode() + DOT + CONTENT_4, null, localeToApply));
+            mailContent.setContent2(messageSource.getMessage(type.getCode() + DOT + CONTENT_2, null, locale));
         }
 
         if(MessageType.SUBSCRIPTION.equals(type) || MessageType.PASSWORD_RESET.equals(type) || MessageType.INVITATION.equals(type) || MessageType.ADVERT_VALIDATED_TO_PAY.equals(type)) {
-            mailContent.setTextLink(messageSource.getMessage(type.getCode() + DOT + LINK_TEXT, null, localeToApply));
+            mailContent.setTextLink(messageSource.getMessage(type.getCode() + DOT + LINK_TEXT, null, locale));
             mailContent.setLink(url);
         }
 
         if(!MessageType.INVITATION.equals(type)) {
-            mailContent.setSignature(messageSource.getMessage(SIGNATURE, null, localeToApply));
+            mailContent.setSignature(messageSource.getMessage(SIGNATURE, null, locale));
         }
 
         return mailContent;

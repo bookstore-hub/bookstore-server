@@ -54,7 +54,7 @@ public class AccountRegistrationListener implements ApplicationListener<OnAccoun
         final String token = UUID.randomUUID().toString();
         accountService.createVerificationTokenForUser(user, token);
 
-        Locale locale = LocaleUtils.toLocale(onAccountRegistrationCompleteEvent.getLanguageCode());
+        Locale locale = LocaleUtils.toLocale(user.getPreferredLanguage().name());
         String confirmationUrl = domain + REGISTRATION_CONFIRMATION_CALL + "/" + user.getPreferredLanguage().name() + "/" + token;
 
         LOGGER.info("Sending a message of type REGISTRATION to email addresses " + user.getEmail());

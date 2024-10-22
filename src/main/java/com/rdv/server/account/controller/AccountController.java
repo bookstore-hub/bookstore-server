@@ -376,15 +376,14 @@ public class AccountController {
 
     @Operation(description = "Allows entering a new password")
     @GetMapping("/user/enterNewPassword/{language}/{token}")
-    public String enterNewPassword(@Parameter (description = "The user language code") @PathVariable("language") String languageCode,
-                                   @Parameter (description = "The password reset token") @PathVariable("token") String token,
+    public String enterNewPassword(@Parameter (description = "The password reset token") @PathVariable("token") String token,
                                    @Parameter (description = "The model associated") Model model) {
 
         String result = accountService.validatePasswordResetToken(token);
         User user = accountService.getUserByPasswordResetToken(token);
 
         if(result == null && user != null) {
-            Locale locale = LocaleUtils.toLocale(user.getPreferredLanguage().name()); //For now. Later on: LocaleUtils.toLocale(languageCode);
+            Locale locale = LocaleUtils.toLocale(user.getPreferredLanguage().name());
 
             model.addAttribute(RESET_TOKEN_TAG, token);
             model.addAttribute(CHANGE_PASSWORD_TITLE_TAG, messageSource.getMessage(ACCOUNT_CHANGE_PASSWORD, null, locale));
