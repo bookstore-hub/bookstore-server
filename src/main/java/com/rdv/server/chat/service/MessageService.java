@@ -8,7 +8,6 @@ import com.rdv.server.core.entity.User;
 import com.rdv.server.chat.entity.UserEventConversation;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author david.garcia
@@ -17,7 +16,11 @@ public interface MessageService {
 
     Long createConversation(EventConversation conversation, List<User> usersInvolved);
 
-    void addUsersInConversation(Optional<EventConversation> conversation, List<User> usersToAdd);
+    void endConversation(EventConversation conversation);
+
+    void addUsersInConversation(EventConversation conversation, List<User> usersToAdd);
+
+    void removeUsersFromConversation(EventConversation conversation, List<User> usersToRemove);
 
     void removeConversation(UserEventConversation userConversation);
 

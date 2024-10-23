@@ -34,10 +34,6 @@ public class CoreController {
     //retrieveFriends()
     //retrieveBlockedFriends()
     //search
-    //createConversation (chat)
-    //closeConversation (chat)
-    //addFriendToConversation (chat)
-    //removeFriendFromConversation (chat)
     //retrievePersonalUserInfo
     //retrieveOtherUserInfo
 

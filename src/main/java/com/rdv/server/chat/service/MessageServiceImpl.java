@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -32,13 +33,8 @@ public class MessageServiceImpl implements MessageService {
 
     private static final Log LOGGER = LogFactory.getLog(MessageServiceImpl.class);
 
-    private static final String NEW_CHAT_MESSAGE = "chat.message";
     private static final String CHAT_MESSAGE = "CHAT_MESSAGE";
-    private static final String PRIVATE_CHAT_MESSAGE = "CHAT_MESSAGE";
-    public static final String ASSIST = "Assist";
-    public static final long ASSIST_OFFICIAL_ACCOUNT_ID = 1507L;
-    private static final String INITIAL_MESSAGE_1 = "assistance.initialtext1";
-    private static final String INITIAL_MESSAGE_2 = "assistance.initialtext2";
+    public static final long RDV_OFFICIAL_ACCOUNT_ID = 0L;
 
 
     private final ChatMessageRepository chatMessageRepository;
@@ -70,12 +66,27 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void addUsersInConversation(Optional<EventConversation> conversation, List<User> usersToAdd) {
+    public void endConversation(EventConversation conversation) {
+        conversation.setEndDate(OffsetDateTime.now());
+        eventConversationRepository.save(conversation);
+    }
+
+    @Override
+    public void addUsersInConversation(EventConversation conversation, List<User> usersToAdd) {
         for(User userToAdd : usersToAdd) {
             UserEventConversation userInConversation = new UserEventConversation(userToAdd, false);
-            conversation.get().addUser(userInConversation);
+            conversation.addUser(userInConversation);
         }
-        eventConversationRepository.save(conversation.get());
+        eventConversationRepository.save(conversation);
+    }
+
+    @Override
+    public void removeUsersFromConversation(EventConversation conversation, List<User> usersToRemove) {
+        for(User userToRemove : usersToRemove) {
+            Optional<UserEventConversation> userInConversation = conversation.getUsersInvolved().stream().filter(userInvolved -> userInvolved.getUser().equals(userToRemove)).findFirst();
+            userInConversation.ifPresent(conversation::removeUser);
+        }
+        eventConversationRepository.save(conversation);
     }
 
     @Override
@@ -88,9 +99,7 @@ public class MessageServiceImpl implements MessageService {
     public ChatMessage saveChatMessage(ChatMessageTo.ChatMessageCreation messagedata, EventConversation conversation, User user) {
         LOGGER.info("Saving message from chat with conversation id : " + messagedata.conversationId());
         ChatMessage messageSaved = chatMessageRepository.save(new ChatMessage(messagedata.text(), messagedata.image(), messagedata.author(), messagedata.authorId(), messagedata.creationDate(), messagedata.conversationId()));
-        if(messageSaved != null) {
-            sendChatNotification(conversation, user, messageSaved);
-        }
+        sendChatNotification(conversation, user, messageSaved);
         return messageSaved;
     }
 
@@ -127,7 +136,7 @@ public class MessageServiceImpl implements MessageService {
                 if(userMessagingToken != null) {
 
                     Map<String, String> newMessageData = new HashMap<>();
-                    newMessageData.put("contentType", PRIVATE_CHAT_MESSAGE);
+                    newMessageData.put("contentType", CHAT_MESSAGE);
                     newMessageData.put("message", writeAsJsonString(new ChatMessageTo.ChatMessageForNotificationData(newMessage)));
                     newMessageData.put("participants", writeAsJsonString(conversation.getUsersInvolved().stream().map(userInConversation -> new UserTo.MinimalData(userInConversation.getUser())).collect(Collectors.toList())));
 

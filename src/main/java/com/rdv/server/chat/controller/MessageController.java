@@ -62,6 +62,25 @@ public class MessageController {
         return conversationId;
     }
 
+    /**
+     * Ends a conversation
+     *
+     * @param conversationId    the conversation id
+     */
+    @Operation(description = "Ends a conversation")
+    @PostMapping(value = "/endConversation")
+    public boolean endConversation(@Parameter(description = "The conversation id") @RequestParam Long conversationId) {
+        boolean conversationEnded = false;
+        Optional<EventConversation> conversation = eventConversationRepository.findById(conversationId);
+
+        if(conversation.isPresent()) {
+            messageService.endConversation(conversation.get());
+            conversationEnded = true;
+        }
+
+        return conversationEnded;
+    }
+
 
     /**
      * Adds users in a conversation
@@ -78,11 +97,33 @@ public class MessageController {
         List<User> usersToAdd = checkAndRetrieveUsers(usersIds);
 
         if(conversation.isPresent() && usersToAdd.size() == usersIds.size()) {
-            messageService.addUsersInConversation(conversation, usersToAdd);
+            messageService.addUsersInConversation(conversation.get(), usersToAdd);
             usersAdded = true;
         }
 
         return usersAdded;
+    }
+
+    /**
+     * Removes users from a conversation
+     *
+     * @param conversationId    the conversation id
+     * @param usersIds    the ids of the users to remove
+     */
+    @Operation(description = "Removes users from a conversation")
+    @PutMapping(value = "/removeUsersFromConversation")
+    public boolean removeUsersFromConversation(@Parameter(description = "The conversation id") @RequestParam Long conversationId,
+                                               @Parameter(description = "The users to remove from the conversation") @RequestBody List<Long> usersIds) {
+        boolean usersRemoved = false;
+        Optional<EventConversation> conversation = eventConversationRepository.findById(conversationId);
+        List<User> usersToRemove = checkAndRetrieveUsers(usersIds);
+
+        if(conversation.isPresent() && usersToRemove.size() == usersIds.size()) {
+            messageService.removeUsersFromConversation(conversation.get(), usersToRemove);
+            usersRemoved = true;
+        }
+
+        return usersRemoved;
     }
 
     private List<User> checkAndRetrieveUsers(List<Long> usersIds) {
@@ -90,9 +131,7 @@ public class MessageController {
 
         for (Long userInvolvedId : usersIds) {
             Optional<User> user = userRepository.findById(userInvolvedId);
-            if (user.isPresent()) {
-                users.add(user.get());
-            }
+            user.ifPresent(users::add);
         }
         return users;
     }

@@ -23,11 +23,6 @@ public class UserEventConversation {
     @JsonIgnore
     private User user;
 
-    /*@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id")
-    @JsonIgnore
-    private Event event;*/
-
     @Column(name = "user_role_in_conversation")
     private UserRoleInConversation userRoleInConversation;
 

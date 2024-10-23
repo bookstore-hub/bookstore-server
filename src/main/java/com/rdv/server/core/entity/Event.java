@@ -1,6 +1,7 @@
 package com.rdv.server.core.entity;
 
 
+import com.rdv.server.chat.entity.EventConversation;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -65,6 +66,8 @@ public class Event extends DomainObject {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
     private List<UserEventInvitation> invitations = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
+    private List<EventConversation> conversations = new ArrayList<>();
 
 
 
@@ -354,6 +357,24 @@ public class Event extends DomainObject {
      */
     public void setInvitations(List<UserEventInvitation> invitations) {
         this.invitations = invitations;
+    }
+
+    /**
+     * Returns the conversations
+     *
+     * @return Returns the conversations
+     */
+    public List<EventConversation> getConversations() {
+        return conversations;
+    }
+
+    /**
+     * Sets the conversations
+     *
+     * @param conversations The conversations to set
+     */
+    public void setConversations(List<EventConversation> conversations) {
+        this.conversations = conversations;
     }
 
 }

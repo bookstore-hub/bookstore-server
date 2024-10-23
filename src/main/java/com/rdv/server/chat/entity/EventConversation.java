@@ -1,5 +1,6 @@
 package com.rdv.server.chat.entity;
 
+import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.entity.User;
 import jakarta.persistence.*;
 
@@ -20,10 +21,15 @@ public class EventConversation {
     @SequenceGenerator(name = "event_conversation_sequence", sequenceName = "rdv.event_conversation_id_seq", allocationSize = 50)
     private Long id;
 
-    //private Event event;
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 
     @Column(name = "creation_date")
     private OffsetDateTime creationDate;
+
+    @Column(name = "end_date")
+    private OffsetDateTime endDate;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "eventConversation")
     private List<UserEventConversation> usersInvolved = new ArrayList<>();
@@ -52,6 +58,24 @@ public class EventConversation {
     }
 
     /**
+     * Returns the event
+     *
+     * @return Returns the event
+     */
+    public Event getEvent() {
+        return event;
+    }
+
+    /**
+     * Sets the event
+     *
+     * @param event The event to set
+     */
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    /**
      * Returns the creationDate
      *
      * @return Returns the creationDate
@@ -67,6 +91,24 @@ public class EventConversation {
      */
     public void setCreationDate(OffsetDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    /**
+     * Returns the endDate
+     *
+     * @return Returns the endDate
+     */
+    public OffsetDateTime getEndDate() {
+        return endDate;
+    }
+
+    /**
+     * Sets the endDate
+     *
+     * @param endDate The endDate to set
+     */
+    public void setEndDate(OffsetDateTime endDate) {
+        this.endDate = endDate;
     }
 
     /**
@@ -87,14 +129,20 @@ public class EventConversation {
         this.usersInvolved = usersInvolved;
     }
 
+
     public void addUser(UserEventConversation userInConversation) {
         userInConversation.setEventConversation(this);
         getUsersInvolved().add(userInConversation);
     }
 
+    public void removeUser(UserEventConversation userInConversation) {
+        userInConversation.setEventConversation(null);
+        getUsersInvolved().remove(userInConversation);
+    }
+
     public List<User> getOtherParticipants(User user) {
-        return getUsersInvolved().stream().filter(userInConversation -> !userInConversation.getUser().getId().equals(user.getId()))
-                .map(UserEventConversation::getUser).collect(Collectors.toList());
+        return getUsersInvolved().stream().map(UserEventConversation::getUser)
+                .filter(userInConversationUser -> !userInConversationUser.getId().equals(user.getId())).collect(Collectors.toList());
     }
 
     @Override
