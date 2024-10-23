@@ -11,7 +11,6 @@ public enum SubscriptionStatus {
     ASSESSING,
     CONFIRMED,
     VERIFIED,
-    VERIFIED_ANNOUNCER,
     ENDED,
     ENDED_BANISHED,
     TESTER,

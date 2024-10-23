@@ -144,7 +144,7 @@ public class MessageController {
      */
     @Operation(description = "Retrieves all conversations of a user")
     @GetMapping(value = "/retrieveUserConversations")
-    public List<UserTo.ConversationData> retrieveUserConversations(@Parameter(description = "The user id") @RequestBody Long userId) {
+    public List<UserTo.ConversationData> retrieveUserConversations(@Parameter(description = "The user id") @RequestParam Long userId) {
 
         List<UserTo.ConversationData> userConversations = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);

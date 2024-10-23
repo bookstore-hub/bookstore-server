@@ -13,6 +13,7 @@ import java.util.List;
 
 public class EventTo {
 
+
     /** Creation or Update of Data **/
     public record CreationOrUpdate(
         @Parameter (description = "The event title")
@@ -74,6 +75,33 @@ public class EventTo {
                     event.getType(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
                     event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getCategory());
         }
+    }
+
+
+    /** Mapping of new Event **/
+    public static Event mapNewEvent(CreationOrUpdate eventData) {
+        Event event = new Event();
+        event.setCreationDate(OffsetDateTime.now());
+
+        return mapUpdatedEvent(event, eventData);
+    }
+
+    /** Mapping of updated Event **/
+    public static Event mapUpdatedEvent(Event event, CreationOrUpdate eventData) {
+        event.setTitle(eventData.title());
+        event.setStartDate(eventData.startDate());
+        event.setEndDate(eventData.endDate());
+        event.setType(eventData.type());
+        event.setTargetAudience(eventData.targetAudience());
+        event.setSite(eventData.site());
+        event.setDistrict(eventData.district());
+        event.setCost(eventData.cost());
+        event.setPoster(eventData.poster());
+        event.setDetailsLink(eventData.detailsLink());
+        event.setTicketingLink(eventData.ticketingLink());
+        event.setCategory(eventData.category());
+
+        return event;
     }
 
 }

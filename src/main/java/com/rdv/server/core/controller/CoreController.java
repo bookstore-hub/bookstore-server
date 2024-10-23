@@ -1,9 +1,15 @@
 package com.rdv.server.core.controller;
 
+import com.rdv.server.core.entity.Event;
+import com.rdv.server.core.service.CoreService;
+import com.rdv.server.core.to.EventTo;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.*;
+
 
 /**
  * @author davidgarcia
@@ -16,7 +22,26 @@ public class CoreController {
 
     protected static final Log LOGGER = LogFactory.getLog(CoreController.class);
 
-    //addEvent()
+    private final CoreService coreService;
+
+    public CoreController(CoreService coreService) {
+        this.coreService = coreService;
+    }
+
+
+    /**
+     * Adds a new event
+     *
+     * @param eventData    the event data
+     */
+    @Operation(description = "Adds a new event")
+    @PostMapping(value = "/event/addEvent")
+    public Event addEvent(@Parameter(description = "The event data") @RequestBody EventTo.CreationOrUpdate eventData) {
+        Event event = EventTo.mapNewEvent(eventData);
+        return coreService.addEvent(event);
+    }
+
+
     //removeEvent()
     //ownEvent()
     //editEvent()

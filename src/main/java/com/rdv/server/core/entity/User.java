@@ -630,8 +630,7 @@ public class User extends DomainObject {
 
     public boolean isEnabled() {
         return switch (getStatus()) {
-            //Temporary addition of PENDING to handle the currently random behavior of the confirmation email sending.
-            case PENDING, ASSESSING, CONFIRMED, VERIFIED, VERIFIED_ANNOUNCER, TESTER, ADMIN -> true;
+            case ASSESSING, CONFIRMED, VERIFIED, TESTER, ADMIN -> true;
             default -> false;
         };
     }

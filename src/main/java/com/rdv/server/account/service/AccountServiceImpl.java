@@ -6,7 +6,6 @@ import com.rdv.server.core.entity.*;
 import com.rdv.server.account.repository.PasswordResetTokenRepository;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.repository.VerificationTokenRepository;
-import com.rdv.server.core.to.UserTo;
 import com.rdv.server.storage.adapter.AzureBlobAdapter;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -42,79 +41,47 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public User registerUserAccount(final UserTo.Creation userInfo, String languageCode) {
+    public User registerUserAccount(final User user) {
+        LOGGER.info("User registration: Username - {}", user.getUsername());
 
-        LOGGER.info("User registration info: Username - " + userInfo.username());
-
-        User alreadyExistingUser = userRepository.findByEmail(userInfo.email());
-
+        User alreadyExistingUser = userRepository.findByEmail(user.getEmail());
         if(alreadyExistingUser != null) {
             return null;
         } else {
-            final User user = new User();
-
-            user.setUsername(userInfo.username().trim());
-            user.setEmail(userInfo.email().trim());
-            user.setPhoto(userInfo.photo());
-            user.setBirthDate(userInfo.birthDate());
-            user.setAccountCreationDateAndTime(OffsetDateTime.now());
-            user.setPassword(passwordEncoder.encode(userInfo.password()));
-            user.setStatus(SubscriptionStatus.PENDING);
-            user.setPreferredLanguage(Language.valueOf(languageCode));
-            user.setLastModificationDate(OffsetDateTime.now());
-
             return userRepository.save(user);
         }
     }
 
     @Override
-    public User updateUserAccount(User user, UserTo.Update userInfo, String languageCode) {
+    public User updateUserAccount(User user, User userUpdated) {
+        LOGGER.info("User update: Username - {}", user.getUsername());
 
-        LOGGER.info("User update info: First name - " + userInfo.firstName() + ", Last name - " + userInfo.lastName());
+        boolean profilePictureChanged = isProfilePictureChanged(user, userUpdated);
+        boolean shortBioChanged = isShortBioChanged(user, userUpdated);
 
-        boolean profilePictureChanged = isProfilePictureChanged(user, userInfo);
-
-        if(profilePictureChanged){
+        if(profilePictureChanged || shortBioChanged){
             user.setStatus(SubscriptionStatus.ASSESSING);
-            handleChangeOfProfilePicture(user, user.getPhoto(), userInfo.photo());
+            if(profilePictureChanged) {
+                handleChangeOfProfilePicture(user, user.getPhoto(), userUpdated.getPhoto());
+            }
         }
 
-        if(userInfo.firstName() != null) {
-            user.setFirstName(userInfo.firstName().trim());
-        }
-        if(userInfo.lastName() != null) {
-            user.setLastName(userInfo.lastName().trim());
-        }
-        if(userInfo.username() != null) {
-            user.setUsername(userInfo.username().trim());
-        }
-        if(userInfo.email() != null) {
-            user.setEmail(userInfo.email().trim());
-        }
-
-        if(userInfo.gender() != null) {
-            user.setGender(userInfo.gender());
-        }
-        if(userInfo.birthDate() != null) {
-            user.setBirthDate(userInfo.birthDate());
-        }
-        if(userInfo.phoneNr() != null) {
-            user.setPhoneNr(userInfo.phoneNr().trim());
-        }
-        if(userInfo.shortBio() != null) {
-            user.setShortBio(userInfo.shortBio().trim());
-        }
-
-        user.setPreferredLanguage(Language.valueOf(languageCode));
-        user.setLastModificationDate(OffsetDateTime.now());
-
-        return userRepository.save(user);
+        return userRepository.save(userUpdated);
     }
 
-    private boolean isProfilePictureChanged(User user, UserTo.Update userInfo) {
+    private boolean isProfilePictureChanged(User user, User userUpdated) {
         boolean changed = false;
         String currentProfilePicture = user.getPhoto();
-        if(currentProfilePicture != null && !currentProfilePicture.equals(userInfo.photo())) {
+        if(currentProfilePicture != null && !currentProfilePicture.equals(userUpdated.getPhoto())) {
+            changed = true;
+        }
+        return changed;
+    }
+
+    private boolean isShortBioChanged(User user, User userUpdated) {
+        boolean changed = false;
+        String currentShortBio = user.getShortBio();
+        if(currentShortBio != null && !currentShortBio.equals(userUpdated.getShortBio())) {
             changed = true;
         }
         return changed;
@@ -141,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public User deleteUserAccount(final User user) {
+    public void deleteUserAccount(final User user) {
         final VerificationToken verificationToken = tokenRepository.findByUser(user);
         if (verificationToken != null) {
             tokenRepository.delete(verificationToken);
@@ -154,7 +121,8 @@ public class AccountServiceImpl implements AccountService {
 
         user.setStatus(SubscriptionStatus.ENDED);
         user.setMessagingToken(null);
-        return userRepository.save(user);
+        user.setLastModificationDate(OffsetDateTime.now());
+        userRepository.save(user);
     }
 
     @Override
@@ -196,16 +164,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean resetUserPassword(User user, final String password, String token) {
+    public void resetUserPassword(User user, final String password, String token) {
         user.setPassword(passwordEncoder.encode(password));
         user.setLastModificationDate(OffsetDateTime.now());
-        user = userRepository.save(user);
-        if(user != null) {
-            PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(token);
-            passwordTokenRepository.delete(passwordResetToken);
-            return true;
-        }
-        return false;
+        userRepository.save(user);
+        PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(token);
+        passwordTokenRepository.delete(passwordResetToken);
     }
 
     @Override

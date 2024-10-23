@@ -3,10 +3,10 @@ package com.rdv.server.account.controller;
 
 import com.rdv.server.account.event.OnAccountRegistrationCompleteEvent;
 import com.rdv.server.account.service.AccountService;
-import com.rdv.server.account.to.GenericResponse;
 import com.rdv.server.account.to.PasswordTo;
 import com.rdv.server.account.to.TokenStatus;
 import com.rdv.server.authentication.service.AuthenticationService;
+import com.rdv.server.core.entity.Language;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.core.entity.VerificationToken;
 import com.rdv.server.core.repository.UserRepository;
@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,6 +81,7 @@ public class AccountController {
     private final static String INVALID_OLD_PASSWORD = "invalidOldPassword";
 
     private final AccountService accountService;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final SendGridService sendgridService;
@@ -88,10 +89,11 @@ public class AccountController {
     private final MessageSource messageSource;
     private final String domain;
 
-    public AccountController(AccountService accountService, UserRepository userRepository, ApplicationEventPublisher eventPublisher,
+    public AccountController(AccountService accountService, BCryptPasswordEncoder passwordEncoder, UserRepository userRepository, ApplicationEventPublisher eventPublisher,
                              SendGridService sendgridService, AuthenticationService authenticationService, MessageSource messageSource,
                              @Value("${azure.backend.domain}") String domain) {
         this.accountService = accountService;
+        this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
         this.sendgridService = sendgridService;
@@ -105,21 +107,20 @@ public class AccountController {
      * Registers a new user
      *
      * @param userInfo the user info
-     * @param languageCode the language code
      */
     @Operation(description = "Registers a new user")
-    @PostMapping("/user/registration")
+    @PostMapping("/user/registerAccount")
     @ResponseBody
-    public GenericResponse.GenericResponseData registerUserAccount(@Parameter (description = "The user info") @Valid @RequestBody UserTo.Creation userInfo,
-                                                                   @Parameter(description = "The user language") @RequestParam String languageCode) {
+    public boolean registerUserAccount(@Parameter (description = "The user info") @Valid @RequestBody UserTo.Creation userInfo) {
         LOGGER.debug("Registering user account with information: {}", userInfo);
 
-        User registered = accountService.registerUserAccount(userInfo, languageCode);
-        if(registered != null) {
-            eventPublisher.publishEvent(new OnAccountRegistrationCompleteEvent(registered, languageCode));
-            return new GenericResponse.GenericResponseData(true, SUCCESS);
+        User newUser = UserTo.mapNewUser(userInfo, passwordEncoder.encode(userInfo.password()));
+        User newUserSaved = accountService.registerUserAccount(newUser);
+        if(newUserSaved != null) {
+            eventPublisher.publishEvent(new OnAccountRegistrationCompleteEvent(newUserSaved, newUserSaved.getPreferredLanguage().name()));
+            return true;
         } else {
-            return new GenericResponse.GenericResponseData(false, FAILURE);
+            return false;
         }
     }
 
@@ -129,27 +130,27 @@ public class AccountController {
      * @param userId the user id
      * @param userInfo the user info
      */
-    @Operation(description = "Updates a user account. ***Note about the user password: The update is done using the call /user/changePassword.***")
+    @Operation(description = "Updates a user account. " +
+            "***Note about the user password: The update is done using the call /user/changePassword.***")
     @PutMapping(value = "/user/updateAccount")
     @ResponseBody
-    private GenericResponse.GenericResponseData updateAccount(@Parameter(description = "The user id") @RequestParam Long userId,
-                                          @Parameter (description = "The user profile info") @Valid @RequestBody UserTo.Update userInfo,
-                                          @Parameter(description = "The user language") @RequestParam String languageCode) {
+    private boolean updateAccount(@Parameter(description = "The user id") @RequestParam Long userId,
+                                  @Parameter (description = "The user profile info") @Valid @RequestBody UserTo.Update userInfo) {
 
+        boolean updated = false;
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            User updated = accountService.updateUserAccount(user.get(), userInfo, languageCode);
-            if(updated != null) {
-                return new GenericResponse.GenericResponseData(true, SUCCESS);
-            } else {
-                return new GenericResponse.GenericResponseData(false, FAILURE);
+            User userUpdated = UserTo.mapUpdatedUser(user.get(), userInfo);
+            User updatedUserSaved = accountService.updateUserAccount(user.get(), userUpdated);
+            if(updatedUserSaved != null) {
+                updated = true;
             }
-        } else {
-            return new GenericResponse.GenericResponseData(false, FAILURE);
         }
 
+        return updated;
     }
+
 
     /**
      * Updates the Firebase messaging token of a user
@@ -160,17 +161,17 @@ public class AccountController {
     @Operation(description = "Updates the Firebase messaging token of a user.")
     @PutMapping(value = "/user/updateMessagingToken")
     @ResponseBody
-    private GenericResponse.GenericResponseData updateMessagingToken(@Parameter(description = "The user id") @RequestParam Long userId,
-                                                 @Parameter(description = "The user messaging token") @RequestParam String userMessagingToken) {
+    private boolean updateMessagingToken(@Parameter(description = "The user id") @RequestParam Long userId,
+                                         @Parameter(description = "The user messaging token") @RequestParam String userMessagingToken) {
 
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
             user.get().setMessagingToken(userMessagingToken);
             userRepository.save(user.get());
-            return new GenericResponse.GenericResponseData(true, SUCCESS);
+            return true;
         } else {
-            return new GenericResponse.GenericResponseData(false, FAILURE);
+            return false;
         }
 
     }
@@ -183,16 +184,16 @@ public class AccountController {
     @Operation(description = "Removes a messaging token assigned to a user")
     @PutMapping(value = "/user/logOutMessagingToken")
     @ResponseBody
-    private GenericResponse.GenericResponseData logOutMessagingToken(@Parameter(description = "The user id") @RequestParam Long userId) {
+    private boolean logOutMessagingToken(@Parameter(description = "The user id") @RequestParam Long userId) {
 
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
             user.get().setMessagingToken(null);
             userRepository.save(user.get());
-            return new GenericResponse.GenericResponseData(true, SUCCESS);
+            return true;
         } else {
-            return new GenericResponse.GenericResponseData(false, FAILURE);
+            return false;
         }
 
     }
@@ -202,27 +203,25 @@ public class AccountController {
      * Updates the preferred language of a user
      *
      * @param userId the user id
-     * @param languageCode the language code
+     * @param language the language code
      */
     @Operation(description = "Updates the preferred language of a user")
     @PutMapping(value = "/user/updateLanguage")
     @ResponseBody
-    private GenericResponse.GenericResponseData updateLanguage(@Parameter(description = "The user id") @RequestParam Long userId,
-                                           @Parameter(description = "The user language") @RequestParam String languageCode) {
+    private boolean updateLanguage(@Parameter(description = "The user id") @RequestParam Long userId,
+                                   @Parameter(description = "The user language") @RequestParam Language language) {
 
+        boolean updated = false;
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            User updatedLanguage = accountService.updateUserLanguage(user.get(), languageCode);
+            User updatedLanguage = accountService.updateUserLanguage(user.get(), language.name());
             if(updatedLanguage != null) {
-                return new GenericResponse.GenericResponseData(true, SUCCESS);
-            } else {
-                return new GenericResponse.GenericResponseData(false, FAILURE);
+                updated = true;
             }
-        } else {
-            return new GenericResponse.GenericResponseData(false, FAILURE);
         }
 
+        return updated;
     }
 
     /**
@@ -233,40 +232,34 @@ public class AccountController {
     @Operation(description = "Deletes a user account")
     @PutMapping(value = "/user/deleteAccount")
     @ResponseBody
-    private GenericResponse.GenericResponseData deleteAccount(@Parameter(description = "The user id") @RequestParam Long userId) {
+    private void deleteAccount(@Parameter(description = "The user id") @RequestParam Long userId) {
 
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            user.get().setLastModificationDate(OffsetDateTime.now());
             accountService.deleteUserAccount(user.get());
 
-            LOGGER.info("Sending account closure email to user " + user.get().getId());
+            LOGGER.info("Sending account closure email to user {}", user.get().getUsername());
             Locale locale = LocaleUtils.toLocale(user.get().getPreferredLanguage().name());
             Response response = sendgridService.sendMessage(user.get().getEmail(), MessageType.CLOSING_ACCOUNT, locale, user.get().getFirstName(), null, null);
-            if(response != null) {
-                LOGGER.info("Account closure email sent");
-                return new GenericResponse.GenericResponseData(true, SUCCESS);
-            } else {
-                LOGGER.info("Account closure email could not be sent");
-                return new GenericResponse.GenericResponseData(false, FAILURE);
+            if(response == null) {
+                LOGGER.info("Account closure email could not be sent to user {}", user.get().getUsername());
             }
-        } else {
-            return new GenericResponse.GenericResponseData(false, FAILURE);
         }
 
     }
 
     /**
-     * Resends a registration tokan
+     * Resends a registration token
      *
      * @param userId the user id
      */
     @Operation(description = "Resends a registration token")
     @GetMapping("/user/resendRegistrationToken")
     @ResponseBody
-    public GenericResponse.GenericResponseData resendRegistrationToken(@Parameter(description = "The user id") @RequestParam Long userId) {
+    public boolean resendRegistrationToken(@Parameter(description = "The user id") @RequestParam Long userId) {
 
+        boolean resent = false;
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
@@ -276,46 +269,47 @@ public class AccountController {
             Locale locale = LocaleUtils.toLocale(user.get().getPreferredLanguage().name());
             String confirmationUrl = domain + REGISTRATION_CONFIRMATION_CALL + "/" + user.get().getPreferredLanguage().name() + "/" + newToken;
 
-            LOGGER.info("Sending a message of type REGISTRATION to email addresses " + user.get().getEmail());
+            LOGGER.info("Sending a message of type REGISTRATION to email address {}", user.get().getEmail());
             Response response = sendgridService.sendMessage(user.get().getEmail(), MessageType.SUBSCRIPTION, locale, user.get().getFirstName(), confirmationUrl, null);
             if(response.getStatusCode() == 200) {
-                LOGGER.info("Registration email sent.");
-                return new GenericResponse.GenericResponseData(true, SUCCESS);
+                LOGGER.info("Registration email sent to user {}", user.get().getUsername());
+                resent = true;
             } else {
-                LOGGER.info("Registration email not sent.");
-                return new GenericResponse.GenericResponseData(false, FAILURE);
+                LOGGER.info("Registration email not resent to user {}", user.get().getUsername());
             }
-        } else {
-            LOGGER.info("Registration email not sent.");
-            return new GenericResponse.GenericResponseData(false, FAILURE);
         }
+
+        return resent;
     }
 
     @Operation(description = "Changes the password of a user from the user account informations")
     @PutMapping("/user/changePassword")
     @ResponseBody
-    public GenericResponse.GenericResponseData changePassword(@Parameter(description = "The user id") @RequestParam Long userId,
-                                          @Parameter(description = "The password data") @Valid @RequestBody PasswordTo.PasswordChangeData passwordInfo) {
+    public boolean changePassword(@Parameter(description = "The user id") @RequestParam Long userId,
+                                  @Parameter(description = "The password info") @Valid @RequestBody PasswordTo.ChangeData passwordInfo) {
 
+        boolean changed = false;
         Optional<User> user = userRepository.findById(userId);
         if(user.isPresent()) {
             boolean authenticate = authenticationService.authenticate(user.get().getEmail(), passwordInfo.oldPassword());
             if (authenticate) {
                 accountService.changeUserPassword(user.get(), passwordInfo.newPassword());
-                return new GenericResponse.GenericResponseData(true, SUCCESS);
-            } else {
-                return new GenericResponse.GenericResponseData(false, INVALID_OLD_PASSWORD);
+                changed = true;
             }
-        } else {
-            return new GenericResponse.GenericResponseData(false, USER_NOT_FOUND);
         }
+
+        return changed;
     }
 
-    @Operation(description = "Resets the user password, when a user has forgotten his password and asks for a new one. An email will be then sent to the user with a link allowing him to enter a new password.")
+    @Operation(description = "Resets the user password, when a user has forgotten his password and asks for a new one. " +
+            "An email will be then sent to the user with a link allowing him to enter a new password.")
     @PostMapping("/user/resetPassword")
     @ResponseBody
-    public GenericResponse.GenericResponseData resetPassword(@Parameter(description = "The user email") @RequestParam  String userEmail) {
+    public boolean resetPassword(@Parameter(description = "The user email") @RequestParam  String userEmail) {
+
+        boolean reset = false;
         Optional<User> user = Optional.ofNullable(userRepository.findByEmail(userEmail));
+
         if (user.isPresent()) {
              String token = UUID.randomUUID().toString();
             accountService.createPasswordResetTokenForUser(user.get(), token);
@@ -323,23 +317,23 @@ public class AccountController {
             Locale locale = LocaleUtils.toLocale(user.get().getPreferredLanguage().name());
             String resetPasswordUrl = domain + PASSWORD_RESET_CALL + "/" + user.get().getPreferredLanguage().name() + "/" + token;
 
-            LOGGER.info("Sending a message of type PASSWORD_RESET to email addresses " + user.get().getEmail());
+            LOGGER.info("Sending a message of type PASSWORD_RESET to email addresses {}", user.get().getEmail());
             Response response = sendgridService.sendMessage(user.get().getEmail(), MessageType.PASSWORD_RESET, locale, user.get().getFirstName(), resetPasswordUrl, null);
             if(response.getStatusCode() == 202) {
-                LOGGER.info("Password reset email sent.");
-                return new GenericResponse.GenericResponseData(true, SUCCESS);
+                LOGGER.info("Password reset email sent to user {}", user.get().getUsername());
+                reset = true;
             } else {
-                LOGGER.info("Password reset email not sent.");
-                return new GenericResponse.GenericResponseData(false, FAILURE);
+                LOGGER.info("Password reset email not sent to user {}", user.get().getUsername());
             }
-        } else {
-            LOGGER.info("Password reset email not sent.");
-            return new GenericResponse.GenericResponseData(false, FAILURE);
         }
+
+        return reset;
 
     }
 
-    @Operation(description = "Checks if the user's reset password token is valid or not. This happens when the user clicks on the reset password url received by email. In case of invalidity of the token, the user won't be able to access the reset password screen.")
+    @Operation(description = "Checks if the user's reset password token is valid or not. " +
+            "This happens when the user clicks on the reset password url received by email. In case of invalidity of the token, " +
+            "the user won't be able to access the reset password screen.")
     @GetMapping("/user/checkResetPasswordToken")
     @ResponseBody
     public boolean checkResetPasswordToken(@Parameter(description = "The user token") @RequestParam("token") String token) {
@@ -350,16 +344,16 @@ public class AccountController {
     /**
      * Confirms a user registration
      *
-     * @param languageCode the user language
+     * @param language the user language
      * @param token the user token
      */
     @Operation(description = "Confirms a user registration")
     @GetMapping("/user/registrationConfirm/{language}/{token}")
-    public String confirmRegistration(@Parameter (description = "The user language code") @PathVariable("language") String languageCode,
+    public String confirmRegistration(@Parameter (description = "The user language code") @PathVariable("language") Language language,
                                       @Parameter (description = "The user token") @PathVariable("token") String token,
                                       @Parameter (description = "The model associated") Model model) {
 
-        Locale locale = LocaleUtils.toLocale(languageCode);
+        Locale locale = LocaleUtils.toLocale(language.name());
         TokenStatus status = accountService.validateVerificationToken(token);
 
         if(TokenStatus.TOKEN_VALID.equals(status)) {
@@ -375,7 +369,7 @@ public class AccountController {
     }
 
     @Operation(description = "Allows entering a new password")
-    @GetMapping("/user/enterNewPassword/{language}/{token}")
+    @GetMapping("/user/newPassword/{token}")
     public String enterNewPassword(@Parameter (description = "The password reset token") @PathVariable("token") String token,
                                    @Parameter (description = "The model associated") Model model) {
 
@@ -403,17 +397,19 @@ public class AccountController {
         }
     }
 
-    @Operation(description = "Saves the new password entered by the user following his reset password request, his click on the url received by email and, if the token is valid, his filling of a new password from the reset password screen.")
+    @Operation(description = "Saves the new password entered by the user following his reset password request, " +
+            "his click on the url received by email and, if the token is valid, his filling of a new password from the reset password screen.")
     @PostMapping("/user/saveNewPassword")
     @ResponseBody
-    public boolean saveNewPassword(@Parameter(description = "The password data") @Valid @RequestBody PasswordTo.PasswordResetData passwordResetData) {
+    public boolean saveNewPassword(@Parameter(description = "The password data") @Valid @RequestBody PasswordTo.ResetData passwordResetData) {
 
         boolean passwordChanged = false;
         String result = accountService.validatePasswordResetToken(passwordResetData.token());
         User user = accountService.getUserByPasswordResetToken(passwordResetData.token());
 
         if(result == null && user != null && passwordResetData.password().equals(passwordResetData.confirmPassword())) {
-            passwordChanged = accountService.resetUserPassword(user, passwordResetData.password(), passwordResetData.token());
+            accountService.resetUserPassword(user, passwordResetData.password(), passwordResetData.token());
+            passwordChanged = true;
         }
 
         return passwordChanged;

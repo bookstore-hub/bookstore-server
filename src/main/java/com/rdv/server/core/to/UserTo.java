@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +32,10 @@ public class UserTo {
         @Size(max = 50)
         @NotNull
         String password,
+        @Parameter (description = "The user preferred language")
+        @Size(max = 5)
+        @NotNull
+        Language preferredLanguage,
         String messagingToken
     ) {}
 
@@ -41,11 +46,9 @@ public class UserTo {
         String firstName,
         @Parameter (description = "The user last name / The organization name")
         @Size(max = 30)
-        @NotNull
         String lastName,
         @Parameter (description = "The username")
         @Size(max = 30)
-        @NotNull
         String username,
         @Parameter (description = "The user photo")
         @Size(max = 150)
@@ -57,8 +60,13 @@ public class UserTo {
         LocalDate birthDate,
         @Parameter (description = "The user email")
         @Size(max = 50)
-        @NotNull
         String email,
+        @Parameter (description = "The user password")
+        @Size(max = 50)
+        String password,
+        @Parameter (description = "The user preferred language")
+        @Size(max = 5)
+        Language preferredLanguage,
         @Parameter (description = "The user phone number")
         @Size(max = 20)
         String phoneNr,
@@ -123,6 +131,44 @@ public class UserTo {
                     .stream().map(MinimalData::new).toList();
         }
 
+    }
+
+    /** Mapping of new User **/
+    public static User mapNewUser(UserTo.Creation userData, String passwordEncoded) {
+        User user = new User();
+        user.setUsername(userData.username().trim());
+        user.setPhoto(userData.photo());
+        user.setBirthDate(userData.birthDate());
+        user.setEmail(userData.email());
+        user.setPassword(passwordEncoded);
+        user.setPreferredLanguage(userData.preferredLanguage());
+        user.setMessagingToken(userData.messagingToken());
+        user.setAccountCreationDateAndTime(OffsetDateTime.now());
+        user.setLastModificationDate(OffsetDateTime.now());
+        user.setStatus(SubscriptionStatus.PENDING);
+
+        return user;
+    }
+
+    /** Mapping of updated User **/
+    public static User mapUpdatedUser(User user, UserTo.Update userData) {
+        user.setUsername(userData.username());
+        user.setPhoto(userData.photo());
+        user.setBirthDate(userData.birthDate());
+        user.setEmail(userData.email());
+        user.setPreferredLanguage(userData.preferredLanguage());
+        user.setFirstName(userData.firstName());
+        user.setLastName(userData.lastName());
+        user.setGender(userData.gender());
+        user.setPhoneNr(userData.phoneNr());
+        user.setShortBio(userData.shortBio());
+        user.setSelectedLocation(1); //MTL only for now
+        user.setVisibilityEmail(userData.visibilityEmail());
+        user.setVisibilityPhoneNr(userData.visibilityPhoneNr());
+        user.setVisibilityBirthDate(userData.visibilityBirthDate());
+        user.setLastModificationDate(OffsetDateTime.now());
+
+        return user;
     }
 
 }
