@@ -36,9 +36,9 @@ public class CoreController {
      */
     @Operation(description = "Adds a new event")
     @PostMapping(value = "/event/addEvent")
-    public Event addEvent(@Parameter(description = "The event data") @RequestBody EventTo.CreationOrUpdate eventData) {
-        Event event = EventTo.mapNewEvent(eventData);
-        return coreService.addEvent(event);
+    public boolean addEvent(@Parameter(description = "The event data") @RequestBody EventTo.CreationOrUpdate eventData) {
+        Event newEvent = EventTo.mapNewEvent(eventData);
+        return coreService.addEvent(newEvent) != null;
     }
 
 

@@ -75,11 +75,6 @@ public class AccountController {
     private static final String INVALID_TOKEN_TEXT_TAG = "invalidToken";
     private static final String UNAUTHORIZED_ACCESS = "access.unauthorized";
 
-    private final static String SUCCESS = "success";
-    private final static String FAILURE = "failure";
-    private final static String USER_NOT_FOUND = "userNotFound";
-    private final static String INVALID_OLD_PASSWORD = "invalidOldPassword";
-
     private final AccountService accountService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;

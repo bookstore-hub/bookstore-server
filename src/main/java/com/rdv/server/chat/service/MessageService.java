@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface MessageService {
 
-    Long createConversation(EventConversation conversation, List<User> usersInvolved);
+    EventConversation createConversation(List<User> usersInvolved);
 
     void endConversation(EventConversation conversation);
 
@@ -26,7 +26,7 @@ public interface MessageService {
 
     ChatMessage saveChatMessage(ChatMessageTo.ChatMessageCreation messagedata, EventConversation assistance, User user);
 
-    List<ChatMessageTo.ChatMessageData> getLatestChatMessages(Long conversationId);
+    List<ChatMessage> getLatestChatMessages(Long conversationId);
 
     List<ChatMessage> getAllReceivedChatMessages(Long userId);
 

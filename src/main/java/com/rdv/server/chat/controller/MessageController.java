@@ -50,16 +50,15 @@ public class MessageController {
      */
     @Operation(description = "Creates a new conversation")
     @PostMapping(value = "/createConversation")
-    public Long createConversation(@Parameter(description = "The users involved in the conversation") @RequestBody List<Long> usersIds) {
-        Long conversationId = null;
-        EventConversation conversation = new EventConversation();
+    public boolean createConversation(@Parameter(description = "The users involved in the conversation") @RequestBody List<Long> usersIds) {
         List<User> usersInvolved = checkAndRetrieveUsers(usersIds);
 
         if(usersInvolved.size() == usersIds.size()) {
-            conversationId = messageService.createConversation(conversation, usersInvolved);
+            return messageService.createConversation(usersInvolved) != null;
+        } else {
+            return false;
         }
 
-        return conversationId;
     }
 
     /**
@@ -219,7 +218,13 @@ public class MessageController {
             savedMessage = messageService.saveChatMessage(messageData, conversation.get(), user.get());
         }
 
-        return savedMessage != null ? messageService.getLatestChatMessages(savedMessage.getConversationId()) : null;
+        if(savedMessage != null) {
+            List<ChatMessage> latestMessages = messageService.getLatestChatMessages(savedMessage.getConversationId());
+            return latestMessages.stream().map(ChatMessageTo.ChatMessageData::new).toList();
+        } else {
+            return null;
+        }
+
     }
 
 
@@ -232,7 +237,8 @@ public class MessageController {
     @GetMapping(value = "/chatMessages")
     public List<ChatMessageTo.ChatMessageData> getChatMessages(@Parameter(description = "The conversation id") @RequestParam Long conversationId) {
         LOGGER.info("Retrieving messages for chat having conversation id : " + conversationId);
-        return messageService.getLatestChatMessages(conversationId);
+        List<ChatMessage> latestMessages = messageService.getLatestChatMessages(conversationId);
+        return latestMessages != null ? latestMessages.stream().map(ChatMessageTo.ChatMessageData::new).toList() : null;
     }
 
 

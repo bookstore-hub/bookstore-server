@@ -1,5 +1,6 @@
 package com.rdv.server.core.to;
 
+import com.rdv.server.chat.entity.EventConversation;
 import com.rdv.server.chat.entity.UserEventConversation;
 import com.rdv.server.core.entity.*;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -92,6 +93,12 @@ public class UserTo {
         public MinimalData(User user) {
             this(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getPhoto());
         }
+
+        public MinimalData(UserEventConversation userEventConversation) {
+            this(userEventConversation.getUser().getId(), userEventConversation.getUser().getFirstName(), userEventConversation.getUser().getLastName(),
+                    userEventConversation.getUser().getUsername(), userEventConversation.getUser().getPhoto());
+        }
+
     }
 
     /** Full Data **/
@@ -119,11 +126,13 @@ public class UserTo {
     }
 
     /** Conversation Data **/
-    public record ConversationData(Long conversationId, MinimalData user, List<MinimalData> otherUsersInvolved, Date dateAndTimeOfLastUpdate) {
+    public record ConversationData(Long conversationId, MinimalData user, List<MinimalData> otherUsersInvolved, Date dateAndTimeOfLastUpdate,
+                                   Long eventId, String eventTitle) {
 
         public ConversationData(UserEventConversation userEventConversation, Date dateAndTimeOfLastUpdate) {
             this(userEventConversation.getEventConversation().getId(), new MinimalData(userEventConversation.getUser()),
-                    determineOtherUsersInvolved(userEventConversation), dateAndTimeOfLastUpdate);
+                    determineOtherUsersInvolved(userEventConversation), dateAndTimeOfLastUpdate,
+                    userEventConversation.getEventConversation().getEvent().getId(), userEventConversation.getEventConversation().getEvent().getTitle());
         }
 
         private static List<MinimalData> determineOtherUsersInvolved(UserEventConversation userEventConversation) {

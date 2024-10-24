@@ -55,14 +55,13 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public Long createConversation(EventConversation conversation, List<User> usersInvolved) {
-        Long conversationId;
+    public EventConversation createConversation(List<User> usersInvolved) {
+        EventConversation conversation = new EventConversation();
         for(User userInvolved : usersInvolved) {
             UserEventConversation userInConversation = new UserEventConversation(userInvolved, false);
             conversation.addUser(userInConversation);
         }
-        conversationId = eventConversationRepository.save(conversation).getId();
-        return conversationId;
+        return eventConversationRepository.save(conversation);
     }
 
     @Override
@@ -105,9 +104,8 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public List<ChatMessageTo.ChatMessageData> getLatestChatMessages(Long conversationId) {
-        List<ChatMessage> latestMessages = chatMessageRepository.findMessagesByConversationId(conversationId, PageRequest.of(0, 5, Sort.Direction.DESC, "creationDate"));
-        return latestMessages != null ? latestMessages.stream().map(ChatMessageTo.ChatMessageData::new).collect(Collectors.toList()) : null;
+    public List<ChatMessage> getLatestChatMessages(Long conversationId) {
+        return chatMessageRepository.findMessagesByConversationId(conversationId, PageRequest.of(0, 5, Sort.Direction.DESC, "creationDate"));
     }
 
     @Override
