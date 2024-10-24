@@ -5,8 +5,10 @@ import com.rdv.server.chat.entity.EventConversation;
 import com.rdv.server.chat.entity.UserEventConversation;
 import com.rdv.server.chat.service.MessageService;
 import com.rdv.server.chat.to.ChatMessageTo;
+import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.chat.repository.EventConversationRepository;
+import com.rdv.server.core.repository.EventRepository;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.to.UserTo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,11 +36,13 @@ public class MessageController {
 
     private final MessageService messageService;
     private final UserRepository userRepository;
+    private final EventRepository eventRepository;
     private final EventConversationRepository eventConversationRepository;
 
-    public MessageController(MessageService messageService, UserRepository userRepository, EventConversationRepository eventConversationRepository) {
+    public MessageController(MessageService messageService, UserRepository userRepository, EventRepository eventRepository, EventConversationRepository eventConversationRepository) {
         this.messageService = messageService;
         this.userRepository = userRepository;
+        this.eventRepository = eventRepository;
         this.eventConversationRepository = eventConversationRepository;
     }
 
@@ -46,15 +50,18 @@ public class MessageController {
     /**
      * Creates a new conversation
      *
-     * @param usersIds    the ids of the users involved
+     * @param userId          the id of the user creating the conversation
+     * @param eventId        the id of the event associated to the conversation
      */
     @Operation(description = "Creates a new conversation")
     @PostMapping(value = "/createConversation")
-    public boolean createConversation(@Parameter(description = "The users involved in the conversation") @RequestBody List<Long> usersIds) {
-        List<User> usersInvolved = checkAndRetrieveUsers(usersIds);
+    public boolean createConversation(@Parameter(description = "The user creating the conversation") @RequestParam Long userId,
+                                      @Parameter(description = "The event associated to the conversation") @RequestParam Long eventId) {
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
 
-        if(usersInvolved.size() == usersIds.size()) {
-            return messageService.createConversation(usersInvolved).getId() != null;
+        if(user.isPresent() && event.isPresent()) {
+            return messageService.createConversation(user.get(), event.get()).getId() != null;
         } else {
             return false;
         }
@@ -80,27 +87,26 @@ public class MessageController {
         return conversationEnded;
     }
 
-
     /**
-     * Adds users in a conversation
+     * Adds a user to a conversation
      *
+     * @param userId   the id of the user to add
      * @param conversationId    the conversation id
-     * @param usersIds    the ids of the users to add
      */
-    @Operation(description = "Adds users in a conversation")
-    @PutMapping(value = "/addUsersInConversation")
-    public boolean addUsersInConversation(@Parameter(description = "The conversation id") @RequestParam Long conversationId,
-                                          @Parameter(description = "The users to add in the conversation") @RequestBody List<Long> usersIds) {
-        boolean usersAdded = false;
+    @Operation(description = "Adds a user to a conversation")
+    @PutMapping(value = "/addUserToConversation")
+    public boolean addUserToConversation(@Parameter(description = "The user to add") @RequestBody Long userId,
+                                         @Parameter(description = "The conversation id") @RequestParam Long conversationId) {
+        boolean userAdded = false;
+        Optional<User> user = userRepository.findById(userId);
         Optional<EventConversation> conversation = eventConversationRepository.findById(conversationId);
-        List<User> usersToAdd = checkAndRetrieveUsers(usersIds);
 
-        if(conversation.isPresent() && usersToAdd.size() == usersIds.size()) {
-            messageService.addUsersInConversation(conversation.get(), usersToAdd);
-            usersAdded = true;
+        if(user.isPresent() && conversation.isPresent()) {
+            messageService.addUserToConversation(user.get(), conversation.get());
+            userAdded = true;
         }
 
-        return usersAdded;
+        return userAdded;
     }
 
     /**
@@ -115,9 +121,9 @@ public class MessageController {
                                                @Parameter(description = "The users to remove from the conversation") @RequestBody List<Long> usersIds) {
         boolean usersRemoved = false;
         Optional<EventConversation> conversation = eventConversationRepository.findById(conversationId);
-        List<User> usersToRemove = checkAndRetrieveUsers(usersIds);
+        List<User> usersToRemove = retrieveUsers(usersIds);
 
-        if(conversation.isPresent() && usersToRemove.size() == usersIds.size()) {
+        if(conversation.isPresent() && !usersToRemove.isEmpty()) {
             messageService.removeUsersFromConversation(conversation.get(), usersToRemove);
             usersRemoved = true;
         }
@@ -125,11 +131,10 @@ public class MessageController {
         return usersRemoved;
     }
 
-    private List<User> checkAndRetrieveUsers(List<Long> usersIds) {
+    private List<User> retrieveUsers(List<Long> usersIds) {
         List<User> users = new ArrayList<>();
-
-        for (Long userInvolvedId : usersIds) {
-            Optional<User> user = userRepository.findById(userInvolvedId);
+        for (Long userId : usersIds) {
+            Optional<User> user = userRepository.findById(userId);
             user.ifPresent(users::add);
         }
         return users;

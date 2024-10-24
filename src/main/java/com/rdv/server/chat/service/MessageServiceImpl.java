@@ -2,9 +2,11 @@ package com.rdv.server.chat.service;
 
 
 import com.rdv.server.chat.entity.ChatMessage;
+import com.rdv.server.chat.entity.UserRoleInConversation;
 import com.rdv.server.chat.repository.ChatMessageRepository;
 import com.rdv.server.chat.repository.EventConversationRepository;
 import com.rdv.server.chat.repository.UserEventConversationRepository;
+import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.to.UserTo;
 import com.rdv.server.notification.service.FirebaseMessagingService;
@@ -55,12 +57,14 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public EventConversation createConversation(List<User> usersInvolved) {
+    public EventConversation createConversation(User userCreatingConversation, Event event) {
         EventConversation conversation = new EventConversation();
-        for(User userInvolved : usersInvolved) {
-            UserEventConversation userInConversation = new UserEventConversation(userInvolved, false);
-            conversation.addUser(userInConversation);
-        }
+        conversation.setEvent(event);
+
+        UserEventConversation userInConversation = new UserEventConversation(userCreatingConversation, false);
+        userInConversation.setUserRoleInConversation(UserRoleInConversation.MODERATOR);
+        conversation.addUser(userInConversation);
+
         return eventConversationRepository.save(conversation);
     }
 
@@ -71,11 +75,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void addUsersInConversation(EventConversation conversation, List<User> usersToAdd) {
-        for(User userToAdd : usersToAdd) {
-            UserEventConversation userInConversation = new UserEventConversation(userToAdd, false);
-            conversation.addUser(userInConversation);
-        }
+    public void addUserToConversation(User userToAdd, EventConversation conversation) {
+        UserEventConversation userInConversation = new UserEventConversation(userToAdd, false);
+        userInConversation.setUserRoleInConversation(UserRoleInConversation.REGULAR);
+        conversation.addUser(userInConversation);
+
         eventConversationRepository.save(conversation);
     }
 

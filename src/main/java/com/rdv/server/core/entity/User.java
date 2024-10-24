@@ -5,10 +5,7 @@ import com.rdv.server.chat.entity.UserEventConversation;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author davidgarcia
@@ -74,16 +71,10 @@ public class User extends DomainObject {
     private Set<UserFriend> friends = new HashSet<>();
 
     @OneToMany
-    @JoinTable(name = "user_event_interested",
+    @JoinTable(name = "user_event_interest",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private List<Event> eventInterests = new ArrayList<>();
-
-    @OneToMany
-    @JoinTable(name = "user_event_created",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id"))
-    private List<Event> eventCreations = new ArrayList<>();
 
     @OneToMany
     @JoinTable(name = "user_follower",
@@ -108,6 +99,9 @@ public class User extends DomainObject {
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility_birth_date", length = 30)
     private FieldVisibility visibilityBirthDate;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
+    private List<UserEventOwner> ownedEvents = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "userInvited")
     private List<UserEventInvitation> eventInvitationsReceived = new ArrayList<>();
@@ -457,24 +451,6 @@ public class User extends DomainObject {
     }
 
     /**
-     * Returns the eventCreations
-     *
-     * @return Returns the eventCreations
-     */
-    public List<Event> getEventCreations() {
-        return eventCreations;
-    }
-
-    /**
-     * Sets the eventCreations
-     *
-     * @param eventCreations The eventCreations to set
-     */
-    public void setEventCreations(List<Event> eventCreations) {
-        this.eventCreations = eventCreations;
-    }
-
-    /**
      * Returns the followers
      *
      * @return Returns the followers
@@ -574,6 +550,24 @@ public class User extends DomainObject {
     }
 
     /**
+     * Returns the ownedEvents
+     *
+     * @return Returns the ownedEvents
+     */
+    public List<UserEventOwner> getOwnedEvents() {
+        return ownedEvents;
+    }
+
+    /**
+     * Sets the ownedEvents
+     *
+     * @param ownedEvents The ownedEvents to set
+     */
+    public void setOwnedEvents(List<UserEventOwner> ownedEvents) {
+        this.ownedEvents = ownedEvents;
+    }
+
+    /**
      * Sets the eventInvitationsReceived
      *
      * @param eventInvitationsReceived The eventInvitationsReceived to set
@@ -633,6 +627,16 @@ public class User extends DomainObject {
             case ASSESSING, CONFIRMED, VERIFIED, TESTER, ADMIN -> true;
             default -> false;
         };
+    }
+
+    public Optional<UserEventOwner> retrieveOwnedEvent(Event event) {
+        return ownedEvents.stream()
+                .filter(ownedEvent -> ownedEvent.getEvent().equals(event) && UserEventOwnerStatus.CREATOR.equals(ownedEvent.getStatus()))
+                .findAny();
+    }
+
+    public void removeEvent(UserEventOwner ownedEvent) {
+        getOwnedEvents().remove(ownedEvent);
     }
 
 }

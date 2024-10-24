@@ -23,11 +23,26 @@ public class UserEventInvitation {
     @JoinColumn(nullable = false, insertable=false, updatable=false, name = "event_id")
     private Event event;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private UserEventInvitationStatus status;
 
     @Column(name = "creation_date")
     private OffsetDateTime creationDate;
+
+
+    /** Default constructor **/
+    public UserEventInvitation() {
+    }
+
+    public UserEventInvitation(User userInvited, User userInviting, Event event, UserEventInvitationStatus status, OffsetDateTime creationDate) {
+        this.id = new UserEventInvitationId(userInvited.getId(), userInviting.getId(), event.getId());
+        this.userInvited = userInvited;
+        this.userInviting = userInviting;
+        this.event = event;
+        this.status = status;
+        this.creationDate = creationDate;
+    }
 
 
     /**

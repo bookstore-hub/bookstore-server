@@ -17,6 +17,15 @@ public class UserEventInvitationId implements Serializable {
     private Long eventId;
 
 
+    /** Default constructor **/
+    public UserEventInvitationId() {
+    }
+
+    public UserEventInvitationId(Long userInvitedId, Long userInvitingId, Long eventId) {
+        this.userInvitedId = userInvitedId;
+        this.userInvitingId = userInvitingId;
+        this.eventId = eventId;
+    }
 
     /**
      * Returns the userInvitedId

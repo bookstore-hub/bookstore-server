@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author davidgarcia
@@ -375,6 +376,15 @@ public class Event extends DomainObject {
      */
     public void setConversations(List<EventConversation> conversations) {
         this.conversations = conversations;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Event event = (Event) o;
+        return Objects.equals(id, event.id);
     }
 
 }

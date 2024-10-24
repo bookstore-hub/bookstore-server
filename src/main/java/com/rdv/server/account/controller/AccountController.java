@@ -40,6 +40,7 @@ import java.util.UUID;
 
 @Controller
 @CrossOrigin
+@RequestMapping("/user")
 @Tag(name = "AccountController", description = "Set of endpoints to handle the account management logic")
 public class AccountController {
 
@@ -104,7 +105,7 @@ public class AccountController {
      * @param userInfo the user info
      */
     @Operation(description = "Registers a new user")
-    @PostMapping("/user/registerAccount")
+    @PostMapping("/registerAccount")
     @ResponseBody
     public boolean registerUserAccount(@Parameter (description = "The user info") @Valid @RequestBody UserTo.Creation userInfo) {
         LOGGER.debug("Registering user account with information: {}", userInfo);
@@ -127,7 +128,7 @@ public class AccountController {
      */
     @Operation(description = "Updates a user account. " +
             "***Note about the user password: The update is done using the call /user/changePassword.***")
-    @PutMapping(value = "/user/updateAccount")
+    @PutMapping(value = "/updateAccount")
     @ResponseBody
     private boolean updateAccount(@Parameter(description = "The user id") @RequestParam Long userId,
                                   @Parameter (description = "The user profile info") @Valid @RequestBody UserTo.Update userInfo) {
@@ -152,7 +153,7 @@ public class AccountController {
      * @param userMessagingToken the user messaging token
      */
     @Operation(description = "Updates the Firebase messaging token of a user.")
-    @PutMapping(value = "/user/updateMessagingToken")
+    @PutMapping(value = "/updateMessagingToken")
     @ResponseBody
     private boolean updateMessagingToken(@Parameter(description = "The user id") @RequestParam Long userId,
                                          @Parameter(description = "The user messaging token") @RequestParam String userMessagingToken) {
@@ -175,7 +176,7 @@ public class AccountController {
      * @param userId the user id
      */
     @Operation(description = "Removes a messaging token assigned to a user")
-    @PutMapping(value = "/user/logOutMessagingToken")
+    @PutMapping(value = "/logOutMessagingToken")
     @ResponseBody
     private boolean logOutMessagingToken(@Parameter(description = "The user id") @RequestParam Long userId) {
 
@@ -199,7 +200,7 @@ public class AccountController {
      * @param language the language code
      */
     @Operation(description = "Updates the preferred language of a user")
-    @PutMapping(value = "/user/updateLanguage")
+    @PutMapping(value = "/updateLanguage")
     @ResponseBody
     private boolean updateLanguage(@Parameter(description = "The user id") @RequestParam Long userId,
                                    @Parameter(description = "The user language") @RequestParam Language language) {
@@ -221,7 +222,7 @@ public class AccountController {
      * @param userId the user id
      */
     @Operation(description = "Deletes a user account")
-    @PutMapping(value = "/user/deleteAccount")
+    @PutMapping(value = "/deleteAccount")
     @ResponseBody
     private void deleteAccount(@Parameter(description = "The user id") @RequestParam Long userId) {
 
@@ -246,7 +247,7 @@ public class AccountController {
      * @param userId the user id
      */
     @Operation(description = "Resends a registration token")
-    @GetMapping("/user/resendRegistrationToken")
+    @GetMapping("/resendRegistrationToken")
     @ResponseBody
     public boolean resendRegistrationToken(@Parameter(description = "The user id") @RequestParam Long userId) {
 
@@ -274,7 +275,7 @@ public class AccountController {
     }
 
     @Operation(description = "Changes the password of a user from the user account informations")
-    @PutMapping("/user/changePassword")
+    @PutMapping("/changePassword")
     @ResponseBody
     public boolean changePassword(@Parameter(description = "The user id") @RequestParam Long userId,
                                   @Parameter(description = "The password info") @Valid @RequestBody PasswordTo.ChangeData passwordInfo) {
@@ -294,7 +295,7 @@ public class AccountController {
 
     @Operation(description = "Resets the user password, when a user has forgotten his password and asks for a new one. " +
             "An email will be then sent to the user with a link allowing him to enter a new password.")
-    @PostMapping("/user/resetPassword")
+    @PostMapping("/resetPassword")
     @ResponseBody
     public boolean resetPassword(@Parameter(description = "The user email") @RequestParam  String userEmail) {
 
@@ -325,7 +326,7 @@ public class AccountController {
     @Operation(description = "Checks if the user's reset password token is valid or not. " +
             "This happens when the user clicks on the reset password url received by email. In case of invalidity of the token, " +
             "the user won't be able to access the reset password screen.")
-    @GetMapping("/user/checkResetPasswordToken")
+    @GetMapping("/checkResetPasswordToken")
     @ResponseBody
     public boolean checkResetPasswordToken(@Parameter(description = "The user token") @RequestParam("token") String token) {
         String result = accountService.validatePasswordResetToken(token);
@@ -339,7 +340,7 @@ public class AccountController {
      * @param token the user token
      */
     @Operation(description = "Confirms a user registration")
-    @GetMapping("/user/registrationConfirm/{language}/{token}")
+    @GetMapping("/registrationConfirm/{language}/{token}")
     public String confirmRegistration(@Parameter (description = "The user language code") @PathVariable("language") Language language,
                                       @Parameter (description = "The user token") @PathVariable("token") String token,
                                       @Parameter (description = "The model associated") Model model) {
@@ -360,7 +361,7 @@ public class AccountController {
     }
 
     @Operation(description = "Allows entering a new password")
-    @GetMapping("/user/newPassword/{token}")
+    @GetMapping("/newPassword/{token}")
     public String enterNewPassword(@Parameter (description = "The password reset token") @PathVariable("token") String token,
                                    @Parameter (description = "The model associated") Model model) {
 
@@ -390,7 +391,7 @@ public class AccountController {
 
     @Operation(description = "Saves the new password entered by the user following his reset password request, " +
             "his click on the url received by email and, if the token is valid, his filling of a new password from the reset password screen.")
-    @PostMapping("/user/saveNewPassword")
+    @PostMapping("/saveNewPassword")
     @ResponseBody
     public boolean saveNewPassword(@Parameter(description = "The password data") @Valid @RequestBody PasswordTo.ResetData passwordResetData) {
 
