@@ -54,7 +54,7 @@ public class MessageController {
         List<User> usersInvolved = checkAndRetrieveUsers(usersIds);
 
         if(usersInvolved.size() == usersIds.size()) {
-            return messageService.createConversation(usersInvolved) != null;
+            return messageService.createConversation(usersInvolved).getId() != null;
         } else {
             return false;
         }
@@ -218,7 +218,7 @@ public class MessageController {
             savedMessage = messageService.saveChatMessage(messageData, conversation.get(), user.get());
         }
 
-        if(savedMessage != null) {
+        if(savedMessage != null && savedMessage.getId() != null) {
             List<ChatMessage> latestMessages = messageService.getLatestChatMessages(savedMessage.getConversationId());
             return latestMessages.stream().map(ChatMessageTo.ChatMessageData::new).toList();
         } else {
@@ -238,7 +238,7 @@ public class MessageController {
     public List<ChatMessageTo.ChatMessageData> getChatMessages(@Parameter(description = "The conversation id") @RequestParam Long conversationId) {
         LOGGER.info("Retrieving messages for chat having conversation id : " + conversationId);
         List<ChatMessage> latestMessages = messageService.getLatestChatMessages(conversationId);
-        return latestMessages != null ? latestMessages.stream().map(ChatMessageTo.ChatMessageData::new).toList() : null;
+        return latestMessages.stream().map(ChatMessageTo.ChatMessageData::new).toList();
     }
 
 

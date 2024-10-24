@@ -38,7 +38,7 @@ public class CoreController {
     @PostMapping(value = "/event/addEvent")
     public boolean addEvent(@Parameter(description = "The event data") @RequestBody EventTo.CreationOrUpdate eventData) {
         Event newEvent = EventTo.mapNewEvent(eventData);
-        return coreService.addEvent(newEvent) != null;
+        return coreService.addEvent(newEvent).getId() != null;
     }
 
 

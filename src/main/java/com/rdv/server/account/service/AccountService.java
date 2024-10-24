@@ -9,9 +9,9 @@ public interface AccountService {
 
     User registerUserAccount(User user);
 
-    User updateUserAccount(User user, User userUpdated);
+    void updateUserAccount(User user, User userUpdated);
 
-    User updateUserLanguage(User user, String languageCode);
+    void updateUserLanguage(User user, String languageCode);
 
     User getUser(String verificationToken);
 

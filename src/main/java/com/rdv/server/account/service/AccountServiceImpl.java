@@ -53,7 +53,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public User updateUserAccount(User user, User userUpdated) {
+    public void updateUserAccount(User user, User userUpdated) {
         LOGGER.info("User update: Username - {}", user.getUsername());
 
         boolean profilePictureChanged = isProfilePictureChanged(user, userUpdated);
@@ -65,8 +65,6 @@ public class AccountServiceImpl implements AccountService {
                 handleChangeOfProfilePicture(user, user.getPhoto(), userUpdated.getPhoto());
             }
         }
-
-        return userRepository.save(userUpdated);
     }
 
     private boolean isProfilePictureChanged(User user, User userUpdated) {
@@ -93,9 +91,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public User updateUserLanguage(User user, String languageCode) {
+    public void updateUserLanguage(User user, String languageCode) {
         user.setPreferredLanguage(Language.valueOf(languageCode));
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Override

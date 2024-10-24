@@ -111,7 +111,7 @@ public class AccountController {
 
         User newUser = UserTo.mapNewUser(userInfo, passwordEncoder.encode(userInfo.password()));
         User newUserSaved = accountService.registerUserAccount(newUser);
-        if(newUserSaved != null) {
+        if(newUserSaved.getId() != null) {
             eventPublisher.publishEvent(new OnAccountRegistrationCompleteEvent(newUserSaved, newUserSaved.getPreferredLanguage().name()));
             return true;
         } else {
@@ -137,10 +137,8 @@ public class AccountController {
 
         if(user.isPresent()) {
             User userUpdated = UserTo.mapUpdatedUser(user.get(), userInfo);
-            User updatedUserSaved = accountService.updateUserAccount(user.get(), userUpdated);
-            if(updatedUserSaved != null) {
-                updated = true;
-            }
+            accountService.updateUserAccount(user.get(), userUpdated);
+            updated = true;
         }
 
         return updated;
@@ -210,10 +208,8 @@ public class AccountController {
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            User updatedLanguage = accountService.updateUserLanguage(user.get(), language.name());
-            if(updatedLanguage != null) {
-                updated = true;
-            }
+            accountService.updateUserLanguage(user.get(), language.name());
+            updated = true;
         }
 
         return updated;
