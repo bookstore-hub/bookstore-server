@@ -149,6 +149,7 @@ public class CoreController {
     }
 
     //notif inviteFriendsToEvent...
+    //acceptInvitation (Impl) -> get conversation if exists, otherwise create it
     //declineInvitation()
     //addInterest() ?
     //removeInterest() ?

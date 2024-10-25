@@ -79,7 +79,7 @@ public class CoreServiceImpl implements CoreService {
     public void acceptEventInvitation(User user, Event event, UserEventInvitation invitation) {
         invitation.setStatus(UserEventInvitationStatus.ACCEPTED);
         user.addEventInterest(event);
-        EventConversation eventConversation = invitation.getConversation();
+        EventConversation eventConversation = null; //todo get conversation if exists, otherwise create it
 
         if(eventConversation != null) {
             messageService.addUserToConversation(user, eventConversation);
