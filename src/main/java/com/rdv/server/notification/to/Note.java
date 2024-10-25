@@ -12,7 +12,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class Note {
 
-    private String subject = "Rendez-vous MTL";
+    private String subject = "Rendez-vous";
     private String content;
     private Map<String, String> data;
     private String image;

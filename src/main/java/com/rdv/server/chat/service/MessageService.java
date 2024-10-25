@@ -2,6 +2,7 @@ package com.rdv.server.chat.service;
 
 
 import com.rdv.server.chat.entity.ChatMessage;
+import com.rdv.server.chat.entity.UserRoleInConversation;
 import com.rdv.server.chat.to.ChatMessageTo;
 import com.rdv.server.chat.entity.EventConversation;
 import com.rdv.server.core.entity.Event;
@@ -19,7 +20,7 @@ public interface MessageService {
 
     void endConversation(EventConversation conversation);
 
-    void addUserToConversation(User userToAdd, EventConversation conversation);
+    void addUserToConversation(User userToAdd, EventConversation conversation, UserRoleInConversation userRoleInConversation);
 
     void removeUsersFromConversation(EventConversation conversation, List<User> usersToRemove);
 
@@ -30,7 +31,5 @@ public interface MessageService {
     List<ChatMessage> getLatestChatMessages(Long conversationId);
 
     List<ChatMessage> getAllReceivedChatMessages(Long userId);
-
-    void sendChatNotification(EventConversation conversation, User user, ChatMessage newMessage);
 
 }

@@ -88,11 +88,11 @@ public class FirebaseMessagingService {
         return sendNotificationToUser(note, message, BACKGROUND_NOTIFICATION);
     }
 
-    public String sendChatMessageNotification(Note note, Long assistanceId, String token) throws ExecutionException, InterruptedException {
+    public String sendChatMessageNotification(Note note, Long conversationId, String token) throws ExecutionException, InterruptedException {
 
         Message message = Message
                 .builder()
-                .setApnsConfig(getApnsConfigForChatMessages(note, assistanceId))
+                .setApnsConfig(getApnsConfigForChatMessages(note, conversationId))
                 .setAndroidConfig(getAndroidConfigForChatMessages(note))
                 .setToken(token)
                 .putAllData(note.getData())

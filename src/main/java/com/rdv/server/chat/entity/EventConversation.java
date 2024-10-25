@@ -35,7 +35,13 @@ public class EventConversation {
     private List<UserEventConversation> usersInvolved = new ArrayList<>();
 
 
+    /** Default constructor **/
     public EventConversation() {
+    }
+
+    public EventConversation(Event event, OffsetDateTime creationDate) {
+        this.event = event;
+        this.creationDate = creationDate;
     }
 
 

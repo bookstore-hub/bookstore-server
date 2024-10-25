@@ -75,9 +75,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void addUserToConversation(User userToAdd, EventConversation conversation) {
+    public void addUserToConversation(User userToAdd, EventConversation conversation, UserRoleInConversation userRoleInConversation) {
         UserEventConversation userInConversation = new UserEventConversation(userToAdd, false);
-        userInConversation.setUserRoleInConversation(UserRoleInConversation.REGULAR);
+        userInConversation.setUserRoleInConversation(userRoleInConversation);
         conversation.addUser(userInConversation);
 
         eventConversationRepository.save(conversation);
@@ -128,8 +128,7 @@ public class MessageServiceImpl implements MessageService {
         return receivedMessages;
     }
 
-    @Override
-    public void sendChatNotification(EventConversation conversation, User user, ChatMessage newMessage) {
+    private void sendChatNotification(EventConversation conversation, User user, ChatMessage newMessage) {
         List<User> usersToNotify = conversation.getOtherParticipants(user);
 
         if(newMessage != null && usersToNotify != null && !usersToNotify.isEmpty()) {
