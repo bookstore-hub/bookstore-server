@@ -13,6 +13,10 @@ public interface AccountService {
 
     void updateUserLanguage(User user, String languageCode);
 
+    void updateMessagingToken(User user, String userMessagingToken);
+
+    void logOutMessagingToken(User user);
+
     User getUser(String verificationToken);
 
     void deleteUserAccount(User user);

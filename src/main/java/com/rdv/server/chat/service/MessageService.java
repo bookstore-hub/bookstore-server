@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface MessageService {
 
-    EventConversation createConversation(User userCreatingConversation, Event event);
+    void createConversation(User userCreatingConversation, Event event);
 
     void endConversation(EventConversation conversation);
 

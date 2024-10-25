@@ -57,7 +57,7 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public EventConversation createConversation(User userCreatingConversation, Event event) {
+    public void createConversation(User userCreatingConversation, Event event) {
         EventConversation conversation = new EventConversation();
         conversation.setEvent(event);
 
@@ -65,7 +65,7 @@ public class MessageServiceImpl implements MessageService {
         userInConversation.setUserRoleInConversation(UserRoleInConversation.MODERATOR);
         conversation.addUser(userInConversation);
 
-        return eventConversationRepository.save(conversation);
+        eventConversationRepository.save(conversation);
     }
 
     @Override

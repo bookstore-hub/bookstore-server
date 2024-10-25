@@ -61,7 +61,8 @@ public class MessageController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
-            return messageService.createConversation(user.get(), event.get()).getId() != null;
+            messageService.createConversation(user.get(), event.get());
+            return true;
         } else {
             return false;
         }
@@ -85,28 +86,6 @@ public class MessageController {
         }
 
         return conversationEnded;
-    }
-
-    /**
-     * Adds a user to a conversation
-     *
-     * @param userId   the id of the user to add
-     * @param conversationId    the conversation id
-     */
-    @Operation(description = "Adds a user to a conversation")
-    @PutMapping(value = "/addUserToConversation")
-    public boolean addUserToConversation(@Parameter(description = "The user to add") @RequestBody Long userId,
-                                         @Parameter(description = "The conversation id") @RequestParam Long conversationId) {
-        boolean userAdded = false;
-        Optional<User> user = userRepository.findById(userId);
-        Optional<EventConversation> conversation = eventConversationRepository.findById(conversationId);
-
-        if(user.isPresent() && conversation.isPresent()) {
-            messageService.addUserToConversation(user.get(), conversation.get());
-            userAdded = true;
-        }
-
-        return userAdded;
     }
 
     /**

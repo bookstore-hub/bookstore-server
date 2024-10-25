@@ -636,7 +636,22 @@ public class User extends DomainObject {
     }
 
     public void removeEvent(UserEventOwner ownedEvent) {
+        ownedEvent.setUser(null);
         getOwnedEvents().remove(ownedEvent);
+    }
+
+    public void addInvitationSent(UserEventInvitation invitationSent) {
+        invitationSent.setUserInviting(this);
+        getEventInvitationsSent().add(invitationSent);
+    }
+
+    public void addInvitationReceived(UserEventInvitation invitationReceived) {
+        invitationReceived.setUserInvited(this);
+        getEventInvitationsReceived().add(invitationReceived);
+    }
+
+    public void addEventInterest(Event event) {
+        getEventInterests().add(event);
     }
 
 }

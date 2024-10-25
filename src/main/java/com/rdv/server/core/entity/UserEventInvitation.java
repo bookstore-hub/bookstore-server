@@ -1,5 +1,6 @@
 package com.rdv.server.core.entity;
 
+import com.rdv.server.chat.entity.EventConversation;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
@@ -22,6 +23,10 @@ public class UserEventInvitation {
     @ManyToOne
     @JoinColumn(nullable = false, insertable=false, updatable=false, name = "event_id")
     private Event event;
+
+    @OneToOne
+    @JoinColumn(name = "conversation_id")
+    private EventConversation conversation;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
@@ -106,6 +111,24 @@ public class UserEventInvitation {
      */
     public Event getEvent() {
         return event;
+    }
+
+    /**
+     * Returns the conversation
+     *
+     * @return Returns the conversation
+     */
+    public EventConversation getConversation() {
+        return conversation;
+    }
+
+    /**
+     * Sets the conversation
+     *
+     * @param conversation The conversation to set
+     */
+    public void setConversation(EventConversation conversation) {
+        this.conversation = conversation;
     }
 
     /**

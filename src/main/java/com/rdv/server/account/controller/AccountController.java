@@ -161,8 +161,7 @@ public class AccountController {
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            user.get().setMessagingToken(userMessagingToken);
-            userRepository.save(user.get());
+            accountService.updateMessagingToken(user.get(), userMessagingToken);
             return true;
         } else {
             return false;
@@ -183,8 +182,7 @@ public class AccountController {
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            user.get().setMessagingToken(null);
-            userRepository.save(user.get());
+            accountService.logOutMessagingToken(user.get());
             return true;
         } else {
             return false;

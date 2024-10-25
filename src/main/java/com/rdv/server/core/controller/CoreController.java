@@ -1,6 +1,7 @@
 package com.rdv.server.core.controller;
 
 import com.rdv.server.chat.entity.EventConversation;
+import com.rdv.server.chat.service.MessageService;
 import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.EventRepository;
 import com.rdv.server.core.repository.UserEventInvitationRepository;
@@ -34,13 +35,11 @@ public class CoreController {
     private final CoreService coreService;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final UserEventInvitationRepository userEventInvitationRepository;
 
-    public CoreController(CoreService coreService, EventRepository eventRepository, UserRepository userRepository, UserEventInvitationRepository userEventInvitationRepository) {
+    public CoreController(CoreService coreService, EventRepository eventRepository, UserRepository userRepository) {
         this.coreService = coreService;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
-        this.userEventInvitationRepository = userEventInvitationRepository;
     }
 
 
@@ -57,7 +56,8 @@ public class CoreController {
         Optional<User> user = userRepository.findById(userId);
         if(user.isPresent()) {
             Event newEvent = EventTo.mapNewEvent(eventData);
-            return coreService.addEvent(user.get(), newEvent).getId() != null;
+            coreService.addEvent(user.get(), newEvent);
+            return true;
         } else {
             return false;
         }
@@ -72,19 +72,19 @@ public class CoreController {
     @PutMapping(value = "/event/removeEvent")
     public boolean removeEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                                @Parameter(description = "The event data") @RequestParam Long eventId) {
-
+        boolean removed = false;
         Optional<User> user = userRepository.findById(userId);
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
             Optional<UserEventOwner> ownedEvent = user.get().retrieveOwnedEvent(event.get());
             if(ownedEvent.isPresent()) {
-                user.get().removeEvent(ownedEvent.get()); //todo test without last save, then move to service
-                eventRepository.delete(event.get());
+                coreService.removeEvent(user.get(), ownedEvent.get());
+                removed = true;
             }
         }
 
-        return true;
+        return removed;
     }
 
     /**
@@ -99,23 +99,17 @@ public class CoreController {
     public boolean inviteFriendsToEvent(@Parameter(description = "The event id") @RequestParam Long eventId,
                                         @Parameter(description = "The user inviting id") @RequestParam Long userId,
                                         @Parameter(description = "The users to invite ids") @RequestBody List<Long> usersIds) {
-        boolean usersInvited = false;
-        List<UserEventInvitation> invitations = new ArrayList<>();
+        boolean invited = false;
         Optional<Event> event = eventRepository.findById(eventId);
         Optional<User> userInviting = userRepository.findById(userId);
         List<User> usersToInvite = retrieveUsers(usersIds);
 
         if(event.isPresent() && userInviting.isPresent() && !usersToInvite.isEmpty()) {
-            for(User userToInvite : usersToInvite) {
-                UserEventInvitation invitation = new UserEventInvitation(userToInvite, userInviting.get(), event.get(),
-                        UserEventInvitationStatus.PENDING, OffsetDateTime.now());
-                invitations.add(invitation);
-            }
-            userEventInvitationRepository.saveAll(invitations); //todo test add from user and save from user, then move to service
-            usersInvited = true;
+            coreService.inviteFriendsToEvent(event.get(), userInviting.get(), usersToInvite);
+            invited = true;
         }
 
-        return usersInvited;
+        return invited;
     }
 
     private List<User> retrieveUsers(List<Long> usersIds) {
@@ -127,11 +121,39 @@ public class CoreController {
         return users;
     }
 
-    //acceptInvitation() -> addToConversation
+    /**
+     * Accepts an event invitation
+     *
+     * @param userId   the id of the user to add
+     * @param eventId    the event id
+     */
+    @Operation(description = "Accepts an event invitation")
+    @PutMapping(value = "/event/acceptInvitation")
+    public boolean acceptEventInvitation(@Parameter(description = "The user id") @RequestBody Long userId,
+                                         @Parameter(description = "The event id") @RequestParam Long eventId) {
+        boolean accepted = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent()) {
+            Optional<UserEventInvitation> invitation = user.get().getEventInvitationsReceived().stream()
+                    .filter(userEventInvitation -> userEventInvitation.getEvent().equals(event.get()))
+                    .findFirst();
+            if(invitation.isPresent()) {
+                coreService.acceptEventInvitation(user.get(), event.get(), invitation.get());
+                accepted = true;
+            }
+        }
+
+        return accepted;
+    }
+
+    //notif inviteFriendsToEvent...
     //declineInvitation()
     //addInterest() ?
-
+    //removeInterest() ?
     //ownEvent()
+
     //editEvent()
     //retrieveEventDetails()
     //retrieveCategories()

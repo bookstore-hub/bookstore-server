@@ -40,6 +40,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
+    private User saveUserChanges(User user) {
+        return userRepository.save(user);
+    }
+
     @Override
     public User registerUserAccount(final User user) {
         LOGGER.info("User registration: Username - {}", user.getUsername());
@@ -48,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
         if(alreadyExistingUser != null) {
             return null;
         } else {
-            return userRepository.save(user);
+            return saveUserChanges(user);
         }
     }
 
@@ -93,7 +97,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void updateUserLanguage(User user, String languageCode) {
         user.setPreferredLanguage(Language.valueOf(languageCode));
-        userRepository.save(user);
+        saveUserChanges(user);
+    }
+
+    @Override
+    public void updateMessagingToken(User user, String userMessagingToken) {
+        user.setMessagingToken(userMessagingToken);
+        saveUserChanges(user);
+    }
+
+    @Override
+    public void logOutMessagingToken(User user) {
+        user.setMessagingToken(null);
+        saveUserChanges(user);
     }
 
     @Override
@@ -120,7 +136,7 @@ public class AccountServiceImpl implements AccountService {
         user.setStatus(SubscriptionStatus.ENDED);
         user.setMessagingToken(null);
         user.setLastModificationDate(OffsetDateTime.now());
-        userRepository.save(user);
+        saveUserChanges(user);
     }
 
     @Override
@@ -158,14 +174,15 @@ public class AccountServiceImpl implements AccountService {
     public void changeUserPassword(User user, final String password) {
         user.setPassword(passwordEncoder.encode(password));
         user.setLastModificationDate(OffsetDateTime.now());
-        userRepository.save(user);
+        saveUserChanges(user);
     }
 
     @Override
     public void resetUserPassword(User user, final String password, String token) {
         user.setPassword(passwordEncoder.encode(password));
         user.setLastModificationDate(OffsetDateTime.now());
-        userRepository.save(user);
+        saveUserChanges(user);
+
         PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(token);
         passwordTokenRepository.delete(passwordResetToken);
     }
@@ -185,7 +202,8 @@ public class AccountServiceImpl implements AccountService {
 
         user.setStatus(SubscriptionStatus.ASSESSING);
         user.setLastModificationDate(OffsetDateTime.now());
-        userRepository.save(user);
+
+        saveUserChanges(user);
         tokenRepository.delete(verificationToken);
 
         return TOKEN_VALID;
