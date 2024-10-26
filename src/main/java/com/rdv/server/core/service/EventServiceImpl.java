@@ -27,9 +27,9 @@ import java.util.concurrent.ExecutionException;
  * @author david.garcia
  */
 @Service
-public class CoreServiceImpl implements CoreService {
+public class EventServiceImpl implements EventService {
 
-    protected static final Log LOGGER = LogFactory.getLog(CoreServiceImpl.class);
+    protected static final Log LOGGER = LogFactory.getLog(EventServiceImpl.class);
 
     private static final String EVENT_INVITATION = "EVENT_INVITATION";
     private static final String EVENT_INVITATION_MESSAGE = "event.invitation";
@@ -45,8 +45,8 @@ public class CoreServiceImpl implements CoreService {
     private final MessageSource messageSource;
 
 
-    public CoreServiceImpl(UserRepository userRepository, EventRepository eventRepository, UserEventInvitationRepository userEventInvitationRepository, EventConversationRepository eventConversationRepository,
-                           MessageService messageService, FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
+    public EventServiceImpl(UserRepository userRepository, EventRepository eventRepository, UserEventInvitationRepository userEventInvitationRepository, EventConversationRepository eventConversationRepository,
+                            MessageService messageService, FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
         this.userEventInvitationRepository = userEventInvitationRepository;

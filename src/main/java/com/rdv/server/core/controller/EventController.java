@@ -3,7 +3,7 @@ package com.rdv.server.core.controller;
 import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.EventRepository;
 import com.rdv.server.core.repository.UserRepository;
-import com.rdv.server.core.service.CoreService;
+import com.rdv.server.core.service.EventService;
 import com.rdv.server.core.to.EventTo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,17 +23,18 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
-@Tag(name = "CoreController", description = "Set of endpoints to handle the RDV core logic")
-public class CoreController {
+@RequestMapping("/event")
+@Tag(name = "EventController", description = "Set of endpoints to handle the RDV event logic")
+public class EventController {
 
-    protected static final Log LOGGER = LogFactory.getLog(CoreController.class);
+    protected static final Log LOGGER = LogFactory.getLog(EventController.class);
 
-    private final CoreService coreService;
+    private final EventService eventService;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public CoreController(CoreService coreService, EventRepository eventRepository, UserRepository userRepository) {
-        this.coreService = coreService;
+    public EventController(EventService eventService, EventRepository eventRepository, UserRepository userRepository) {
+        this.eventService = eventService;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
     }
@@ -46,13 +47,13 @@ public class CoreController {
      * @param eventData    the event data
      */
     @Operation(description = "Adds a new event")
-    @PostMapping(value = "/event/addEvent")
+    @PostMapping(value = "/addEvent")
     public boolean addEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                             @Parameter(description = "The event data") @RequestBody EventTo.CreationOrUpdate eventData) {
         Optional<User> user = userRepository.findById(userId);
         if(user.isPresent()) {
             Event newEvent = EventTo.mapNewEvent(eventData);
-            coreService.addEvent(user.get(), newEvent);
+            eventService.addEvent(user.get(), newEvent);
             return true;
         } else {
             return false;
@@ -65,7 +66,7 @@ public class CoreController {
      * @param eventId    the event id
      */
     @Operation(description = "Removes an event")
-    @PutMapping(value = "/event/removeEvent")
+    @PutMapping(value = "/removeEvent")
     public boolean removeEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                                @Parameter(description = "The event data") @RequestParam Long eventId) {
         boolean removed = false;
@@ -75,7 +76,7 @@ public class CoreController {
         if(user.isPresent() && event.isPresent()) {
             Optional<UserEventOwner> createdEvent = user.get().retrieveCreatedEvent(event.get());
             if(createdEvent.isPresent()) {
-                coreService.removeEvent(user.get(), createdEvent.get());
+                eventService.removeEvent(user.get(), createdEvent.get());
                 removed = true;
             }
         }
@@ -90,7 +91,7 @@ public class CoreController {
      * @param eventId     the event id
      */
     @Operation(description = "Takes ownership of an event")
-    @PutMapping(value = "/event/takeOwnership")
+    @PutMapping(value = "/takeOwnership")
     public boolean takeOwnershipOfEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                                         @Parameter(description = "The event id") @RequestParam Long eventId) {
         boolean owned = false;
@@ -98,7 +99,7 @@ public class CoreController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
-            coreService.takeOwnershipOfEvent(user.get(), event.get());
+            eventService.takeOwnershipOfEvent(user.get(), event.get());
             owned = true;
         }
 
@@ -113,7 +114,7 @@ public class CoreController {
      * @param usersIds    the users to invite ids
      */
     @Operation(description = "Invites friends to an event")
-    @PutMapping(value = "/event/inviteFriends")
+    @PutMapping(value = "/inviteFriends")
     public boolean inviteFriendsToEvent(@Parameter(description = "The event id") @RequestParam Long eventId,
                                         @Parameter(description = "The user inviting id") @RequestParam Long userId,
                                         @Parameter(description = "The users to invite ids") @RequestBody List<Long> usersIds) {
@@ -123,7 +124,7 @@ public class CoreController {
         List<User> usersToInvite = retrieveUsers(usersIds);
 
         if(event.isPresent() && userInviting.isPresent() && !usersToInvite.isEmpty()) {
-            coreService.inviteFriendsToEvent(event.get(), userInviting.get(), usersToInvite);
+            eventService.inviteFriendsToEvent(event.get(), userInviting.get(), usersToInvite);
             invited = true;
         }
 
@@ -146,7 +147,7 @@ public class CoreController {
      * @param eventId    the event id
      */
     @Operation(description = "Accepts an event invitation")
-    @PutMapping(value = "/event/acceptInvitation")
+    @PutMapping(value = "/acceptInvitation")
     public boolean acceptEventInvitation(@Parameter(description = "The user id") @RequestBody Long userId,
                                          @Parameter(description = "The event id") @RequestParam Long eventId) {
         boolean accepted = false;
@@ -158,7 +159,7 @@ public class CoreController {
                     .filter(userEventInvitation -> userEventInvitation.getEvent().equals(event.get()))
                     .findFirst();
             if(invitation.isPresent()) {
-                coreService.acceptEventInvitation(user.get(), event.get(), invitation.get());
+                eventService.acceptEventInvitation(user.get(), event.get(), invitation.get());
                 accepted = true;
             }
         }
@@ -173,7 +174,7 @@ public class CoreController {
      * @param eventId    the event id
      */
     @Operation(description = "Declines an event invitation")
-    @PutMapping(value = "/event/declineInvitation")
+    @PutMapping(value = "/declineInvitation")
     public boolean declineEventInvitation(@Parameter(description = "The user id") @RequestBody Long userId,
                                           @Parameter(description = "The event id") @RequestParam Long eventId) {
         boolean declined = false;
@@ -185,7 +186,7 @@ public class CoreController {
                     .filter(userEventInvitation -> userEventInvitation.getEvent().equals(event.get()))
                     .findFirst();
             if(invitation.isPresent()) {
-                coreService.declineEventInvitation(invitation.get());
+                eventService.declineEventInvitation(invitation.get());
                 declined = true;
             }
         }
@@ -200,7 +201,7 @@ public class CoreController {
      * @param eventId     the event id
      */
     @Operation(description = "Shows interest in an event")
-    @PutMapping(value = "/event/showInterest")
+    @PutMapping(value = "/showInterest")
     public boolean showInterestInEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                                        @Parameter(description = "The event id") @RequestParam Long eventId) {
         boolean registered = false;
@@ -208,7 +209,7 @@ public class CoreController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
-            coreService.showInterestInEvent(user.get(), event.get());
+            eventService.showInterestInEvent(user.get(), event.get());
             registered = true;
         }
 
@@ -222,7 +223,7 @@ public class CoreController {
      * @param eventId     the event id
      */
     @Operation(description = "Removes interest in an event")
-    @PutMapping(value = "/event/removeInterest")
+    @PutMapping(value = "/removeInterest")
     public boolean removeInterestInEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                                          @Parameter(description = "The event id") @RequestParam Long eventId) {
         boolean registered = false;
@@ -230,7 +231,7 @@ public class CoreController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
-            coreService.removeInterestInEvent(user.get(), event.get());
+            eventService.removeInterestInEvent(user.get(), event.get());
             registered = true;
         }
 
@@ -241,22 +242,5 @@ public class CoreController {
     //editEvent()
     //retrieveEventDetails()
     //retrieveCategories()
-    //followUser()
-    //unfollowUser()
-    //retrieveFollowedUsers()
-
-
-    //addFriend()
-    //removeFriend()
-    //blockFriend()
-    //unblockFriend()
-    //retrieveFriends()
-    //retrieveBlockedFriends()
-
-
-    //search
-    //retrievePersonalUserInfo
-    //retrieveOtherUserInfo
-
 
 }

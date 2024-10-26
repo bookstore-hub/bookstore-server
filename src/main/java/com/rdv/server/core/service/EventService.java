@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author david.garcia
  */
-public interface CoreService {
+public interface EventService {
 
     void addEvent(User user, Event event);
 
