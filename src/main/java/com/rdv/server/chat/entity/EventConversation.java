@@ -141,11 +141,6 @@ public class EventConversation {
         getUsersInvolved().add(userInConversation);
     }
 
-    public void removeUser(UserEventConversation userInConversation) {
-        userInConversation.setEventConversation(null);
-        getUsersInvolved().remove(userInConversation);
-    }
-
     public List<User> getOtherParticipants(User user) {
         return getUsersInvolved().stream().map(UserEventConversation::getUser)
                 .filter(userInConversation -> !userInConversation.getId().equals(user.getId())).collect(Collectors.toList());

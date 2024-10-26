@@ -31,6 +31,18 @@ public class UserEventOwner {
     private OffsetDateTime creationDate;
 
 
+    /** Default constructor **/
+    public UserEventOwner() {
+    }
+
+    public UserEventOwner(User user, Event event, UserEventOwnerStatus status, OffsetDateTime creationDate) {
+        this.user = user;
+        this.event = event;
+        this.status = status;
+        this.creationDate = creationDate;
+    }
+
+
     /**
      * Returns the id
      *

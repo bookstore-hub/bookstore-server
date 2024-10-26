@@ -73,14 +73,36 @@ public class CoreController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
-            Optional<UserEventOwner> ownedEvent = user.get().retrieveOwnedEvent(event.get());
-            if(ownedEvent.isPresent()) {
-                coreService.removeEvent(user.get(), ownedEvent.get());
+            Optional<UserEventOwner> createdEvent = user.get().retrieveCreatedEvent(event.get());
+            if(createdEvent.isPresent()) {
+                coreService.removeEvent(user.get(), createdEvent.get());
                 removed = true;
             }
         }
 
         return removed;
+    }
+
+    /**
+     * Takes ownership of an event
+     *
+     * @param userId      the user id
+     * @param eventId     the event id
+     */
+    @Operation(description = "Takes ownership of an event")
+    @PutMapping(value = "/event/takeOwnership")
+    public boolean takeOwnershipOfEvent(@Parameter(description = "The user id") @RequestParam Long userId,
+                                        @Parameter(description = "The event id") @RequestParam Long eventId) {
+        boolean owned = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent()) {
+            coreService.takeOwnershipOfEvent(user.get(), event.get());
+            owned = true;
+        }
+
+        return owned;
     }
 
     /**
@@ -171,25 +193,67 @@ public class CoreController {
         return declined;
     }
 
-    //declineInvitation()
-    //addInterest() ?
-    //removeInterest() ?
-    //ownEvent()
+    /**
+     * Shows interest in an event
+     *
+     * @param userId      the user id
+     * @param eventId     the event id
+     */
+    @Operation(description = "Shows interest in an event")
+    @PutMapping(value = "/event/showInterest")
+    public boolean showInterestInEvent(@Parameter(description = "The user id") @RequestParam Long userId,
+                                       @Parameter(description = "The event id") @RequestParam Long eventId) {
+        boolean registered = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent()) {
+            coreService.showInterestInEvent(user.get(), event.get());
+            registered = true;
+        }
+
+        return registered;
+    }
+
+    /**
+     * Removes interest in an event
+     *
+     * @param userId      the user id
+     * @param eventId     the event id
+     */
+    @Operation(description = "Removes interest in an event")
+    @PutMapping(value = "/event/removeInterest")
+    public boolean removeInterestInEvent(@Parameter(description = "The user id") @RequestParam Long userId,
+                                         @Parameter(description = "The event id") @RequestParam Long eventId) {
+        boolean registered = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent()) {
+            coreService.removeInterestInEvent(user.get(), event.get());
+            registered = true;
+        }
+
+        return registered;
+    }
+
 
     //editEvent()
     //retrieveEventDetails()
     //retrieveCategories()
-    //selectEvent()
-    //dropEvent()
     //followUser()
     //unfollowUser()
     //retrieveFollowedUsers()
+
+
     //addFriend()
     //removeFriend()
     //blockFriend()
     //unblockFriend()
     //retrieveFriends()
     //retrieveBlockedFriends()
+
+
     //search
     //retrievePersonalUserInfo
     //retrieveOtherUserInfo

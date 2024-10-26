@@ -1,7 +1,9 @@
 package com.rdv.server.core.entity;
 
 
+import com.rdv.server.chat.entity.EventConversation;
 import com.rdv.server.chat.entity.UserEventConversation;
+import com.rdv.server.chat.entity.UserRoleInConversation;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -629,7 +631,7 @@ public class User extends DomainObject {
         };
     }
 
-    public Optional<UserEventOwner> retrieveOwnedEvent(Event event) {
+    public Optional<UserEventOwner> retrieveCreatedEvent(Event event) {
         return ownedEvents.stream()
                 .filter(ownedEvent -> ownedEvent.getEvent().equals(event) && UserEventOwnerStatus.CREATOR.equals(ownedEvent.getStatus()))
                 .findAny();
@@ -654,8 +656,28 @@ public class User extends DomainObject {
         getEventInterests().add(event);
     }
 
+    public void removeEventInterest(Event event) {
+        getEventInterests().remove(event);
+    }
+
     public void addParticipationToConversation(UserEventConversation participationInConversation) {
         getParticipationInConversations().add(participationInConversation);
+    }
+
+    public boolean hasRemovalRights(EventConversation eventConversation, List<User> usersToRemove) {
+        return eventConversation.getUsersInvolved().stream()
+                .anyMatch(userInvolved -> isModerator(eventConversation)
+                        || (usersToRemove.size() == 1 && usersToRemove.getFirst().getId().equals(getId())));
+    }
+
+    public boolean isModerator(EventConversation eventConversation) {
+        return eventConversation.getUsersInvolved().stream()
+                .anyMatch(userInvolved ->
+                        userInvolved.getId().equals(getId()) && UserRoleInConversation.MODERATOR.equals(userInvolved.getUserRoleInConversation()));
+    }
+
+    public void addOwnedEvent(UserEventOwner ownedEvent) {
+        getOwnedEvents().add(ownedEvent);
     }
 
 }

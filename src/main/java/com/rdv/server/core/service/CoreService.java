@@ -17,10 +17,16 @@ public interface CoreService {
 
     void removeEvent(User user, UserEventOwner ownedEvent);
 
+    void takeOwnershipOfEvent(User user, Event event);
+
     void inviteFriendsToEvent(Event event, User userInviting, List<User> usersToInvite);
 
     void acceptEventInvitation(User user, Event event, UserEventInvitation invitation);
 
     void declineEventInvitation(UserEventInvitation userEventInvitation);
+
+    void showInterestInEvent(User user, Event event);
+
+    void removeInterestInEvent(User user, Event event);
 
 }

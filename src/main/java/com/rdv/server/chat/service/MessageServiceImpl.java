@@ -63,6 +63,10 @@ public class MessageServiceImpl implements MessageService {
         eventConversationRepository.save(eventConversation);
     }
 
+    private void saveUserInConversation(UserEventConversation userEventConversation) {
+        userEventConversationRepository.save(userEventConversation);
+    }
+
 
     @Override
     public void endConversation(EventConversation conversation) {
@@ -72,28 +76,32 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void addUserToConversation(User userToAdd, EventConversation conversation, UserRoleInConversation userRoleInConversation) {
-        UserEventConversation participationInConversation = new UserEventConversation(userToAdd, false);
-        participationInConversation.setUserRoleInConversation(userRoleInConversation);
-        conversation.addUser(participationInConversation);
+        UserEventConversation userInConversation = new UserEventConversation(userToAdd, false);
+        userInConversation.setUserRoleInConversation(userRoleInConversation);
+        conversation.addUser(userInConversation);
         saveEventConversation(conversation);
 
-        userToAdd.addParticipationToConversation(participationInConversation);
+        userToAdd.addParticipationToConversation(userInConversation);
         saveUser(userToAdd);
     }
 
     @Override
     public void removeUsersFromConversation(EventConversation conversation, List<User> usersToRemove) {
+        OffsetDateTime now = OffsetDateTime.now();
         for(User userToRemove : usersToRemove) {
-            Optional<UserEventConversation> participationInConversation = conversation.getUsersInvolved().stream().filter(userInvolved -> userInvolved.getUser().equals(userToRemove)).findFirst();
-            participationInConversation.ifPresent(conversation::removeUser);
+            Optional<UserEventConversation> userInConversation = conversation.getUsersInvolved().stream()
+                    .filter(userInvolved -> userInvolved.getUser().equals(userToRemove)).findFirst();
+            if(userInConversation.isPresent()) {
+                userInConversation.get().setUserExitDate(now);
+                saveUserInConversation(userInConversation.get());
+            }
         }
-        saveEventConversation(conversation);
     }
 
     @Override
     public void removeConversationOnUserSide(UserEventConversation userInConversation) {
         userInConversation.setConversationDeletedOnUserSide(true);
-        userEventConversationRepository.save(userInConversation);
+        saveUserInConversation(userInConversation);
     }
 
     @Override
@@ -116,9 +124,9 @@ public class MessageServiceImpl implements MessageService {
         List<ChatMessage> receivedMessages = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
         if(user.isPresent()) {
-            List<UserEventConversation> participationInConversations = user.get().getParticipationInConversations();
-            for (UserEventConversation participationInConversation : participationInConversations) {
-                List<ChatMessage> conversationMessages = chatMessageRepository.findMessagesByConversationIdAndAuthorIdNot(participationInConversation.getEventConversation().getId(), userId);
+            List<UserEventConversation> userInConversations = user.get().getParticipationInConversations();
+            for (UserEventConversation userInConversation : userInConversations) {
+                List<ChatMessage> conversationMessages = chatMessageRepository.findMessagesByConversationIdAndAuthorIdNot(userInConversation.getEventConversation().getId(), userId);
                 receivedMessages.addAll(conversationMessages);
             }
         }

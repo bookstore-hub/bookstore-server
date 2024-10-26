@@ -4,6 +4,7 @@ package com.rdv.server.core.service;
 import com.rdv.server.chat.entity.EventConversation;
 import com.rdv.server.chat.entity.UserEventConversation;
 import com.rdv.server.chat.entity.UserRoleInConversation;
+import com.rdv.server.chat.repository.EventConversationRepository;
 import com.rdv.server.chat.service.MessageService;
 import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.EventRepository;
@@ -38,16 +39,18 @@ public class CoreServiceImpl implements CoreService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final UserEventInvitationRepository userEventInvitationRepository;
+    private final EventConversationRepository eventConversationRepository;
     private final MessageService messageService;
     private final FirebaseMessagingService firebaseMessagingService;
     private final MessageSource messageSource;
 
 
-    public CoreServiceImpl(UserRepository userRepository, EventRepository eventRepository, UserEventInvitationRepository userEventInvitationRepository,
+    public CoreServiceImpl(UserRepository userRepository, EventRepository eventRepository, UserEventInvitationRepository userEventInvitationRepository, EventConversationRepository eventConversationRepository,
                            MessageService messageService, FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
         this.userEventInvitationRepository = userEventInvitationRepository;
+        this.eventConversationRepository = eventConversationRepository;
         this.messageService = messageService;
         this.firebaseMessagingService = firebaseMessagingService;
         this.messageSource = messageSource;
@@ -62,13 +65,17 @@ public class CoreServiceImpl implements CoreService {
         userEventInvitationRepository.save(eventInvitation);
     }
 
+    private void saveEventConversation(EventConversation eventConversation) {
+        eventConversationRepository.save(eventConversation);
+    }
+
 
     @Override
     public void addEvent(User user, Event event) {
         UserEventOwner ownedEvent = new UserEventOwner();
         ownedEvent.setUser(user);
         ownedEvent.setEvent(event);
-        ownedEvent.setStatus(UserEventOwnerStatus.CREATOR);
+        ownedEvent.setStatus(UserEventOwnerStatus.PENDING); //UserEventOwnerStatus.CREATOR when validated
         ownedEvent.setCreationDate(OffsetDateTime.now());
 
         user.getOwnedEvents().add(ownedEvent);
@@ -79,6 +86,13 @@ public class CoreServiceImpl implements CoreService {
     @Override
     public void removeEvent(User user, UserEventOwner ownedEvent) {
         user.removeEvent(ownedEvent);
+        saveUser(user);
+    }
+
+    @Override
+    public void takeOwnershipOfEvent(User user, Event event) {
+        UserEventOwner ownedEvent = new UserEventOwner(user, event, UserEventOwnerStatus.PENDING, OffsetDateTime.now()); //UserEventOwnerStatus.ACQUIRER when confirmed
+        user.addOwnedEvent(ownedEvent);
         saveUser(user);
     }
 
@@ -127,7 +141,7 @@ public class CoreServiceImpl implements CoreService {
         saveEventInvitation(invitation);
 
         User userInviting = invitation.getUserInviting();
-        Optional<EventConversation> eventConversation = retrieveConversationIfExists(event, userInviting);
+        Optional<EventConversation> eventConversation = retrieveConversationIfExists(userInviting, event);
         if(eventConversation.isEmpty()) {
             eventConversation = Optional.of(new EventConversation(event, OffsetDateTime.now()));
             messageService.addUserToConversation(userInviting, eventConversation.get(), UserRoleInConversation.MODERATOR);
@@ -139,8 +153,8 @@ public class CoreServiceImpl implements CoreService {
         sendInvitationAcceptedNotification(userInvited, userInviting, event);
     }
 
-    private Optional<EventConversation> retrieveConversationIfExists(Event event, User userInviting) {
-        return userInviting.getParticipationInConversations().stream()
+    private Optional<EventConversation> retrieveConversationIfExists(User user, Event event) {
+        return user.getParticipationInConversations().stream()
                 .map(UserEventConversation::getEventConversation)
                 .filter(eventConversation -> eventConversation.getEvent().equals(event))
                 .findFirst();
@@ -168,6 +182,26 @@ public class CoreServiceImpl implements CoreService {
     public void declineEventInvitation(UserEventInvitation invitation) {
         invitation.setStatus(UserEventInvitationStatus.DECLINED);
         saveEventInvitation(invitation);
+    }
+
+    @Override
+    public void showInterestInEvent(User user, Event event) {
+        user.addEventInterest(event);
+        saveUser(user);
+    }
+
+    @Override
+    public void removeInterestInEvent(User user, Event event) {
+        Optional<EventConversation> eventConversation = retrieveConversationIfExists(user, event);
+        if(eventConversation.isPresent()) {
+            messageService.removeUsersFromConversation(eventConversation.get(), List.of(user));
+            if(user.isModerator(eventConversation.get())) {
+                eventConversation.get().setEndDate(OffsetDateTime.now());
+                saveEventConversation(eventConversation.get());
+            }
+        }
+        user.removeEventInterest(event);
+        saveUser(user);
     }
 
 }

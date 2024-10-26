@@ -68,17 +68,21 @@ public class MessageController {
      * Removes users from a conversation
      *
      * @param conversationId    the conversation id
+     * @param userId      the id of the user performing the removal
      * @param usersIds    the ids of the users to remove
      */
     @Operation(description = "Removes users from a conversation")
     @PutMapping(value = "/removeUsersFromConversation")
     public boolean removeUsersFromConversation(@Parameter(description = "The conversation id") @RequestParam Long conversationId,
+                                               @Parameter(description = "The user performing the removal") @RequestParam Long userId,
                                                @Parameter(description = "The users to remove from the conversation") @RequestBody List<Long> usersIds) {
         boolean usersRemoved = false;
         Optional<EventConversation> conversation = eventConversationRepository.findById(conversationId);
+        Optional<User> userRemoving = userRepository.findById(userId);
         List<User> usersToRemove = retrieveUsers(usersIds);
 
-        if(conversation.isPresent() && !usersToRemove.isEmpty()) {
+        if(conversation.isPresent() && userRemoving.isPresent() && !usersToRemove.isEmpty()
+                && userRemoving.get().hasRemovalRights(conversation.get(), usersToRemove)) {
             messageService.removeUsersFromConversation(conversation.get(), usersToRemove);
             usersRemoved = true;
         }

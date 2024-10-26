@@ -29,6 +29,9 @@ public class UserEventConversation {
     @Column(name = "user_joining_date")
     private OffsetDateTime userJoiningDate;
 
+    @Column(name = "user_exit_date")
+    private OffsetDateTime userExitDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_conversation_id")
     @JsonIgnore
@@ -115,6 +118,24 @@ public class UserEventConversation {
      */
     public void setUserJoiningDate(OffsetDateTime userJoiningDate) {
         this.userJoiningDate = userJoiningDate;
+    }
+
+    /**
+     * Returns the userExitDate
+     *
+     * @return Returns the userExitDate
+     */
+    public OffsetDateTime getUserExitDate() {
+        return userExitDate;
+    }
+
+    /**
+     * Sets the userExitDate
+     *
+     * @param userExitDate The userExitDate to set
+     */
+    public void setUserExitDate(OffsetDateTime userExitDate) {
+        this.userExitDate = userExitDate;
     }
 
     /**
