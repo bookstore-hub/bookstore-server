@@ -5,7 +5,6 @@ import com.rdv.server.chat.entity.ChatMessage;
 import com.rdv.server.chat.entity.UserRoleInConversation;
 import com.rdv.server.chat.to.ChatMessageTo;
 import com.rdv.server.chat.entity.EventConversation;
-import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.chat.entity.UserEventConversation;
 
@@ -16,15 +15,13 @@ import java.util.List;
  */
 public interface MessageService {
 
-    void createConversation(User userCreatingConversation, Event event);
-
     void endConversation(EventConversation conversation);
 
     void addUserToConversation(User userToAdd, EventConversation conversation, UserRoleInConversation userRoleInConversation);
 
     void removeUsersFromConversation(EventConversation conversation, List<User> usersToRemove);
 
-    void removeConversation(UserEventConversation userConversation);
+    void removeConversationOnUserSide(UserEventConversation userInConversation);
 
     ChatMessage saveChatMessage(ChatMessageTo.ChatMessageCreation messagedata, EventConversation assistance, User user);
 

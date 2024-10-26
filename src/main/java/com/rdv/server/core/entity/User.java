@@ -110,7 +110,7 @@ public class User extends DomainObject {
     private List<UserEventInvitation> eventInvitationsSent = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
-    private List<UserEventConversation> userEventConversations = new ArrayList<>();
+    private List<UserEventConversation> participationInConversations = new ArrayList<>();
 
 
     public User() {
@@ -595,21 +595,21 @@ public class User extends DomainObject {
     }
 
     /**
-     * Returns the userEventConversations
+     * Returns the participationInConversations
      *
-     * @return Returns the userEventConversations
+     * @return Returns the participationInConversations
      */
-    public List<UserEventConversation> getUserEventConversations() {
-        return userEventConversations;
+    public List<UserEventConversation> getParticipationInConversations() {
+        return participationInConversations;
     }
 
     /**
-     * Sets the userEventConversations
+     * Sets the participationInConversations
      *
-     * @param userEventConversations The userEventConversations to set
+     * @param participationInConversations The participationInConversations to set
      */
-    public void setUserEventConversations(List<UserEventConversation> userEventConversations) {
-        this.userEventConversations = userEventConversations;
+    public void setParticipationInConversations(List<UserEventConversation> participationInConversations) {
+        this.participationInConversations = participationInConversations;
     }
 
 
@@ -652,6 +652,10 @@ public class User extends DomainObject {
 
     public void addEventInterest(Event event) {
         getEventInterests().add(event);
+    }
+
+    public void addParticipationToConversation(UserEventConversation participationInConversation) {
+        getParticipationInConversations().add(participationInConversation);
     }
 
 }

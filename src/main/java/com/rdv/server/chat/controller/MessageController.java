@@ -5,7 +5,6 @@ import com.rdv.server.chat.entity.EventConversation;
 import com.rdv.server.chat.entity.UserEventConversation;
 import com.rdv.server.chat.service.MessageService;
 import com.rdv.server.chat.to.ChatMessageTo;
-import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.chat.repository.EventConversationRepository;
 import com.rdv.server.core.repository.EventRepository;
@@ -44,29 +43,6 @@ public class MessageController {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
         this.eventConversationRepository = eventConversationRepository;
-    }
-
-
-    /**
-     * Creates a new conversation
-     *
-     * @param userId          the id of the user creating the conversation
-     * @param eventId        the id of the event associated to the conversation
-     */
-    @Operation(description = "Creates a new conversation")
-    @PostMapping(value = "/createConversation")
-    public boolean createConversation(@Parameter(description = "The user creating the conversation") @RequestParam Long userId,
-                                      @Parameter(description = "The event associated to the conversation") @RequestParam Long eventId) {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<Event> event = eventRepository.findById(eventId);
-
-        if(user.isPresent() && event.isPresent()) {
-            messageService.createConversation(user.get(), event.get());
-            return true;
-        } else {
-            return false;
-        }
-
     }
 
     /**
@@ -133,18 +109,18 @@ public class MessageController {
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            userConversations = user.get().getUserEventConversations().stream()
-                    .filter(userEventConversation -> !userEventConversation.getConversationDeletedOnUserSide())
-                    .map(userEventConversation -> new UserTo.ConversationData(userEventConversation, getLatestMessageDate(userEventConversation)))
+            userConversations = user.get().getParticipationInConversations().stream()
+                    .filter(participation -> !participation.getConversationDeletedOnUserSide())
+                    .map(participation -> new UserTo.ConversationData(participation, getLatestMessageDate(participation)))
                     .sorted(Comparator.comparing(UserTo.ConversationData::dateAndTimeOfLastUpdate).reversed()).toList();
         }
 
         return userConversations;
     }
 
-    private Date getLatestMessageDate(UserEventConversation userEventConversation) {
+    private Date getLatestMessageDate(UserEventConversation participationInConversation) {
         Date latestMessageDate = null;
-        Long conversationId = userEventConversation.getEventConversation().getId();
+        Long conversationId = participationInConversation.getEventConversation().getId();
         List<ChatMessageTo.ChatMessageData> latestConversationMessages = getChatMessages(conversationId);
 
         if(latestConversationMessages != null && !latestConversationMessages.isEmpty()) {
@@ -171,11 +147,11 @@ public class MessageController {
         Optional<EventConversation> conversation = eventConversationRepository.findById(conversationId);
 
         if(user.isPresent() && conversation.isPresent()) {
-            UserEventConversation userConversation = user.get().getUserEventConversations().stream()
-                    .filter(userEventConversation -> userEventConversation.getEventConversation().equals(conversation.get())).findAny().orElse(null);
+            UserEventConversation participationInConversation = user.get().getParticipationInConversations().stream()
+                    .filter(participation -> participation.getEventConversation().equals(conversation.get())).findAny().orElse(null);
 
-            if(userConversation != null) {
-                messageService.removeConversation(userConversation);
+            if(participationInConversation != null) {
+                messageService.removeConversationOnUserSide(participationInConversation);
                 conversationRemovedOnUserSide = true;
             }
         }

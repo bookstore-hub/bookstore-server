@@ -1,10 +1,7 @@
 package com.rdv.server.core.controller;
 
-import com.rdv.server.chat.entity.EventConversation;
-import com.rdv.server.chat.service.MessageService;
 import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.EventRepository;
-import com.rdv.server.core.repository.UserEventInvitationRepository;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.service.CoreService;
 import com.rdv.server.core.to.EventTo;
@@ -15,7 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -124,7 +120,7 @@ public class CoreController {
     /**
      * Accepts an event invitation
      *
-     * @param userId   the id of the user to add
+     * @param userId   the id of the user accepting the invitation
      * @param eventId    the event id
      */
     @Operation(description = "Accepts an event invitation")
@@ -146,6 +142,33 @@ public class CoreController {
         }
 
         return accepted;
+    }
+
+    /**
+     * Declines an event invitation
+     *
+     * @param userId   the id of the user declining the invitation
+     * @param eventId    the event id
+     */
+    @Operation(description = "Declines an event invitation")
+    @PutMapping(value = "/event/declineInvitation")
+    public boolean declineEventInvitation(@Parameter(description = "The user id") @RequestBody Long userId,
+                                          @Parameter(description = "The event id") @RequestParam Long eventId) {
+        boolean declined = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent()) {
+            Optional<UserEventInvitation> invitation = user.get().getEventInvitationsReceived().stream()
+                    .filter(userEventInvitation -> userEventInvitation.getEvent().equals(event.get()))
+                    .findFirst();
+            if(invitation.isPresent()) {
+                coreService.declineEventInvitation(invitation.get());
+                declined = true;
+            }
+        }
+
+        return declined;
     }
 
     //declineInvitation()

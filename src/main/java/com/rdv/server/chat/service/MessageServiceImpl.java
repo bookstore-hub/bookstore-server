@@ -6,7 +6,6 @@ import com.rdv.server.chat.entity.UserRoleInConversation;
 import com.rdv.server.chat.repository.ChatMessageRepository;
 import com.rdv.server.chat.repository.EventConversationRepository;
 import com.rdv.server.chat.repository.UserEventConversationRepository;
-import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.to.UserTo;
 import com.rdv.server.notification.service.FirebaseMessagingService;
@@ -56,46 +55,45 @@ public class MessageServiceImpl implements MessageService {
     }
 
 
-    @Override
-    public void createConversation(User userCreatingConversation, Event event) {
-        EventConversation conversation = new EventConversation();
-        conversation.setEvent(event);
-
-        UserEventConversation userInConversation = new UserEventConversation(userCreatingConversation, false);
-        userInConversation.setUserRoleInConversation(UserRoleInConversation.MODERATOR);
-        conversation.addUser(userInConversation);
-
-        eventConversationRepository.save(conversation);
+    private void saveUser(User user) {
+        userRepository.save(user);
     }
+
+    private void saveEventConversation(EventConversation eventConversation) {
+        eventConversationRepository.save(eventConversation);
+    }
+
 
     @Override
     public void endConversation(EventConversation conversation) {
         conversation.setEndDate(OffsetDateTime.now());
-        eventConversationRepository.save(conversation);
+        saveEventConversation(conversation);
     }
 
     @Override
     public void addUserToConversation(User userToAdd, EventConversation conversation, UserRoleInConversation userRoleInConversation) {
-        UserEventConversation userInConversation = new UserEventConversation(userToAdd, false);
-        userInConversation.setUserRoleInConversation(userRoleInConversation);
-        conversation.addUser(userInConversation);
+        UserEventConversation participationInConversation = new UserEventConversation(userToAdd, false);
+        participationInConversation.setUserRoleInConversation(userRoleInConversation);
+        conversation.addUser(participationInConversation);
+        saveEventConversation(conversation);
 
-        eventConversationRepository.save(conversation);
+        userToAdd.addParticipationToConversation(participationInConversation);
+        saveUser(userToAdd);
     }
 
     @Override
     public void removeUsersFromConversation(EventConversation conversation, List<User> usersToRemove) {
         for(User userToRemove : usersToRemove) {
-            Optional<UserEventConversation> userInConversation = conversation.getUsersInvolved().stream().filter(userInvolved -> userInvolved.getUser().equals(userToRemove)).findFirst();
-            userInConversation.ifPresent(conversation::removeUser);
+            Optional<UserEventConversation> participationInConversation = conversation.getUsersInvolved().stream().filter(userInvolved -> userInvolved.getUser().equals(userToRemove)).findFirst();
+            participationInConversation.ifPresent(conversation::removeUser);
         }
-        eventConversationRepository.save(conversation);
+        saveEventConversation(conversation);
     }
 
     @Override
-    public void removeConversation(UserEventConversation userConversation) {
-        userConversation.setConversationDeletedOnUserSide(true);
-        userEventConversationRepository.save(userConversation);
+    public void removeConversationOnUserSide(UserEventConversation userInConversation) {
+        userInConversation.setConversationDeletedOnUserSide(true);
+        userEventConversationRepository.save(userInConversation);
     }
 
     @Override
@@ -118,9 +116,9 @@ public class MessageServiceImpl implements MessageService {
         List<ChatMessage> receivedMessages = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
         if(user.isPresent()) {
-            List<UserEventConversation> userConversations = user.get().getUserEventConversations();
-            for (UserEventConversation userConversation : userConversations) {
-                List<ChatMessage> conversationMessages = chatMessageRepository.findMessagesByConversationIdAndAuthorIdNot(userConversation.getEventConversation().getId(), userId);
+            List<UserEventConversation> participationInConversations = user.get().getParticipationInConversations();
+            for (UserEventConversation participationInConversation : participationInConversations) {
+                List<ChatMessage> conversationMessages = chatMessageRepository.findMessagesByConversationIdAndAuthorIdNot(participationInConversation.getEventConversation().getId(), userId);
                 receivedMessages.addAll(conversationMessages);
             }
         }

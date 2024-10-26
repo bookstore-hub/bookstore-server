@@ -21,4 +21,6 @@ public interface CoreService {
 
     void acceptEventInvitation(User user, Event event, UserEventInvitation invitation);
 
+    void declineEventInvitation(UserEventInvitation userEventInvitation);
+
 }

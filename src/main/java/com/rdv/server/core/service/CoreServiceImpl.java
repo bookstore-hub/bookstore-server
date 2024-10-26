@@ -7,6 +7,7 @@ import com.rdv.server.chat.entity.UserRoleInConversation;
 import com.rdv.server.chat.service.MessageService;
 import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.EventRepository;
+import com.rdv.server.core.repository.UserEventInvitationRepository;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.notification.service.FirebaseMessagingService;
 import com.rdv.server.notification.to.Note;
@@ -36,23 +37,29 @@ public class CoreServiceImpl implements CoreService {
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final UserEventInvitationRepository userEventInvitationRepository;
     private final MessageService messageService;
     private final FirebaseMessagingService firebaseMessagingService;
     private final MessageSource messageSource;
 
 
-    public CoreServiceImpl(UserRepository userRepository, EventRepository eventRepository, MessageService messageService,
-                           FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
+    public CoreServiceImpl(UserRepository userRepository, EventRepository eventRepository, UserEventInvitationRepository userEventInvitationRepository,
+                           MessageService messageService, FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
+        this.userEventInvitationRepository = userEventInvitationRepository;
         this.messageService = messageService;
         this.firebaseMessagingService = firebaseMessagingService;
         this.messageSource = messageSource;
     }
 
 
-    private void saveUserChanges(User user) {
+    private void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    private void saveEventInvitation(UserEventInvitation eventInvitation) {
+        userEventInvitationRepository.save(eventInvitation);
     }
 
 
@@ -66,13 +73,13 @@ public class CoreServiceImpl implements CoreService {
 
         user.getOwnedEvents().add(ownedEvent);
         user.addEventInterest(event);
-        saveUserChanges(user);
+        saveUser(user);
     }
 
     @Override
     public void removeEvent(User user, UserEventOwner ownedEvent) {
         user.removeEvent(ownedEvent);
-        saveUserChanges(user);
+        saveUser(user);
     }
 
     @Override
@@ -84,10 +91,10 @@ public class CoreServiceImpl implements CoreService {
 
             userInviting.addInvitationSent(invitation);
             userInvited.addInvitationReceived(invitation);
-            saveUserChanges(userInvited);
+            saveUser(userInvited);
         }
 
-        saveUserChanges(userInviting);
+        saveUser(userInviting);
 
         sendInvitationNotifications(event, userInviting, usersToInvite);
     }
@@ -117,7 +124,7 @@ public class CoreServiceImpl implements CoreService {
     @Override
     public void acceptEventInvitation(User userInvited, Event event, UserEventInvitation invitation) {
         invitation.setStatus(UserEventInvitationStatus.ACCEPTED);
-        userInvited.addEventInterest(event);
+        saveEventInvitation(invitation);
 
         User userInviting = invitation.getUserInviting();
         Optional<EventConversation> eventConversation = retrieveConversationIfExists(event, userInviting);
@@ -126,13 +133,14 @@ public class CoreServiceImpl implements CoreService {
             messageService.addUserToConversation(userInviting, eventConversation.get(), UserRoleInConversation.MODERATOR);
         }
 
+        userInvited.addEventInterest(event);
         messageService.addUserToConversation(userInvited, eventConversation.get(), UserRoleInConversation.REGULAR);
 
         sendInvitationAcceptedNotification(userInvited, userInviting, event);
     }
 
     private Optional<EventConversation> retrieveConversationIfExists(Event event, User userInviting) {
-        return userInviting.getUserEventConversations().stream()
+        return userInviting.getParticipationInConversations().stream()
                 .map(UserEventConversation::getEventConversation)
                 .filter(eventConversation -> eventConversation.getEvent().equals(event))
                 .findFirst();
@@ -154,6 +162,12 @@ public class CoreServiceImpl implements CoreService {
                 LOGGER.info("An error occurred while sending notification ", e);
             }
         }
+    }
+
+    @Override
+    public void declineEventInvitation(UserEventInvitation invitation) {
+        invitation.setStatus(UserEventInvitationStatus.DECLINED);
+        saveEventInvitation(invitation);
     }
 
 }

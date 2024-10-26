@@ -129,10 +129,10 @@ public class UserTo {
     public record ConversationData(Long conversationId, MinimalData user, List<MinimalData> otherUsersInvolved, Date dateAndTimeOfLastUpdate,
                                    Long eventId, String eventTitle) {
 
-        public ConversationData(UserEventConversation userEventConversation, Date dateAndTimeOfLastUpdate) {
-            this(userEventConversation.getEventConversation().getId(), new MinimalData(userEventConversation.getUser()),
-                    determineOtherUsersInvolved(userEventConversation), dateAndTimeOfLastUpdate,
-                    userEventConversation.getEventConversation().getEvent().getId(), userEventConversation.getEventConversation().getEvent().getTitle());
+        public ConversationData(UserEventConversation userInConversation, Date dateAndTimeOfLastUpdate) {
+            this(userInConversation.getEventConversation().getId(), new MinimalData(userInConversation.getUser()),
+                    determineOtherUsersInvolved(userInConversation), dateAndTimeOfLastUpdate,
+                    userInConversation.getEventConversation().getEvent().getId(), userInConversation.getEventConversation().getEvent().getTitle());
         }
 
         private static List<MinimalData> determineOtherUsersInvolved(UserEventConversation userEventConversation) {

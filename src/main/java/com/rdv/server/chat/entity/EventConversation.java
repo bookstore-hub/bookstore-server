@@ -148,7 +148,7 @@ public class EventConversation {
 
     public List<User> getOtherParticipants(User user) {
         return getUsersInvolved().stream().map(UserEventConversation::getUser)
-                .filter(userInConversationUser -> !userInConversationUser.getId().equals(user.getId())).collect(Collectors.toList());
+                .filter(userInConversation -> !userInConversation.getId().equals(user.getId())).collect(Collectors.toList());
     }
 
     @Override
