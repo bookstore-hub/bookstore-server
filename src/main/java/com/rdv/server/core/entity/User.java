@@ -78,13 +78,13 @@ public class User extends DomainObject {
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private Set<Event> eventInterests;
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "user_follower",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "follower_id"))
     private List<User> followers = new ArrayList<>();
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "user_following",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "following_id"))
