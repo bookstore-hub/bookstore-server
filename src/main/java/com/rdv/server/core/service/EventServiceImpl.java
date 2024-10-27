@@ -75,7 +75,7 @@ public class EventServiceImpl implements EventService {
         UserEventOwner ownedEvent = new UserEventOwner();
         ownedEvent.setUser(user);
         ownedEvent.setEvent(event);
-        ownedEvent.setStatus(UserEventOwnerStatus.PENDING); //UserEventOwnerStatus.CREATOR when validated
+        ownedEvent.setStatus(UserEventOwnerStatus.PENDING_CREATOR); //UserEventOwnerStatus.CREATOR when validated
         ownedEvent.setCreationDate(OffsetDateTime.now());
 
         user.getOwnedEvents().add(ownedEvent);
@@ -91,7 +91,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void takeOwnershipOfEvent(User user, Event event) {
-        UserEventOwner ownedEvent = new UserEventOwner(user, event, UserEventOwnerStatus.PENDING, OffsetDateTime.now()); //UserEventOwnerStatus.ACQUIRER when confirmed
+        UserEventOwner ownedEvent = new UserEventOwner(user, event, UserEventOwnerStatus.PENDING_ACQUIRER, OffsetDateTime.now()); //UserEventOwnerStatus.ACQUIRER when confirmed
         user.addOwnedEvent(ownedEvent);
         saveUser(user);
     }

@@ -6,6 +6,6 @@ package com.rdv.server.core.entity;
 
 public enum UserEventOwnerStatus {
 
-    PENDING, CREATOR, ACQUIRER
+    PENDING_CREATOR, CREATOR, PENDING_ACQUIRER, ACQUIRER
 
 }
