@@ -61,6 +61,10 @@ public class Event extends DomainObject {
     @Column(name = "category" , length = 50)
     private String category;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state" , length = 15)
+    private EventState state;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
     private List<EventDescription> descriptions = new ArrayList<>();
 
@@ -322,6 +326,24 @@ public class Event extends DomainObject {
      */
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    /**
+     * Returns the state
+     *
+     * @return Returns the state
+     */
+    public EventState getState() {
+        return state;
+    }
+
+    /**
+     * Sets the state
+     *
+     * @param state The state to set
+     */
+    public void setState(EventState state) {
+        this.state = state;
     }
 
     /**

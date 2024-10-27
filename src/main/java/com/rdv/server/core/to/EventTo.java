@@ -58,23 +58,36 @@ public class EventTo {
 
 
     /** Minimal Data **/
-    public record MinimalData(String startDate, String endDate, String site, double cost, String poster, String title) {
+    public record MinimalData(String startDate, String endDate, String site, double cost, String poster, String title, EventState state) {
         public MinimalData(Event event, Language language) {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
-                    event.getSite(), event.getCost(), event.getPoster(), event.getTitle());
+                    event.getSite(), event.getCost(), event.getPoster(), event.getTitle(),
+                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()));
         }
     }
 
     /** Full Data **/
     public record FullData(String startDate, String endDate, EventType type, EventTargetAudience targetAudience, String site, String district,
-                           double cost, String poster, String detailsLink, String ticketingLink, String title, String category) {
+                           double cost, String poster, String detailsLink, String ticketingLink, String title, String category, EventState state) {
         public FullData(Event event, Language language) {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getType(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
-                    event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getCategory());
+                    event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getCategory(),
+                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()));
         }
+    }
+
+    private static EventState determineEventStateDisplayed(OffsetDateTime startDate, OffsetDateTime endDate, EventState state) {
+        EventState stateDisplayed = state;
+        if (!EventState.CANCELLED.equals(state)) {
+            OffsetDateTime now = OffsetDateTime.now();
+            if(now.isAfter(startDate) && now.isBefore(endDate)) {
+                stateDisplayed = EventState.ONGOING;
+            }
+        }
+        return stateDisplayed;
     }
 
 
