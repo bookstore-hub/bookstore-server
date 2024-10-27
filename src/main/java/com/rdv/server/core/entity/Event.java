@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author davidgarcia
@@ -64,6 +65,9 @@ public class Event extends DomainObject {
     @Enumerated(EnumType.STRING)
     @Column(name = "state" , length = 15)
     private EventState state;
+
+    @ManyToMany(mappedBy = "eventInterests")
+    private Set<User> usersInterested;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
     private List<EventDescription> descriptions = new ArrayList<>();
@@ -344,6 +348,24 @@ public class Event extends DomainObject {
      */
     public void setState(EventState state) {
         this.state = state;
+    }
+
+    /**
+     * Returns the usersInterested
+     *
+     * @return Returns the usersInterested
+     */
+    public Set<User> getUsersInterested() {
+        return usersInterested;
+    }
+
+    /**
+     * Sets the usersInterested
+     *
+     * @param usersInterested The usersInterested to set
+     */
+    public void setUsersInterested(Set<User> usersInterested) {
+        this.usersInterested = usersInterested;
     }
 
     /**

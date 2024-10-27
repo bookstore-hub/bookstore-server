@@ -35,6 +35,8 @@ public class EventServiceImpl implements EventService {
     private static final String EVENT_INVITATION_MESSAGE = "event.invitation";
     private static final String EVENT_INVITATION_ACCEPTED = "EVENT_INVITATION_ACCEPTED";
     private static final String EVENT_INVITATION_ACCEPTED_MESSAGE = "event.invitation.accepted";
+    private static final String EVENT_CANCELLATION = "EVENT_CANCELLATION";
+    private static final String EVENT_CANCELLATION_MESSAGE = "event.cancellation";
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
@@ -59,6 +61,10 @@ public class EventServiceImpl implements EventService {
 
     private void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    private void saveEvent(Event event) {
+        eventRepository.save(event);
     }
 
     private void saveEventInvitation(UserEventInvitation eventInvitation) {
@@ -115,7 +121,7 @@ public class EventServiceImpl implements EventService {
 
     private void sendInvitationNotifications(Event event, User userInviting, List<User> usersToNotify) {
 
-        if(usersToNotify != null && !usersToNotify.isEmpty()) {
+        if(!usersToNotify.isEmpty()) {
             for(User userToNotify : usersToNotify) {
                 String userMessagingToken = userToNotify.getMessagingToken();
                 if(userMessagingToken != null) {
@@ -202,6 +208,38 @@ public class EventServiceImpl implements EventService {
         }
         user.removeEventInterest(event);
         saveUser(user);
+    }
+
+    @Override
+    public void cancelEvent(User user, Event event) {
+        event.setState(EventState.CANCELLED);
+        saveEvent(event);
+
+        sendEventCancelledNotification(user, event);
+    }
+
+    private void sendEventCancelledNotification(User owner, Event event) {
+        Set<User> usersToNotify = event.getUsersInterested();
+        usersToNotify.remove(owner);
+
+        if(!usersToNotify.isEmpty()) {
+            for(User userToNotify : usersToNotify) {
+                String userMessagingToken = userToNotify.getMessagingToken();
+                if(userMessagingToken != null) {
+                    Locale locale = LocaleUtils.toLocale(userToNotify.getPreferredLanguage().name());
+
+                    Map<String, String> messageData = new HashMap<>();
+                    messageData.put("contentType", EVENT_CANCELLATION);
+                    Note note = new Note(messageSource.getMessage(EVENT_CANCELLATION_MESSAGE, new Object[]{event.getTitle()}, locale), messageData);
+
+                    try {
+                        firebaseMessagingService.sendNotificationWithData(note, userMessagingToken);
+                    } catch (ExecutionException | InterruptedException e) {
+                        LOGGER.info("An error occurred while sending notification ", e);
+                    }
+                }
+            }
+        }
     }
 
 }

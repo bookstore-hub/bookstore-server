@@ -29,4 +29,6 @@ public interface EventService {
 
     void removeInterestInEvent(User user, Event event);
 
+    void cancelEvent(User user, Event event);
+
 }

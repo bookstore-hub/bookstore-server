@@ -238,9 +238,35 @@ public class EventController {
         return registered;
     }
 
+    /**
+     * Cancels an event
+     *
+     * @param userId      the user id
+     * @param eventId     the event id
+     */
+    @Operation(description = "Cancels an event")
+    @PutMapping(value = "/cancelEvent")
+    public boolean cancelEvent(@Parameter(description = "The user id") @RequestParam Long userId,
+                               @Parameter(description = "The event id") @RequestParam Long eventId) {
+        boolean cancelled = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent() && user.get().ownsEvent(event.get())) {
+            eventService.cancelEvent(user.get(), event.get());
+            cancelled = true;
+        }
+
+        return cancelled;
+    }
+
 
     //editEvent()
     //retrieveEventDetails()
     //retrieveCategories()
+
+    //+ tard: ne pas reprendre les events déjà en db, juste le statut si ils ont été annulés
+
+    //events jour multiples: partage des jours ? (jour 1, jour 2...)
 
 }

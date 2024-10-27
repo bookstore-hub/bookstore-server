@@ -72,11 +72,11 @@ public class User extends DomainObject {
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="user")
     private Set<UserFriend> friends = new HashSet<>();
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "user_event_interest",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
-    private List<Event> eventInterests = new ArrayList<>();
+    private Set<Event> eventInterests;
 
     @OneToMany
     @JoinTable(name = "user_follower",
@@ -439,7 +439,7 @@ public class User extends DomainObject {
      *
      * @return Returns the eventInterests
      */
-    public List<Event> getEventInterests() {
+    public Set<Event> getEventInterests() {
         return eventInterests;
     }
 
@@ -448,7 +448,7 @@ public class User extends DomainObject {
      *
      * @param eventInterests The eventInterests to set
      */
-    public void setEventInterests(List<Event> eventInterests) {
+    public void setEventInterests(Set<Event> eventInterests) {
         this.eventInterests = eventInterests;
     }
 
@@ -678,6 +678,13 @@ public class User extends DomainObject {
 
     public void addOwnedEvent(UserEventOwner ownedEvent) {
         getOwnedEvents().add(ownedEvent);
+    }
+
+    public boolean ownsEvent(Event event) {
+        return getOwnedEvents().stream()
+                .anyMatch(ownedEvent ->
+                        ownedEvent.getEvent().equals(event)
+                        && (ownedEvent.getStatus().equals(UserEventOwnerStatus.CREATOR) || ownedEvent.getStatus().equals(UserEventOwnerStatus.ACQUIRER)));
     }
 
 }
