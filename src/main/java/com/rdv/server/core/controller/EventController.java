@@ -314,14 +314,15 @@ public class EventController {
     @GetMapping(value = "/retrieveEventDetails")
     public EventTo.FullData retrieveEventDetails(@Parameter(description = "The user id") @RequestParam Long userId,
                                                  @Parameter(description = "The event id") @RequestParam Long eventId) {
+        EventTo.FullData eventDetails = null;
         Optional<User> user = userRepository.findById(userId);
         Optional<Event> event = eventRepository.findById(eventId);
 
-        if(user.isPresent() && event.isPresent() && user.get().ownsEvent(event.get())) {
-            //todo stuff
+        if(user.isPresent() && event.isPresent()) {
+            eventDetails = new EventTo.FullData(event.get(), user.get().getPreferredLanguage(), user.get().ownsEvent(event.get()));
         }
 
-        return null;
+        return eventDetails;
     }
 
 

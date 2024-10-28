@@ -73,13 +73,13 @@ public class EventTo {
     /** Full Data **/
     public record FullData(String startDate, String endDate, EventType type, EventTargetAudience targetAudience, String site, String district,
                            double cost, String poster, String detailsLink, String ticketingLink, String title, String category, EventState state,
-                           EventValidationStatus validationStatus) {
-        public FullData(Event event, Language language) {
+                           EventValidationStatus validationStatus, boolean editable) {
+        public FullData(Event event, Language language, boolean editable) {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getType(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
                     event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getCategory(),
-                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), event.getValidationStatus());
+                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), event.getValidationStatus(), editable);
         }
     }
 
