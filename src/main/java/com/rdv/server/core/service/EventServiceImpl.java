@@ -10,7 +10,6 @@ import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.EventRepository;
 import com.rdv.server.core.repository.UserEventInvitationRepository;
 import com.rdv.server.core.repository.UserRepository;
-import com.rdv.server.core.to.EventTo;
 import com.rdv.server.notification.service.FirebaseMessagingService;
 import com.rdv.server.notification.to.Note;
 import org.apache.commons.lang3.LocaleUtils;
@@ -78,7 +77,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public void addEvent(User user, Event event) {
+    public void createEvent(User user, Event event) {
         UserEventOwner ownedEvent = new UserEventOwner();
         ownedEvent.setUser(user);
         ownedEvent.setEvent(event);
@@ -135,7 +134,7 @@ public class EventServiceImpl implements EventService {
                     try {
                         firebaseMessagingService.sendNotificationWithData(note, userMessagingToken);
                     } catch (ExecutionException | InterruptedException e) {
-                        LOGGER.info("An error occurred while sending notification ", e);
+                        LOGGER.info("An error occurred while sending InvitationNotification to user " + userToNotify.getUsername(), e);
                     }
                 }
             }
@@ -180,7 +179,7 @@ public class EventServiceImpl implements EventService {
             try {
                 firebaseMessagingService.sendNotificationWithData(note, userMessagingToken);
             } catch (ExecutionException | InterruptedException e) {
-                LOGGER.info("An error occurred while sending notification ", e);
+                LOGGER.info("An error occurred while sending InvitationAcceptedNotification to user " + userInviting.getUsername(), e);
             }
         }
     }
@@ -236,7 +235,7 @@ public class EventServiceImpl implements EventService {
                     try {
                         firebaseMessagingService.sendNotificationWithData(note, userMessagingToken);
                     } catch (ExecutionException | InterruptedException e) {
-                        LOGGER.info("An error occurred while sending notification ", e);
+                        LOGGER.info("An error occurred while sending EventCancelledNotification to user " + userToNotify.getUsername(), e);
                     }
                 }
             }

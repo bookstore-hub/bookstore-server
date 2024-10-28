@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -40,19 +41,20 @@ public class EventController {
 
 
     /**
-     * Adds a new event
+     * Creates a new event
      *
      * @param userId       the id of the user adding the event
      * @param eventData    the event data
      */
-    @Operation(description = "Adds a new event")
-    @PostMapping(value = "/add")
-    public boolean addEvent(@Parameter(description = "The user id") @RequestParam Long userId,
+    @Operation(description = "Creates a new event")
+    @PostMapping(value = "/create")
+    public boolean createEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                             @Parameter(description = "The event data") @RequestBody EventTo.CreationOrUpdate eventData) {
         Optional<User> user = userRepository.findById(userId);
         if(user.isPresent()) {
+            LOGGER.info("Creating event " + eventData.title() + " for user " + user.get().getUsername());
             Event newEvent = EventTo.mapNewEvent(eventData);
-            eventService.addEvent(user.get(), newEvent);
+            eventService.createEvent(user.get(), newEvent);
             return true;
         } else {
             return false;
@@ -75,6 +77,7 @@ public class EventController {
         if(user.isPresent() && event.isPresent()) {
             Optional<UserEventOwner> createdEvent = user.get().retrieveCreatedEvent(event.get());
             if(createdEvent.isPresent()) {
+                LOGGER.info("Removing event " + event.get().getTitle() + " created by user " + user.get().getUsername());
                 eventService.removeEvent(user.get(), createdEvent.get());
                 removed = true;
             }
@@ -98,6 +101,7 @@ public class EventController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
+            LOGGER.info("Giving ownership of event " + event.get().getTitle() + " to user " + user.get().getUsername());
             eventService.takeOwnershipOfEvent(user.get(), event.get());
             owned = true;
         }
@@ -123,6 +127,9 @@ public class EventController {
         List<User> usersToInvite = retrieveUsers(usersIds);
 
         if(event.isPresent() && userInviting.isPresent() && !usersToInvite.isEmpty()) {
+            LOGGER.info("User " + userInviting.get().getUsername() + " inviting friends " +
+                    usersToInvite.stream().map(User::getUsername).collect(Collectors.joining(","))+ " to event " + event.get().getTitle());
+
             eventService.inviteFriendsToEvent(event.get(), userInviting.get(), usersToInvite);
             invited = true;
         }
@@ -158,6 +165,7 @@ public class EventController {
                     .filter(userEventInvitation -> userEventInvitation.getEvent().equals(event.get()))
                     .findFirst();
             if(invitation.isPresent()) {
+                LOGGER.info("User " + user.get().getUsername() + " accepting invitation to event " + event.get().getTitle());
                 eventService.acceptEventInvitation(user.get(), event.get(), invitation.get());
                 accepted = true;
             }
@@ -185,6 +193,7 @@ public class EventController {
                     .filter(userEventInvitation -> userEventInvitation.getEvent().equals(event.get()))
                     .findFirst();
             if(invitation.isPresent()) {
+                LOGGER.info("User " + user.get().getUsername() + " declining invitation to event " + event.get().getTitle());
                 eventService.declineEventInvitation(invitation.get());
                 declined = true;
             }
@@ -208,6 +217,7 @@ public class EventController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
+            LOGGER.info("User " + user.get().getUsername() + " showing interest to event " + event.get().getTitle());
             eventService.showInterestInEvent(user.get(), event.get());
             registered = true;
         }
@@ -230,6 +240,7 @@ public class EventController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
+            LOGGER.info("User " + user.get().getUsername() + " removing interest to event " + event.get().getTitle());
             eventService.removeInterestInEvent(user.get(), event.get());
             registered = true;
         }
@@ -252,6 +263,7 @@ public class EventController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent() && user.get().ownsEvent(event.get())) {
+            LOGGER.info("User " + user.get().getUsername() + " canceling event " + event.get().getTitle());
             eventService.cancelEvent(user.get(), event.get());
             cancelled = true;
         }
@@ -275,6 +287,8 @@ public class EventController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent() && user.get().ownsEvent(event.get())) {
+            LOGGER.info("User " + user.get().getUsername() + " accepting invitation to event " + event.get().getTitle());
+
             EventTo.mapUpdatedEvent(event.get(), eventData);
             eventService.editEvent(event.get());
             edited = true;
@@ -297,6 +311,7 @@ public class EventController {
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
+            LOGGER.info("Retrieving events to display on date " + date + " for category " + category);
             List<Event> events = eventService.retrieveEvents(date, category);
             eventsForDate = events.stream().sorted(Comparator.comparing(Event::getStartDate))
                     .map(event -> new EventTo.MinimalData(event, user.get().getPreferredLanguage()))
@@ -321,6 +336,7 @@ public class EventController {
         Optional<Event> event = eventRepository.findById(eventId);
 
         if(user.isPresent() && event.isPresent()) {
+            LOGGER.info("Retrieving details of event " + event.get().getTitle());
             eventDetails = new EventTo.FullData(event.get(), user.get().getPreferredLanguage(), user.get().ownsEvent(event.get()));
         }
 

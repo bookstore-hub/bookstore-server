@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface EventService {
 
-    void addEvent(User user, Event event);
+    void createEvent(User user, Event event);
 
     void removeEvent(User user, UserEventOwner ownedEvent);
 
