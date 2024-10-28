@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -284,12 +285,48 @@ public class EventController {
         return edited;
     }
 
+    /**
+     * Retrieve all events for a specific date
+     *
+     * @param userId      the user id
+     */
+    @Operation(description = "Retrieve all events for a specific date")
+    @GetMapping(value = "/retrieveEvents")
+    public List<EventTo.MinimalData> retrieveEvents(@Parameter(description = "The user id") @RequestParam Long userId,
+                                                    @Parameter(description = "The date") @RequestParam LocalDate date,
+                                                    @Parameter(description = "The category") @RequestParam(required = false) String category) { //Really String ? Not enum ?
+        Optional<User> user = userRepository.findById(userId);
 
-    //retrieveEventDetails()
-    //retrieveCategories()
+        if(user.isPresent()) { //Sort by hours asc.
+            //todo stuff
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieve an event details
+     *
+     * @param userId      the user id
+     * @param eventId     the event id
+     */
+    @Operation(description = "Retrieve an event details")
+    @GetMapping(value = "/retrieveEventDetails")
+    public EventTo.FullData retrieveEventDetails(@Parameter(description = "The user id") @RequestParam Long userId,
+                                                 @Parameter(description = "The event id") @RequestParam Long eventId) {
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent() && user.get().ownsEvent(event.get())) {
+            //todo stuff
+        }
+
+        return null;
+    }
+
+
+    //retrieveCategories() -> enum or not ? Voir données MTL pour indication
 
     //+ tard: ne pas reprendre les events déjà en db, juste le statut si ils ont été annulés
-
-    //events jour multiples: partage des jours ? (jour 1, jour 2...)
 
 }
