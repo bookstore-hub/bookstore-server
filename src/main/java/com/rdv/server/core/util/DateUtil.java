@@ -3,6 +3,7 @@ package com.rdv.server.core.util;
 
 import java.time.DateTimeException;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
@@ -19,7 +20,8 @@ public class DateUtil {
             FormatStyle dateStyle = FormatStyle.MEDIUM;
             FormatStyle timeStyle = FormatStyle.SHORT;
 
-            dateAndTimeFormatted = dateAndTime.format(DateTimeFormatter.ofLocalizedDateTime(dateStyle, timeStyle).withLocale(locale));
+            dateAndTimeFormatted = dateAndTime.format(DateTimeFormatter.ofLocalizedDateTime(dateStyle, timeStyle)
+                    .withZone(ZoneId.of("America/Montreal")).withLocale(locale));
         }
 
         if(dateAndTimeFormatted != null) {
@@ -36,7 +38,8 @@ public class DateUtil {
             FormatStyle dateStyle = FormatStyle.FULL;
             FormatStyle timeStyle = FormatStyle.SHORT;
 
-            dateAndTimeFormatted = dateAndTime.format(DateTimeFormatter.ofLocalizedDateTime(dateStyle, timeStyle).withLocale(locale));
+            dateAndTimeFormatted = dateAndTime.format(DateTimeFormatter.ofLocalizedDateTime(dateStyle, timeStyle)
+                    .withZone(ZoneId.of("America/Montreal")).withLocale(locale));
         }
 
         if(dateAndTimeFormatted != null) {

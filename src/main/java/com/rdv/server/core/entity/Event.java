@@ -34,8 +34,8 @@ public class Event extends DomainObject {
     private OffsetDateTime endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type" , length = 30)
-    private EventType type;
+    @Column(name = "category" , length = 50)
+    private EventCategory category;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_audience" , length = 30)
@@ -58,9 +58,6 @@ public class Event extends DomainObject {
 
     @Column(name = "ticketing_link" , length = 150)
     private String ticketingLink;
-
-    @Column(name = "category" , length = 50)
-    private String category;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state" , length = 15)
@@ -175,21 +172,21 @@ public class Event extends DomainObject {
     }
 
     /**
-     * Returns the type
+     * Returns the category
      *
-     * @return Returns the type
+     * @return Returns the category
      */
-    public EventType getType() {
-        return type;
+    public EventCategory getCategory() {
+        return category;
     }
 
     /**
-     * Sets the type
+     * Sets the category
      *
-     * @param type The type to set
+     * @param category The category to set
      */
-    public void setType(EventType type) {
-        this.type = type;
+    public void setCategory(EventCategory category) {
+        this.category = category;
     }
 
     /**
@@ -316,24 +313,6 @@ public class Event extends DomainObject {
      */
     public void setTicketingLink(String ticketingLink) {
         this.ticketingLink = ticketingLink;
-    }
-
-    /**
-     * Returns the category
-     *
-     * @return Returns the category
-     */
-    public String getCategory() {
-        return category;
-    }
-
-    /**
-     * Sets the category
-     *
-     * @param category The category to set
-     */
-    public void setCategory(String category) {
-        this.category = category;
     }
 
     /**

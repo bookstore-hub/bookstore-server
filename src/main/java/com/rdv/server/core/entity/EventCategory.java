@@ -4,8 +4,8 @@ package com.rdv.server.core.entity;
  * @author davidgarcia
  */
 
-public enum EventType {
+public enum EventCategory {
 
-    CLUBBING, FESTIVAL
+    CLUBBING, FESTIVAL, OTHER
 
 }

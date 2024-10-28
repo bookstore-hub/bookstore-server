@@ -10,6 +10,7 @@ import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.EventRepository;
 import com.rdv.server.core.repository.UserEventInvitationRepository;
 import com.rdv.server.core.repository.UserRepository;
+import com.rdv.server.core.to.EventTo;
 import com.rdv.server.notification.service.FirebaseMessagingService;
 import com.rdv.server.notification.to.Note;
 import org.apache.commons.lang3.LocaleUtils;
@@ -18,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -245,6 +246,29 @@ public class EventServiceImpl implements EventService {
     @Override
     public void editEvent(Event event) {
         saveEvent(event);
+    }
+
+    @Override
+    public List<Event> retrieveEvents(LocalDate date, EventCategory category) {
+        List<Event> eventsFound;
+
+        ZoneOffset montrealStandardOffset = getZoneOffset();
+        OffsetDateTime dateBeginningOfDay = date.atTime(OffsetTime.MIN).withOffsetSameLocal(montrealStandardOffset);
+        OffsetDateTime dateEndOfDay = date.atTime(OffsetTime.MAX).withOffsetSameLocal(montrealStandardOffset);
+
+        if(category == null) {
+            eventsFound = eventRepository.findAllByStartDateLessThanEqualAndEndDateGreaterThanEqual(dateEndOfDay, dateBeginningOfDay);
+        } else {
+            eventsFound = eventRepository.findAllByStartDateLessThanEqualAndEndDateGreaterThanEqualAndCategory(dateEndOfDay, dateBeginningOfDay, category);
+        }
+
+        return eventsFound;
+    }
+
+    private static ZoneOffset getZoneOffset() {
+        ZoneId zoneId = ZoneId.of("America/Montreal");
+        Instant now = Instant.now();
+        return zoneId.getRules().getStandardOffset(now);
     }
 
 }

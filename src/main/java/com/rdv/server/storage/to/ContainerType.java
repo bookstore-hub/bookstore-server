@@ -19,18 +19,18 @@ public enum ContainerType {
 
 
     /**
-     * Returns the type
+     * Returns the value
      *
-     * @return Returns the type
+     * @return Returns the value
      */
     public String getValue() {
         return value;
     }
 
     /**
-     * Sets the type
+     * Sets the value
      *
-     * @param value The type to set
+     * @param value The value to set
      */
     public void setValue(String value) {
         this.value = value;

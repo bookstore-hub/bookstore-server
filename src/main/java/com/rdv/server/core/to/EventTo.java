@@ -29,10 +29,10 @@ public class EventTo {
         @Parameter (description = "The end date")
         @NotNull
         OffsetDateTime endDate,
-        @Parameter (description = "The event type")
-        @Size(max = 30)
+        @Parameter (description = "The event category")
+        @Size(max = 50)
         @NotNull
-        EventType type,
+        EventCategory category,
         @Parameter (description = "The target audience")
         @Size(max = 30)
         EventTargetAudience targetAudience,
@@ -53,9 +53,6 @@ public class EventTo {
         @Parameter (description = "The ticketing link")
         @Size(max = 150)
         String ticketingLink,
-        @Parameter (description = "The category")
-        @Size(max = 150)
-        String category,
         List<EventDescriptionTo.CreationOrUpdate> descriptions
     ) {}
 
@@ -71,14 +68,14 @@ public class EventTo {
     }
 
     /** Full Data **/
-    public record FullData(String startDate, String endDate, EventType type, EventTargetAudience targetAudience, String site, String district,
-                           double cost, String poster, String detailsLink, String ticketingLink, String title, String category, EventState state,
+    public record FullData(String startDate, String endDate, EventCategory type, EventTargetAudience targetAudience, String site, String district,
+                           double cost, String poster, String detailsLink, String ticketingLink, String title, EventState state,
                            EventValidationStatus validationStatus, boolean editable) {
         public FullData(Event event, Language language, boolean editable) {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
-                    event.getType(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
-                    event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getCategory(),
+                    event.getCategory(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
+                    event.getDetailsLink(), event.getTicketingLink(), event.getTitle(),
                     determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), event.getValidationStatus(), editable);
         }
     }
@@ -130,7 +127,7 @@ public class EventTo {
         event.setTitle(eventData.title());
         event.setStartDate(eventData.startDate());
         event.setEndDate(eventData.endDate());
-        event.setType(eventData.type());
+        event.setCategory(eventData.category());
         event.setTargetAudience(eventData.targetAudience());
         event.setSite(eventData.site());
         event.setDistrict(eventData.district());
@@ -138,7 +135,6 @@ public class EventTo {
         event.setPoster(eventData.poster());
         event.setDetailsLink(eventData.detailsLink());
         event.setTicketingLink(eventData.ticketingLink());
-        event.setCategory(eventData.category());
         event.setValidationStatus(EventValidationStatus.ASSESSING);
     }
 

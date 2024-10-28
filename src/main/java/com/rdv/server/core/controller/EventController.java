@@ -13,9 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -48,7 +46,7 @@ public class EventController {
      * @param eventData    the event data
      */
     @Operation(description = "Adds a new event")
-    @PostMapping(value = "/addEvent")
+    @PostMapping(value = "/add")
     public boolean addEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                             @Parameter(description = "The event data") @RequestBody EventTo.CreationOrUpdate eventData) {
         Optional<User> user = userRepository.findById(userId);
@@ -67,7 +65,7 @@ public class EventController {
      * @param eventId    the event id
      */
     @Operation(description = "Removes an event")
-    @PutMapping(value = "/removeEvent")
+    @PutMapping(value = "/remove")
     public boolean removeEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                                @Parameter(description = "The event data") @RequestParam Long eventId) {
         boolean removed = false;
@@ -246,7 +244,7 @@ public class EventController {
      * @param eventId     the event id
      */
     @Operation(description = "Cancels an event")
-    @PutMapping(value = "/cancelEvent")
+    @PutMapping(value = "/cancel")
     public boolean cancelEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                                @Parameter(description = "The event id") @RequestParam Long eventId) {
         boolean cancelled = false;
@@ -268,7 +266,7 @@ public class EventController {
      * @param eventId     the event id
      */
     @Operation(description = "Edits an event")
-    @PutMapping(value = "/editEvent")
+    @PutMapping(value = "/edit")
     public boolean editEvent(@Parameter(description = "The user id") @RequestParam Long userId,
                              @Parameter(description = "The event id") @RequestParam Long eventId,
                              @Parameter(description = "The event id") @RequestParam EventTo.CreationOrUpdate eventData) {
@@ -291,17 +289,21 @@ public class EventController {
      * @param userId      the user id
      */
     @Operation(description = "Retrieve all events for a specific date")
-    @GetMapping(value = "/retrieveEvents")
-    public List<EventTo.MinimalData> retrieveEvents(@Parameter(description = "The user id") @RequestParam Long userId,
-                                                    @Parameter(description = "The date") @RequestParam LocalDate date,
-                                                    @Parameter(description = "The category") @RequestParam(required = false) String category) { //Really String ? Not enum ?
+    @GetMapping(value = "/retrieveAll")
+    public List<EventTo.MinimalData> retrieveAllEvents(@Parameter(description = "The user id") @RequestParam Long userId,
+                                                       @Parameter(description = "The date") @RequestParam LocalDate date,
+                                                       @Parameter(description = "The category") @RequestParam(required = false) EventCategory category) {
+        List<EventTo.MinimalData> eventsForDate = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
 
-        if(user.isPresent()) { //Sort by hours asc.
-            //todo stuff
+        if(user.isPresent()) {
+            List<Event> events = eventService.retrieveEvents(date, category);
+            eventsForDate = events.stream().sorted(Comparator.comparing(Event::getStartDate))
+                    .map(event -> new EventTo.MinimalData(event, user.get().getPreferredLanguage()))
+                    .toList();
         }
 
-        return null;
+        return eventsForDate;
     }
 
     /**
@@ -311,7 +313,7 @@ public class EventController {
      * @param eventId     the event id
      */
     @Operation(description = "Retrieve an event details")
-    @GetMapping(value = "/retrieveEventDetails")
+    @GetMapping(value = "/retrieveDetails")
     public EventTo.FullData retrieveEventDetails(@Parameter(description = "The user id") @RequestParam Long userId,
                                                  @Parameter(description = "The event id") @RequestParam Long eventId) {
         EventTo.FullData eventDetails = null;
@@ -325,9 +327,16 @@ public class EventController {
         return eventDetails;
     }
 
+    /**
+     * Retrieve all event categories
+     */
+    @Operation(description = "Retrieve all event categories")
+    @GetMapping(value = "/retrieveCategories")
+    public List<EventCategory> retrieveEventCategories() {
+        return Arrays.asList(EventCategory.values());
+    }
 
-    //retrieveCategories() -> enum or not ? Voir données MTL pour indication
 
-    //+ tard: ne pas reprendre les events déjà en db, juste le statut si ils ont été annulés
+    //Note pour + tard: ne pas reprendre les events déjà en db, juste le statut si ils ont été annulés
 
 }

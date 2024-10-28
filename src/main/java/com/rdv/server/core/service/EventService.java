@@ -1,11 +1,9 @@
 package com.rdv.server.core.service;
 
 
-import com.rdv.server.core.entity.Event;
-import com.rdv.server.core.entity.User;
-import com.rdv.server.core.entity.UserEventInvitation;
-import com.rdv.server.core.entity.UserEventOwner;
+import com.rdv.server.core.entity.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -32,5 +30,7 @@ public interface EventService {
     void cancelEvent(User user, Event event);
 
     void editEvent(Event event);
+
+    List<Event> retrieveEvents(LocalDate date, EventCategory category);
 
 }
