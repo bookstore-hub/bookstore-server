@@ -7,8 +7,9 @@ package com.rdv.server.core.entity;
 public enum SubscriptionStatus {
 
     PENDING,
-    CANCELED,
+    CANCELLED,
     ASSESSING,
+    CHANGES_REQUIRED,
     CONFIRMED,
     VERIFIED,
     ENDED,

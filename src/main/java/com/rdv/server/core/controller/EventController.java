@@ -260,8 +260,31 @@ public class EventController {
         return cancelled;
     }
 
+    /**
+     * Edits an event
+     *
+     * @param userId      the user id
+     * @param eventId     the event id
+     */
+    @Operation(description = "Edits an event")
+    @PutMapping(value = "/editEvent")
+    public boolean editEvent(@Parameter(description = "The user id") @RequestParam Long userId,
+                             @Parameter(description = "The event id") @RequestParam Long eventId,
+                             @Parameter(description = "The event id") @RequestParam EventTo.CreationOrUpdate eventData) {
+        boolean edited = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
 
-    //editEvent()
+        if(user.isPresent() && event.isPresent() && user.get().ownsEvent(event.get())) {
+            EventTo.mapUpdatedEvent(event.get(), eventData);
+            eventService.editEvent(event.get());
+            edited = true;
+        }
+
+        return edited;
+    }
+
+
     //retrieveEventDetails()
     //retrieveCategories()
 

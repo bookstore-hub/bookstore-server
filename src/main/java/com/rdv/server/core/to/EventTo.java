@@ -6,8 +6,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.Period;
 import java.util.List;
 
 
@@ -58,26 +61,28 @@ public class EventTo {
 
 
     /** Minimal Data **/
-    public record MinimalData(String startDate, String endDate, String site, double cost, String poster, String title, EventState state) {
+    public record MinimalData(String startDate, String endDate, String site, double cost, String poster, String title, EventState state, String additionalInfo) {
         public MinimalData(Event event, Language language) {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getSite(), event.getCost(), event.getPoster(), event.getTitle(),
-                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()));
+                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), determineAdditionalInfo(event));
         }
     }
 
     /** Full Data **/
     public record FullData(String startDate, String endDate, EventType type, EventTargetAudience targetAudience, String site, String district,
-                           double cost, String poster, String detailsLink, String ticketingLink, String title, String category, EventState state) {
+                           double cost, String poster, String detailsLink, String ticketingLink, String title, String category, EventState state,
+                           EventValidationStatus validationStatus) {
         public FullData(Event event, Language language) {
             this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getType(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
                     event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getCategory(),
-                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()));
+                    determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), event.getValidationStatus());
         }
     }
+
 
     private static EventState determineEventStateDisplayed(OffsetDateTime startDate, OffsetDateTime endDate, EventState state) {
         EventState stateDisplayed = state;
@@ -90,17 +95,38 @@ public class EventTo {
         return stateDisplayed;
     }
 
+    private static String determineAdditionalInfo(Event event) {
+        String additionalInfo = StringUtils.EMPTY;
+
+        //If the event takes place over several days, a fraction is used to indicate on which specific day of the event we are
+        if(!event.getStartDate().isEqual(event.getEndDate())) {
+            LocalDate startDateAsLocalDate = event.getStartDate().toLocalDate();
+            LocalDate endDateAsLocalDate = event.getEndDate().toLocalDate();
+            LocalDate currentDate = LocalDate.now();
+
+            Period daysFromStartDateToCurrentDate = Period.between(startDateAsLocalDate, currentDate);
+            Period daysFromStartDateToEndDate = Period.between(startDateAsLocalDate, endDateAsLocalDate);
+            int numberOfDays1 = Math.abs(daysFromStartDateToCurrentDate.getDays());
+            int numberOfDays2 = Math.abs(daysFromStartDateToEndDate.getDays());
+            return numberOfDays1 + "/" + numberOfDays2;
+        }
+
+        return additionalInfo;
+    }
+
 
     /** Mapping of new Event **/
     public static Event mapNewEvent(CreationOrUpdate eventData) {
         Event event = new Event();
         event.setCreationDate(OffsetDateTime.now());
+        event.setState(EventState.PLANNED);
+        mapUpdatedEvent(event, eventData);
 
-        return mapUpdatedEvent(event, eventData);
+        return event;
     }
 
     /** Mapping of updated Event **/
-    public static Event mapUpdatedEvent(Event event, CreationOrUpdate eventData) {
+    public static void mapUpdatedEvent(Event event, CreationOrUpdate eventData) {
         event.setTitle(eventData.title());
         event.setStartDate(eventData.startDate());
         event.setEndDate(eventData.endDate());
@@ -113,8 +139,7 @@ public class EventTo {
         event.setDetailsLink(eventData.detailsLink());
         event.setTicketingLink(eventData.ticketingLink());
         event.setCategory(eventData.category());
-
-        return event;
+        event.setValidationStatus(EventValidationStatus.ASSESSING);
     }
 
 }

@@ -242,4 +242,9 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    @Override
+    public void editEvent(Event event) {
+        saveEvent(event);
+    }
+
 }

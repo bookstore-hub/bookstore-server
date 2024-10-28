@@ -66,6 +66,10 @@ public class Event extends DomainObject {
     @Column(name = "state" , length = 15)
     private EventState state;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "validation_status" , length = 20)
+    private EventValidationStatus validationStatus;
+
     @ManyToMany(mappedBy = "eventInterests")
     private Set<User> usersInterested;
 
@@ -348,6 +352,24 @@ public class Event extends DomainObject {
      */
     public void setState(EventState state) {
         this.state = state;
+    }
+
+    /**
+     * Returns the validationStatus
+     *
+     * @return Returns the validationStatus
+     */
+    public EventValidationStatus getValidationStatus() {
+        return validationStatus;
+    }
+
+    /**
+     * Sets the validationStatus
+     *
+     * @param validationStatus The validationStatus to set
+     */
+    public void setValidationStatus(EventValidationStatus validationStatus) {
+        this.validationStatus = validationStatus;
     }
 
     /**

@@ -31,4 +31,6 @@ public interface EventService {
 
     void cancelEvent(User user, Event event);
 
+    void editEvent(Event event);
+
 }
