@@ -27,6 +27,7 @@ import java.util.Optional;
 @CrossOrigin
 @RequestMapping("/search")
 @Tag(name = "SearchController", description = "Set of endpoints to handle the RDV search logic")
+//Todo: tester. Ne semble pas optimal. Peut-être déplacer vers un autre microservice ?
 public class SearchController {
 
     protected static final Log LOGGER = LogFactory.getLog(SearchController.class);
