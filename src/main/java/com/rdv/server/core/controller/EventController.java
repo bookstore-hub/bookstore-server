@@ -304,17 +304,17 @@ public class EventController {
      */
     @Operation(description = "Retrieve all events for a specific date")
     @GetMapping(value = "/retrieveAll")
-    public List<EventTo.MinimalData> retrieveAllEvents(@Parameter(description = "The user id") @RequestParam Long userId,
+    public List<EventTo.ListingData> retrieveAllEvents(@Parameter(description = "The user id") @RequestParam Long userId,
                                                        @Parameter(description = "The date") @RequestParam LocalDate date,
                                                        @Parameter(description = "The category") @RequestParam(required = false) EventCategory category) {
-        List<EventTo.MinimalData> eventsForDate = new ArrayList<>();
+        List<EventTo.ListingData> eventsForDate = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
             LOGGER.info("Retrieving events to display on date " + date + " for category " + category);
             List<Event> events = eventService.retrieveEvents(date, category);
             eventsForDate = events.stream().sorted(Comparator.comparing(Event::getStartDate))
-                    .map(event -> new EventTo.MinimalData(event, user.get().getPreferredLanguage()))
+                    .map(event -> new EventTo.ListingData(event, user.get().getPreferredLanguage()))
                     .toList();
         }
 

@@ -58,9 +58,16 @@ public class EventTo {
 
 
     /** Minimal Data **/
-    public record MinimalData(String startDate, String endDate, String site, double cost, String poster, String title, EventState state, String additionalInfo) {
-        public MinimalData(Event event, Language language) {
-            this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
+    public record MinimalData(Long id, String title, String poster) {
+        public MinimalData(Event event) {
+            this(event.getId(), event.getTitle(), event.getPoster());
+        }
+    }
+
+    /** Listing Data **/
+    public record ListingData(Long id, String startDate, String endDate, String site, double cost, String poster, String title, EventState state, String additionalInfo) {
+        public ListingData(Event event, Language language) {
+            this(event.getId(), DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getSite(), event.getCost(), event.getPoster(), event.getTitle(),
                     determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), determineAdditionalInfo(event));
@@ -68,11 +75,11 @@ public class EventTo {
     }
 
     /** Full Data **/
-    public record FullData(String startDate, String endDate, EventCategory type, EventTargetAudience targetAudience, String site, String district,
+    public record FullData(Long id, String startDate, String endDate, EventCategory type, EventTargetAudience targetAudience, String site, String district,
                            double cost, String poster, String detailsLink, String ticketingLink, String title, EventState state,
                            EventValidationStatus validationStatus, boolean editable) {
         public FullData(Event event, Language language, boolean editable) {
-            this(DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
+            this(event.getId(), DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getCategory(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
                     event.getDetailsLink(), event.getTicketingLink(), event.getTitle(),
