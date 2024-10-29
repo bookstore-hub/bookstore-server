@@ -1,6 +1,5 @@
 package com.rdv.server.core.repository;
 
-import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.entity.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -23,7 +22,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     User findByEmail(@Param("email") String email);
 
-    @Query(value = "SELECT * FROM User u WHERE SIMILARITY(u.username, ?1) > 0.7 or SIMILARITY(u.first_name, ?1) > 0.7 or SIMILARITY(u.last_name, ?1) > 0.7", nativeQuery = true)
+    @Query(value = "SELECT * FROM User u WHERE SIMILARITY(u.username, ?1) > 0.7 or SIMILARITY(u.firstName, ?1) > 0.7 or SIMILARITY(u.lastName, ?1) > 0.7", nativeQuery = true)
     List<User> findAllUsersMatching(String searchString);
 
 }

@@ -24,7 +24,7 @@ public interface EventRepository extends CrudRepository<Event, Long> {
     List<Event> findAllByStartDateLessThanEqualAndEndDateGreaterThanEqualAndCategory(
             @Param("endDate") OffsetDateTime dateEndOfDay, @Param("startDate") OffsetDateTime dateBeginningOfDay, @Param("category") EventCategory category);
 
-    @Query(value = "SELECT * FROM Event e WHERE SIMILARITY(e.title, ?1) > 0.7 or SIMILARITY(e.location_venue, ?1) > 0.7", nativeQuery = true)
+    @Query(value = "SELECT * FROM Event e WHERE SIMILARITY(e.title, ?1) > 0.7 or SIMILARITY(e.venue, ?1) > 0.7", nativeQuery = true)
     List<Event> findAllEventsMatching(String searchString);
 
 }
