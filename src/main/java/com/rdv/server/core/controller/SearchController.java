@@ -33,12 +33,10 @@ public class SearchController {
     protected static final Log LOGGER = LogFactory.getLog(SearchController.class);
 
     private final UserRepository userRepository;
-    private final EventRepository eventRepository;
     private final SearchService searchService;
 
-    public SearchController(UserRepository userRepository, EventRepository eventRepository, SearchService searchService) {
+    public SearchController(UserRepository userRepository, SearchService searchService) {
         this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
         this.searchService = searchService;
     }
 
