@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-//Todo: Voir si possible de mettre à jour le cache (auto-complete). Peut-être déplacer vers un autre microservice ?
+//Todo: Tester. Voir si possible de mettre à jour le cache (auto-complete). Peut-être déplacer vers un autre microservice ? Voir si fullSearch suffit.
 
 /**
  * @author davidgarcia
