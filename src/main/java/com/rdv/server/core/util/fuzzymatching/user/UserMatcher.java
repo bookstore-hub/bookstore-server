@@ -23,7 +23,7 @@ import java.util.List;
 @Component
 public class UserMatcher implements ApplicationListener<ApplicationReadyEvent> {
 
-    private static final Log LOGGER = LogFactory.getLog(User.class);
+    private static final Log LOGGER = LogFactory.getLog(UserMatcher.class);
 
     private AutocompleteEngine<UserRecord> engine = null;
     private boolean initialized = false;
@@ -40,12 +40,12 @@ public class UserMatcher implements ApplicationListener<ApplicationReadyEvent> {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("UserMatcher initialized start: " + new Date());
         }
-        engine = new AutocompleteEngine.Builder<UserRecord>()
+        /*engine = new AutocompleteEngine.Builder<UserRecord>()
                 .setIndex(new UserAdapter())
                 .setAnalyzers(new LowerCaseTransformer(), new WordTokenizer())
                 .build();
 
-        engine.addAll(userRepository.findAllUsers().stream().map(UserRecord::new).toList());
+        engine.addAll(userRepository.findAllUsers().stream().map(UserRecord::new).toList());*/
 
         initialized = true;
 
