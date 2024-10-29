@@ -41,8 +41,8 @@ public class Event extends DomainObject {
     @Column(name = "target_audience" , length = 30)
     private EventTargetAudience targetAudience;
 
-    @Column(name = "location_site" , length = 50)
-    private String site;
+    @Column(name = "location_venue" , length = 50)
+    private String venue;
 
     @Column(name = "location_district" , length = 30)
     private String district;
@@ -208,21 +208,21 @@ public class Event extends DomainObject {
     }
 
     /**
-     * Returns the site
+     * Returns the venue
      *
-     * @return Returns the site
+     * @return Returns the venue
      */
-    public String getSite() {
-        return site;
+    public String getVenue() {
+        return venue;
     }
 
     /**
-     * Sets the site
+     * Sets the venue
      *
-     * @param site The site to set
+     * @param venue The venue to set
      */
-    public void setSite(String site) {
-        this.site = site;
+    public void setVenue(String venue) {
+        this.venue = venue;
     }
 
     /**

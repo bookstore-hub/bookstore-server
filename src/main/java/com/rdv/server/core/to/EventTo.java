@@ -36,9 +36,9 @@ public class EventTo {
         @Parameter (description = "The target audience")
         @Size(max = 30)
         EventTargetAudience targetAudience,
-        @Parameter (description = "The location (site)")
+        @Parameter (description = "The location (venue)")
         @Size(max = 30)
-        String site,
+        String venue,
         @Parameter (description = "The location (district)")
         @Size(max = 30)
         String district,
@@ -65,23 +65,23 @@ public class EventTo {
     }
 
     /** Listing Data **/
-    public record ListingData(Long id, String startDate, String endDate, String site, double cost, String poster, String title, EventState state, String additionalInfo) {
+    public record ListingData(Long id, String startDate, String endDate, String venue, double cost, String poster, String title, EventState state, String additionalInfo) {
         public ListingData(Event event, Language language) {
             this(event.getId(), DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
-                    event.getSite(), event.getCost(), event.getPoster(), event.getTitle(),
+                    event.getVenue(), event.getCost(), event.getPoster(), event.getTitle(),
                     determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), determineAdditionalInfo(event));
         }
     }
 
     /** Full Data **/
-    public record FullData(Long id, String startDate, String endDate, EventCategory type, EventTargetAudience targetAudience, String site, String district,
+    public record FullData(Long id, String startDate, String endDate, EventCategory type, EventTargetAudience targetAudience, String venue, String district,
                            double cost, String poster, String detailsLink, String ticketingLink, String title, EventState state,
                            EventValidationStatus validationStatus, boolean editable) {
         public FullData(Event event, Language language, boolean editable) {
             this(event.getId(), DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
-                    event.getCategory(), event.getTargetAudience(), event.getSite(), event.getDistrict(), event.getCost(), event.getPoster(),
+                    event.getCategory(), event.getTargetAudience(), event.getVenue(), event.getDistrict(), event.getCost(), event.getPoster(),
                     event.getDetailsLink(), event.getTicketingLink(), event.getTitle(),
                     determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), event.getValidationStatus(), editable);
         }
@@ -136,7 +136,7 @@ public class EventTo {
         event.setEndDate(eventData.endDate());
         event.setCategory(eventData.category());
         event.setTargetAudience(eventData.targetAudience());
-        event.setSite(eventData.site());
+        event.setVenue(eventData.venue());
         event.setDistrict(eventData.district());
         event.setCost(eventData.cost());
         event.setPoster(eventData.poster());
