@@ -12,8 +12,12 @@ import java.util.List;
 public interface SearchService {
 
 
-    List<Event> searchEvents(String searchData);
+    List<Event> autoSearchEvents(String searchString);
 
-    List<User> searchUsers(String searchData);
+    List<Event> fullSearchEvents(String searchString);
+
+    List<User> autoSearchUsers(String searchString);
+
+    List<User> fullSearchUsers(String searchString);
 
 }

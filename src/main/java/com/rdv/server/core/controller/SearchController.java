@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 
+//Todo: Voir si possible de mettre à jour le cache (auto-complete). Peut-être déplacer vers un autre microservice ?
+
 /**
  * @author davidgarcia
  */
@@ -27,7 +29,6 @@ import java.util.Optional;
 @CrossOrigin
 @RequestMapping("/search")
 @Tag(name = "SearchController", description = "Set of endpoints to handle the RDV search logic")
-//Todo: tester. Ne semble pas optimal. Peut-être déplacer vers un autre microservice ?
 public class SearchController {
 
     protected static final Log LOGGER = LogFactory.getLog(SearchController.class);
@@ -41,22 +42,26 @@ public class SearchController {
     }
 
 
+
+    /******************************************************** EVENTS ***********************************************************/
+
+
     /**
-     * Search events
+     * Search events (auto-complete)
      *
      * @param userId       the searching user id
-     * @param searchData   the search data
+     * @param searchString   the search data
      */
-    @Operation(description = "Search events")
-    @GetMapping(value = "/events")
-    public List<EventTo.MinimalData> searchEvents(@Parameter(description = "The searching user id") @RequestParam Long userId,
-                                                  @Parameter(description = "The search data") @RequestParam String searchData) {
+    @Operation(description = "Search events (auto-complete)")
+    @GetMapping(value = "/events/auto")
+    public List<EventTo.MinimalData> autoSearchEvents(@Parameter(description = "The searching user id") @RequestParam Long userId,
+                                                      @Parameter(description = "The search string") @RequestParam String searchString) {
         List<EventTo.MinimalData> foundData = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            LOGGER.info("Search events from string " + searchData);
-            List<Event> events = searchService.searchEvents(searchData);
+            LOGGER.info("Search events from partial string " + searchString);
+            List<Event> events = searchService.autoSearchEvents(searchString);
             foundData = events.stream().map(EventTo.MinimalData::new).toList();
         }
 
@@ -64,21 +69,69 @@ public class SearchController {
     }
 
     /**
-     * Search users
+     * Search events (full string)
      *
      * @param userId       the searching user id
-     * @param searchData   the search data
+     * @param searchString   the search data
      */
-    @Operation(description = "Search users")
-    @GetMapping(value = "/users")
-    public List<UserTo.MinimalData> searchUsers(@Parameter(description = "The searching user id") @RequestParam Long userId,
-                                                 @Parameter(description = "The search data") @RequestParam String searchData) {
+    @Operation(description = "Search events (full)")
+    @GetMapping(value = "/events/full")
+    public List<EventTo.MinimalData> fullSearchEvents(@Parameter(description = "The searching user id") @RequestParam Long userId,
+                                                      @Parameter(description = "The search data") @RequestParam String searchString) {
+        List<EventTo.MinimalData> foundData = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+            LOGGER.info("Search events from full string " + searchString);
+            List<Event> events = searchService.fullSearchEvents(searchString);
+            foundData = events.stream().map(EventTo.MinimalData::new).toList();
+        }
+
+        return foundData;
+    }
+
+
+    /******************************************************** USERS ************************************************************/
+
+
+    /**
+     * Search users (auto-complete)
+     *
+     * @param userId       the searching user id
+     * @param searchString   the search data
+     */
+    @Operation(description = "Search users (auto-complete)")
+    @GetMapping(value = "/users/auto")
+    public List<UserTo.MinimalData> autoSearchUsers(@Parameter(description = "The searching user id") @RequestParam Long userId,
+                                                    @Parameter(description = "The search data") @RequestParam String searchString) {
         List<UserTo.MinimalData> foundData = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
 
         if(user.isPresent()) {
-            LOGGER.info("Search users from string " + searchData);
-            List<User> users = searchService.searchUsers(searchData);
+            LOGGER.info("Search users from partial string " + searchString);
+            List<User> users = searchService.autoSearchUsers(searchString);
+            foundData = users.stream().map(UserTo.MinimalData::new).toList();
+        }
+
+        return foundData;
+    }
+
+    /**
+     * Search users (full string)
+     *
+     * @param userId       the searching user id
+     * @param searchString   the search data
+     */
+    @Operation(description = "Search users (full string)")
+    @GetMapping(value = "/users/full")
+    public List<UserTo.MinimalData> fullSearchUsers(@Parameter(description = "The searching user id") @RequestParam Long userId,
+                                                    @Parameter(description = "The search data") @RequestParam String searchString) {
+        List<UserTo.MinimalData> foundData = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+            LOGGER.info("Search users from full string " + searchString);
+            List<User> users = searchService.fullSearchUsers(searchString);
             foundData = users.stream().map(UserTo.MinimalData::new).toList();
         }
 

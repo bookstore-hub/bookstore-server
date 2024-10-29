@@ -40,6 +40,7 @@ public class UserMatcher implements ApplicationListener<ApplicationReadyEvent> {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("UserMatcher initialized start: " + new Date());
         }
+
         /*engine = new AutocompleteEngine.Builder<UserRecord>()
                 .setIndex(new UserAdapter())
                 .setAnalyzers(new LowerCaseTransformer(), new WordTokenizer())

@@ -3,6 +3,8 @@ package com.rdv.server.core.service;
 
 import com.rdv.server.core.entity.Event;
 import com.rdv.server.core.entity.User;
+import com.rdv.server.core.repository.EventRepository;
+import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.util.fuzzymatching.event.EventMatcher;
 import com.rdv.server.core.util.fuzzymatching.user.UserMatcher;
 import info.debatty.java.stringsimilarity.Levenshtein;
@@ -23,32 +25,52 @@ public class SearchServiceImpl implements SearchService {
 
     protected static final Log LOGGER = LogFactory.getLog(SearchServiceImpl.class);
 
-    private static final int MAX_RESULTS = 20;
+    private static final int MAX_RESULTS = 10;
     public static final LevenshteinDistance LEVENSHTEIN_DISTANCE = new LevenshteinDistance();
     public static final int DISTANCE = 70;
 
     private final UserMatcher userMatcher;
     private final EventMatcher eventMatcher;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
-    public SearchServiceImpl(UserMatcher userMatcher, EventMatcher eventMatcher) {
+    public SearchServiceImpl(UserMatcher userMatcher, EventMatcher eventMatcher, EventRepository eventRepository, UserRepository userRepository) {
         this.userMatcher = userMatcher;
         this.eventMatcher = eventMatcher;
+        this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
     }
 
 
     @Override
-    public List<Event> searchEvents(String searchData) {
-        List<Event> matches = eventMatcher.collectPossibleMatches(searchData);
-        matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), searchData)));
-        return matches.stream().filter(event -> getLevenshteinScore(event.getTitle(), searchData) >= DISTANCE).limit(MAX_RESULTS).toList();
+    public List<Event> autoSearchEvents(String searchString) {
+        List<Event> matches = eventMatcher.collectPossibleMatches(searchString);
+        matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), searchString)));
+        return matches.stream().filter(event -> getLevenshteinScore(event.getTitle(), searchString) >= DISTANCE).limit(MAX_RESULTS).toList();
     }
 
     @Override
-    public List<User> searchUsers(String searchData) {
-        List<User> matches = userMatcher.collectPossibleMatches(searchData);
-        matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchData)));
-        return matches.stream().filter(user -> getLevenshteinScore(user.getUsername(), searchData) >= DISTANCE).limit(MAX_RESULTS).toList();
+    public List<Event> fullSearchEvents(String searchString) {
+        List<Event> matches = eventRepository.findAllEventsMatching(searchString);
+        matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), searchString)));
+        return matches.stream().limit(MAX_RESULTS).toList();
     }
+
+
+    @Override
+    public List<User> autoSearchUsers(String searchString) {
+        List<User> matches = userMatcher.collectPossibleMatches(searchString);
+        matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchString)));
+        return matches.stream().filter(user -> getLevenshteinScore(user.getUsername(), searchString) >= DISTANCE).limit(MAX_RESULTS).toList();
+    }
+
+    @Override
+    public List<User> fullSearchUsers(String searchString) {
+        List<User> matches = userRepository.findAllUsersMatching(searchString);
+        matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchString)));
+        return matches.stream().limit(MAX_RESULTS).toList();
+    }
+
 
     private double getLevenshteinScore(String value1, String value2) {
         return 100 - ((double) LEVENSHTEIN_DISTANCE.apply(value1, value2)) / Math.max(value1.length(), value2.length()) * 100;
