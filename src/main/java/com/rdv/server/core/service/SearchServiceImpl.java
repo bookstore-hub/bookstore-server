@@ -38,16 +38,18 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<Event> searchEvents(String searchData) {
-        List<Event> matches = eventMatcher.collectPossibleMatches(searchData);
+        /*List<Event> matches = eventMatcher.collectPossibleMatches(searchData);
         matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), searchData)));
-        return matches.stream().filter(event -> getLevenshteinScore(event.getTitle(), searchData) >= DISTANCE).limit(MAX_RESULTS).toList();
+        return matches.stream().filter(event -> getLevenshteinScore(event.getTitle(), searchData) >= DISTANCE).limit(MAX_RESULTS).toList();*/
+        return List.of();
     }
 
     @Override
     public List<User> searchUsers(String searchData) {
-        List<User> matches = userMatcher.collectPossibleMatches(searchData);
+        /*List<User> matches = userMatcher.collectPossibleMatches(searchData);
         matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchData)));
-        return matches.stream().filter(user -> getLevenshteinScore(user.getUsername(), searchData) >= DISTANCE).limit(MAX_RESULTS).toList();
+        return matches.stream().filter(user -> getLevenshteinScore(user.getUsername(), searchData) >= DISTANCE).limit(MAX_RESULTS).toList();*/
+        return List.of();
     }
 
     private double getLevenshteinScore(String value1, String value2) {
