@@ -687,4 +687,14 @@ public class User extends DomainObject {
                         && (ownedEvent.getStatus().equals(UserEventOwnerStatus.CREATOR) || ownedEvent.getStatus().equals(UserEventOwnerStatus.ACQUIRER)));
     }
 
+    public void startFollowing(User user) {
+        getUsersFollowed().add(user);
+        user.getFollowers().add(this);
+    }
+
+    public void stopFollowing(User user) {
+        getUsersFollowed().remove(user);
+        user.getFollowers().remove(this);
+    }
+
 }
