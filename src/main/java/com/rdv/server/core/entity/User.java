@@ -70,7 +70,10 @@ public class User extends DomainObject {
     private int selectedLocation;
 
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="user")
-    private Set<UserFriend> friends = new HashSet<>();
+    private Set<Friendship> friends = new HashSet<>();
+
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="friend")
+    private Set<Friendship> friendRequests = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "user_event_interest",
@@ -421,7 +424,7 @@ public class User extends DomainObject {
      *
      * @return Returns the friends
      */
-    public Set<UserFriend> getFriends() {
+    public Set<Friendship> getFriends() {
         return friends;
     }
 
@@ -430,8 +433,26 @@ public class User extends DomainObject {
      *
      * @param friends The friends to set
      */
-    public void setFriends(Set<UserFriend> friends) {
+    public void setFriends(Set<Friendship> friends) {
         this.friends = friends;
+    }
+
+    /**
+     * Returns the friendRequests
+     *
+     * @return Returns the friendRequests
+     */
+    public Set<Friendship> getFriendRequests() {
+        return friendRequests;
+    }
+
+    /**
+     * Sets the friendRequests
+     *
+     * @param friendRequests The friendRequests to set
+     */
+    public void setFriendRequests(Set<Friendship> friendRequests) {
+        this.friendRequests = friendRequests;
     }
 
     /**
@@ -695,6 +716,20 @@ public class User extends DomainObject {
     public void stopFollowing(User user) {
         getUsersFollowed().remove(user);
         user.getFollowers().remove(this);
+    }
+
+    public void addFriendshipRelation(Friendship friendship, User userAdded) {
+        getFriends().add(friendship);
+        userAdded.getFriendRequests().add(friendship);
+    }
+
+    public Optional<Friendship> getFriendRequest(User user) {
+        return getFriendRequests().stream().filter(friendRequest -> friendRequest.getUser().equals(user)).findFirst();
+    }
+
+    public void declineFriendRequest(Friendship friendship, User user) {
+        getFriendRequests().remove(friendship);
+        user.getFriends().remove(friendship);
     }
 
 }

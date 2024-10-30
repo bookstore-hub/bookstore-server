@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "user_friend", schema="rdv")
-public class UserFriend {
+@Table(name = "friendship", schema="rdv")
+public class Friendship {
 
     @Id
-    @GeneratedValue(generator = "user_friend_sequence", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "user_friend_sequence", sequenceName = "rdv.user_friend_id_seq", allocationSize = 50)
+    @GeneratedValue(generator = "friendship_sequence", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "friendship_sequence", sequenceName = "rdv.friendship_id_seq", allocationSize = 50)
     private Long id;
 
     @ManyToOne
@@ -25,7 +25,7 @@ public class UserFriend {
     private OffsetDateTime creationDate;
 
     @Column(name = "status", length = 20)
-    private UserContactStatus status;
+    private FriendshipStatus status;
 
 
 
@@ -106,7 +106,7 @@ public class UserFriend {
      *
      * @return Returns the status
      */
-    public UserContactStatus getStatus() {
+    public FriendshipStatus getStatus() {
         return status;
     }
 
@@ -115,7 +115,7 @@ public class UserFriend {
      *
      * @param status The status to set
      */
-    public void setStatus(UserContactStatus status) {
+    public void setStatus(FriendshipStatus status) {
         this.status = status;
     }
 

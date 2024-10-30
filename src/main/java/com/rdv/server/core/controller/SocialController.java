@@ -1,10 +1,9 @@
 package com.rdv.server.core.controller;
 
-import com.rdv.server.core.entity.Event;
+import com.rdv.server.core.entity.Friendship;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.service.SocialService;
-import com.rdv.server.core.to.EventTo;
 import com.rdv.server.core.to.UserTo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -103,9 +102,57 @@ public class SocialController {
         return followers;
     }
 
+    /**
+     * Sends a friend request
+     *
+     * @param userSendingId      the user sending
+     * @param userReceivingId      the user receiving
+     */
+    @Operation(description = "Sends a friend request")
+    @PutMapping(value = "/sendFriendRequest")
+    public boolean sendFriendRequest(@Parameter(description = "The user sending id") @RequestParam Long userSendingId,
+                                     @Parameter(description = "The user receiving id") @RequestParam Long userReceivingId) {
+        boolean added = false;
+        Optional<User> userSending = userRepository.findById(userSendingId);
+        Optional<User> userReceiving = userRepository.findById(userReceivingId);
 
-    //addFriend()
-    //removeFriend()
+        if(userSending.isPresent() && userReceiving.isPresent()) {
+            LOGGER.info("User " + userSending.get().getUsername() + " sending friend request to user " + userReceiving.get().getUsername() + ".");
+            socialService.sendFriendRequest(userSending.get(), userReceiving.get());
+            added = true;
+        }
+
+        return added;
+    }
+
+    /**
+     * Declines a friend request
+     *
+     * @param userDecliningId      the user declining
+     * @param userRequestingId      the user requesting
+     */
+    @Operation(description = "Declines a friend request")
+    @PutMapping(value = "/declineFriendRequest")
+    public boolean declineFriendRequest(@Parameter(description = "The user declining id") @RequestParam Long userDecliningId,
+                                        @Parameter(description = "The user requesting id") @RequestParam Long userRequestingId) {
+        boolean declined = false;
+        Optional<User> userDeclining = userRepository.findById(userDecliningId);
+        Optional<User> userRequesting = userRepository.findById(userRequestingId);
+
+        if(userDeclining.isPresent() && userRequesting.isPresent()) {
+            Optional<Friendship> friendRequest = userDeclining.get().getFriendRequest(userRequesting.get());
+            if(friendRequest.isPresent()) {
+                LOGGER.info("User " + userDeclining.get().getUsername() + " declining friend request of user " + userRequesting.get().getUsername() + ".");
+                socialService.declineFriendRequest(userDeclining.get(), userRequesting.get(), friendRequest.get());
+                declined = true;
+            }
+        }
+
+        return declined;
+    }
+
+
+    //removeFriend() -> almost like decline
     //blockFriend()
     //unblockFriend()
     //retrieveFriends()
