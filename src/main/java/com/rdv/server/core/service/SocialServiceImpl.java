@@ -4,6 +4,7 @@ package com.rdv.server.core.service;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.core.entity.Friendship;
 import com.rdv.server.core.entity.FriendshipStatus;
+import com.rdv.server.core.repository.FriendshipRepository;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.notification.service.FirebaseMessagingService;
 import com.rdv.server.notification.to.Note;
@@ -32,12 +33,15 @@ public class SocialServiceImpl implements SocialService {
     private static final String FRIEND_REQUEST_MESSAGE = "friend.request.message";
 
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
     private final FirebaseMessagingService firebaseMessagingService;
     private final MessageSource messageSource;
 
 
-    public SocialServiceImpl(UserRepository userRepository, FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
+    public SocialServiceImpl(UserRepository userRepository, FriendshipRepository friendshipRepository,
+                             FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
         this.userRepository = userRepository;
+        this.friendshipRepository = friendshipRepository;
         this.firebaseMessagingService = firebaseMessagingService;
         this.messageSource = messageSource;
     }
@@ -45,6 +49,10 @@ public class SocialServiceImpl implements SocialService {
 
     private void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    private void saveFriendship(Friendship friendship) {
+        friendshipRepository.save(friendship);
     }
 
 
@@ -67,7 +75,7 @@ public class SocialServiceImpl implements SocialService {
         friendship.setFriend(userReceiving);
         friendship.setCreationDate(OffsetDateTime.now());
         friendship.setStatus(FriendshipStatus.PENDING);
-        userSending.addFriendshipRelation(friendship, userReceiving);
+        userSending.addFriendshipRelation(userReceiving, friendship);
         saveUser(userSending);
         saveUser(userReceiving);
 
@@ -95,10 +103,25 @@ public class SocialServiceImpl implements SocialService {
 
 
     @Override
-    public void declineFriendRequest(User userDeclining, User userRequesting, Friendship friendship) {
-        userDeclining.declineFriendRequest(friendship, userRequesting);
+    public void acceptFriendRequest(User userAccepting, Friendship friendship) {
+        friendship.setStatus(FriendshipStatus.CONNECTED);
+        userAccepting.acceptFriendRequest(friendship);
+        saveFriendship(friendship);
+        saveUser(userAccepting);
+    }
+
+    @Override
+    public void declineFriendRequest(User userDeclining, User userDeclined, Friendship friendship) {
+        userDeclining.declineFriendRequest(userDeclined, friendship);
         saveUser(userDeclining);
-        saveUser(userRequesting);
+        saveUser(userDeclined);
+    }
+
+    @Override
+    public void removeFriend(User userRemoving, User userRemoved, Friendship friendship) {
+        userRemoving.removeFriend(userRemoved, friendship);
+        saveUser(userRemoving);
+        saveUser(userRemoved);
     }
 
 }

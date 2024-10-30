@@ -126,6 +126,32 @@ public class SocialController {
     }
 
     /**
+     * Accepts a friend request
+     *
+     * @param userAcceptingId      the user accepting
+     * @param userRequestingId     the user requesting
+     */
+    @Operation(description = "Accepts a friend request")
+    @PutMapping(value = "/acceptFriendRequest")
+    public boolean acceptFriendRequest(@Parameter(description = "The user accepting id") @RequestParam Long userAcceptingId,
+                                       @Parameter(description = "The user requesting id") @RequestParam Long userRequestingId) {
+        boolean accepted = false;
+        Optional<User> userAccepting = userRepository.findById(userAcceptingId);
+        Optional<User> userRequesting = userRepository.findById(userRequestingId);
+
+        if(userAccepting.isPresent() && userRequesting.isPresent()) {
+            Optional<Friendship> friendRequest = userAccepting.get().getFriendRequest(userRequesting.get());
+            if(friendRequest.isPresent()) {
+                LOGGER.info("User " + userAccepting.get().getUsername() + " accepting friend request of user " + userRequesting.get().getUsername() + ".");
+                socialService.acceptFriendRequest(userAccepting.get(), friendRequest.get());
+                accepted = true;
+            }
+        }
+
+        return accepted;
+    }
+
+    /**
      * Declines a friend request
      *
      * @param userDecliningId      the user declining
@@ -151,8 +177,34 @@ public class SocialController {
         return declined;
     }
 
+    /**
+     * Removes a friend (also used to remove a friend request sent to someone)
+     *
+     * @param userRemovingId      the user removing
+     * @param userRemovedId      the user removed
+     */
+    @Operation(description = "Removes a friend (also used to remove a friend request sent to someone)")
+    @PutMapping(value = "/removeFriend")
+    public boolean removeFriend(@Parameter(description = "The user declining id") @RequestParam Long userRemovingId,
+                                @Parameter(description = "The user requesting id") @RequestParam Long userRemovedId) {
+        boolean removed = false;
+        Optional<User> userRemoving = userRepository.findById(userRemovingId);
+        Optional<User> userRemoved = userRepository.findById(userRemovedId);
 
-    //removeFriend() -> almost like decline
+        if(userRemoving.isPresent() && userRemoved.isPresent()) {
+            Optional<Friendship> friendship = userRemoving.get().getFriend(userRemoved.get());
+            if(friendship.isPresent()) {
+                LOGGER.info("User " + userRemoving.get().getUsername() + " removing user " + userRemoved.get().getUsername() + " as friend.");
+                socialService.removeFriend(userRemoving.get(), userRemoved.get(), friendship.get());
+                removed = true;
+            }
+        }
+
+        return removed;
+    }
+
+
+
     //blockFriend()
     //unblockFriend()
     //retrieveFriends()

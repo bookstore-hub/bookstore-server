@@ -718,7 +718,7 @@ public class User extends DomainObject {
         user.getFollowers().remove(this);
     }
 
-    public void addFriendshipRelation(Friendship friendship, User userAdded) {
+    public void addFriendshipRelation(User userAdded, Friendship friendship) {
         getFriends().add(friendship);
         userAdded.getFriendRequests().add(friendship);
     }
@@ -727,9 +727,29 @@ public class User extends DomainObject {
         return getFriendRequests().stream().filter(friendRequest -> friendRequest.getUser().equals(user)).findFirst();
     }
 
-    public void declineFriendRequest(Friendship friendship, User user) {
+    public Optional<Friendship> getFriend(User user) {
+        return getFriends().stream().filter(friend -> friend.getFriend().equals(user)).findFirst();
+    }
+
+    public void acceptFriendRequest(Friendship friendship) {
+        getFriends().add(friendship);
         getFriendRequests().remove(friendship);
-        user.getFriends().remove(friendship);
+    }
+
+    public void declineFriendRequest(User userDeclined, Friendship friendship) {
+        getFriendRequests().remove(friendship);
+        userDeclined.getFriends().remove(friendship);
+    }
+
+    public void removeFriend(User userRemoved, Friendship friendship) {
+        getFriends().remove(friendship);
+
+        if(FriendshipStatus.CONNECTED.equals(friendship.getStatus())) {
+            userRemoved.getFriends().remove(friendship);
+        } else if(FriendshipStatus.PENDING.equals(friendship.getStatus())) {
+            userRemoved.getFriendRequests().remove(friendship);
+        }
+
     }
 
 }
