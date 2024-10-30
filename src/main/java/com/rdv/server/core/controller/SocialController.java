@@ -155,21 +155,21 @@ public class SocialController {
      * Declines a friend request
      *
      * @param userDecliningId      the user declining
-     * @param userRequestingId      the user requesting
+     * @param userDeclinedId      the user declined
      */
     @Operation(description = "Declines a friend request")
     @PutMapping(value = "/declineFriendRequest")
     public boolean declineFriendRequest(@Parameter(description = "The user declining id") @RequestParam Long userDecliningId,
-                                        @Parameter(description = "The user requesting id") @RequestParam Long userRequestingId) {
+                                        @Parameter(description = "The user declined id") @RequestParam Long userDeclinedId) {
         boolean declined = false;
         Optional<User> userDeclining = userRepository.findById(userDecliningId);
-        Optional<User> userRequesting = userRepository.findById(userRequestingId);
+        Optional<User> userDeclined = userRepository.findById(userDeclinedId);
 
-        if(userDeclining.isPresent() && userRequesting.isPresent()) {
-            Optional<Friendship> friendRequest = userDeclining.get().getFriendRequest(userRequesting.get());
+        if(userDeclining.isPresent() && userDeclined.isPresent()) {
+            Optional<Friendship> friendRequest = userDeclining.get().getFriendRequest(userDeclined.get());
             if(friendRequest.isPresent()) {
-                LOGGER.info("User " + userDeclining.get().getUsername() + " declining friend request of user " + userRequesting.get().getUsername() + ".");
-                socialService.declineFriendRequest(userDeclining.get(), userRequesting.get(), friendRequest.get());
+                LOGGER.info("User " + userDeclining.get().getUsername() + " declining friend request of user " + userDeclined.get().getUsername() + ".");
+                socialService.declineFriendRequest(userDeclining.get(), userDeclined.get(), friendRequest.get());
                 declined = true;
             }
         }

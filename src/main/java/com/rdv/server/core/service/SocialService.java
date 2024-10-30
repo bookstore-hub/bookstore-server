@@ -16,7 +16,7 @@ public interface SocialService {
 
     void acceptFriendRequest(User userAccepting, Friendship friendship);
 
-    void declineFriendRequest(User userDeclining, User userRequesting, Friendship friendship);
+    void declineFriendRequest(User userDeclining, User userDeclined, Friendship friendship);
 
     void removeFriend(User userRemoving, User userRemoved, Friendship friendship);
 
