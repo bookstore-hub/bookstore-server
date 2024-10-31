@@ -1,8 +1,9 @@
 package com.rdv.server.core.service;
 
 
-import com.rdv.server.core.entity.UserConnection;
+import com.rdv.server.core.entity.Friendship;
 import com.rdv.server.core.entity.User;
+import com.rdv.server.core.entity.UserRestriction;
 
 import java.util.List;
 
@@ -16,15 +17,15 @@ public interface SocialService {
 
     void sendFriendRequest(User userSending, User userReceiving);
 
-    void acceptFriendRequest(User userAccepting, UserConnection connection);
+    void acceptFriendRequest(User userAccepting, Friendship friendship);
 
-    void declineFriendRequest(User userDeclining, User userDeclined, UserConnection connection);
+    void declineFriendRequest(User userDeclining, User userDeclined, Friendship friendship);
 
-    void removeConnection(User userRemoving, User userRemoved, UserConnection connection);
+    void removeFriend(User userRemoving, User userRemoved, Friendship friendship);
 
-    void blockUser(UserConnection connection);
+    void blockUser(User userBlocking, User userBlocked, Friendship friendship);
 
-    void unblockUser(User userUnblocking, User userUnblocked, UserConnection connection);
+    void unblockUser(User userUnblocking, User userUnblocked, UserRestriction restriction);
 
     List<User> retrieveFriends(User user);
 

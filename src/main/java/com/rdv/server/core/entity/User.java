@@ -70,10 +70,10 @@ public class User extends DomainObject {
     private int selectedLocation;
 
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="user")
-    private Set<UserConnection> connections = new HashSet<>();
+    private Set<Friendship> friends = new HashSet<>();
 
-    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="connectedUser")
-    private Set<UserConnection> friendRequests = new HashSet<>();
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="friend")
+    private Set<Friendship> friendRequests = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "user_event_interest",
@@ -116,6 +116,12 @@ public class User extends DomainObject {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
     private List<UserEventConversation> participationInConversations = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "sourceUser")
+    private List<UserRestriction> usersRestricted = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "targetUser")
+    private List<UserRestriction> usersRestricting = new ArrayList<>();
 
 
     public User() {
@@ -420,21 +426,21 @@ public class User extends DomainObject {
     }
 
     /**
-     * Returns the connections
+     * Returns the friends
      *
-     * @return Returns the connections
+     * @return Returns the friends
      */
-    public Set<UserConnection> getConnections() {
-        return connections;
+    public Set<Friendship> getFriends() {
+        return friends;
     }
 
     /**
-     * Sets the connections
+     * Sets the friends
      *
-     * @param connections The connections to set
+     * @param friends The friends to set
      */
-    public void setConnections(Set<UserConnection> connections) {
-        this.connections = connections;
+    public void setFriends(Set<Friendship> friends) {
+        this.friends = friends;
     }
 
     /**
@@ -442,7 +448,7 @@ public class User extends DomainObject {
      *
      * @return Returns the friendRequests
      */
-    public Set<UserConnection> getFriendRequests() {
+    public Set<Friendship> getFriendRequests() {
         return friendRequests;
     }
 
@@ -451,7 +457,7 @@ public class User extends DomainObject {
      *
      * @param friendRequests The friendRequests to set
      */
-    public void setFriendRequests(Set<UserConnection> friendRequests) {
+    public void setFriendRequests(Set<Friendship> friendRequests) {
         this.friendRequests = friendRequests;
     }
 
@@ -635,6 +641,42 @@ public class User extends DomainObject {
         this.participationInConversations = participationInConversations;
     }
 
+    /**
+     * Returns the usersRestricted
+     *
+     * @return Returns the usersRestricted
+     */
+    public List<UserRestriction> getUsersRestricted() {
+        return usersRestricted;
+    }
+
+    /**
+     * Sets the usersRestricted
+     *
+     * @param usersRestricted The usersRestricted to set
+     */
+    public void setUsersRestricted(List<UserRestriction> usersRestricted) {
+        this.usersRestricted = usersRestricted;
+    }
+
+    /**
+     * Returns the usersRestricting
+     *
+     * @return Returns the usersRestricting
+     */
+    public List<UserRestriction> getUsersRestricting() {
+        return usersRestricting;
+    }
+
+    /**
+     * Sets the usersRestricting
+     *
+     * @param usersRestricting The usersRestricting to set
+     */
+    public void setUsersRestricting(List<UserRestriction> usersRestricting) {
+        this.usersRestricting = usersRestricting;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -718,47 +760,60 @@ public class User extends DomainObject {
         user.getFollowers().remove(this);
     }
 
-    public Optional<UserConnection> getConnection(User user) {
-        return getConnections().stream().filter(friend -> friend.getConnectedUser().equals(user)).findFirst();
+    public Optional<Friendship> getFriend(User user) {
+        return getFriends().stream().filter(friend -> friend.getFriend().equals(user)).findFirst();
     }
 
-    public void addFriendRequest(User userAdded, UserConnection connection) {
-        getConnections().add(connection);
-        userAdded.getFriendRequests().add(connection);
+    public void addFriendRequest(User userAdded, Friendship friendship) {
+        getFriends().add(friendship);
+        userAdded.getFriendRequests().add(friendship);
     }
 
-    public Optional<UserConnection> getFriendRequest(User user) {
+    public Optional<Friendship> getFriendRequest(User user) {
         return getFriendRequests().stream().filter(friendRequest -> friendRequest.getUser().equals(user)).findFirst();
     }
 
-    public void acceptFriendRequest(UserConnection connection) {
-        getConnections().add(connection);
-        getFriendRequests().remove(connection);
+    public void acceptFriendRequest(Friendship friendship) {
+        getFriends().add(friendship);
+        getFriendRequests().remove(friendship);
     }
 
-    public void declineFriendRequest(User userDeclined, UserConnection connection) {
-        getFriendRequests().remove(connection);
-        userDeclined.getConnections().remove(connection);
+    public void declineFriendRequest(User userDeclined, Friendship friendship) {
+        getFriendRequests().remove(friendship);
+        userDeclined.getFriends().remove(friendship);
     }
 
-    public void removeConnection(User userRemoved, UserConnection connection) {
-        getConnections().remove(connection);
+    public void removeFriend(User friendRemoved, Friendship friendship) {
+        getFriends().remove(friendship);
 
-        if(UserConnectionStatus.FRIEND.equals(connection.getStatus())) {
-            userRemoved.getConnections().remove(connection);
-        } else if(UserConnectionStatus.PENDING.equals(connection.getStatus())) {
-            userRemoved.getFriendRequests().remove(connection);
+        if(FriendshipStatus.CONNECTED.equals(friendship.getStatus())) {
+            friendRemoved.getFriends().remove(friendship);
+        } else if(FriendshipStatus.PENDING.equals(friendship.getStatus())) {
+            friendRemoved.getFriendRequests().remove(friendship);
         }
     }
 
     public boolean isFriend(User user) {
-        Optional<UserConnection> connection = getConnection(user);
-        return connection.isPresent() && UserConnectionStatus.FRIEND.equals(connection.get().getStatus());
+        return getFriend(user).isPresent();
     }
 
-    public boolean hasBlocked(User user) { //todo revoir la logique !! (pour filtrer les bloqués en recherche entre autre)
-        Optional<UserConnection> connection = getConnection(user);
-        return connection.isPresent() && UserConnectionStatus.BLOCKED.equals(connection.get().getStatus());
+    public Optional<UserRestriction> getRestriction(User userUnblocked) {
+        return getUsersRestricted().stream().filter(restriction -> restriction.getTargetUser().equals(userUnblocked)).findFirst();
+    }
+
+    public void blockUser(User userBlocked, UserRestriction restriction) {
+        getUsersRestricted().add(restriction);
+        userBlocked.getUsersRestricting().add(restriction);
+    }
+
+
+    public void unblockUser(User userUnblocked, UserRestriction restriction) {
+        getUsersRestricted().remove(restriction);
+        userUnblocked.getUsersRestricting().remove(restriction);
+    }
+
+    public boolean hasNotBlocked(User user) {
+        return getUsersRestricted().stream().noneMatch(restriction -> restriction.getTargetUser().equals(user));
     }
 
 }

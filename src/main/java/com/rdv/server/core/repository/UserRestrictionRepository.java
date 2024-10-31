@@ -1,11 +1,11 @@
 package com.rdv.server.core.repository;
 
 
-import com.rdv.server.core.entity.UserConnection;
+import com.rdv.server.core.entity.UserRestriction;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserConnectionRepository extends CrudRepository<UserConnection, Long> {
+public interface UserRestrictionRepository extends CrudRepository<UserRestriction, Long> {
 
 }

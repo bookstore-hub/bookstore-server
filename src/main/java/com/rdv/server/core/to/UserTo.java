@@ -125,7 +125,7 @@ public class UserTo {
 
         private static String resolveEmailDisplay(User userTargeted, User userRequesting) {
             String email = null;
-            if(!userRequesting.hasBlocked(userTargeted)) {
+            if(userRequesting.hasNotBlocked(userTargeted)) {
                 FieldVisibility emailVisibility = userTargeted.getVisibilityEmail();
                 if(FieldVisibility.PUBLIC.equals(emailVisibility)
                         || (FieldVisibility.FRIENDS.equals(emailVisibility) && userTargeted.isFriend(userRequesting))) {
@@ -139,7 +139,7 @@ public class UserTo {
             String birthDateAsString = null;
             LocalDate birthDate = userTargeted.getBirthDate();
 
-            if(!userRequesting.hasBlocked(userTargeted)) {
+            if(userRequesting.hasNotBlocked(userTargeted)) {
                 FieldVisibility birthDateVisibility = userTargeted.getVisibilityBirthDate();
                 if(FieldVisibility.PUBLIC.equals(birthDateVisibility)
                         || (FieldVisibility.FRIENDS.equals(birthDateVisibility) && userTargeted.isFriend(userRequesting))) {
@@ -156,7 +156,7 @@ public class UserTo {
 
         private static String resolvePhoneNumberDisplay(User userTargeted, User userRequesting) {
             String phoneNr = null;
-            if(!userRequesting.hasBlocked(userTargeted)) {
+            if(userRequesting.hasNotBlocked(userTargeted)) {
                 FieldVisibility phoneNrVisibility = userTargeted.getVisibilityPhoneNr();
                 if(FieldVisibility.PUBLIC.equals(phoneNrVisibility)
                         || (FieldVisibility.FRIENDS.equals(phoneNrVisibility) && userTargeted.isFriend(userRequesting))) {

@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "user_connection", schema="rdv")
-public class UserConnection {
+@Table(name = "friendship", schema="rdv")
+public class Friendship {
 
     @Id
-    @GeneratedValue(generator = "user_connection_sequence", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "user_connection_sequence", sequenceName = "rdv.user_connection_id_seq", allocationSize = 50)
+    @GeneratedValue(generator = "friendship_sequence", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "friendship_sequence", sequenceName = "rdv.friendship_id_seq", allocationSize = 50)
     private Long id;
 
     @ManyToOne
@@ -18,14 +18,14 @@ public class UserConnection {
     private User user;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "connected_user_id")
-    private User connectedUser;
+    @JoinColumn(nullable = false, name = "friend_id")
+    private User friend;
 
     @Column(name = "creation_date")
     private OffsetDateTime creationDate;
 
     @Column(name = "status", length = 20)
-    private UserConnectionStatus status;
+    private FriendshipStatus status;
 
 
 
@@ -66,21 +66,21 @@ public class UserConnection {
     }
 
     /**
-     * Returns the connectedUser
+     * Returns the friend
      *
-     * @return Returns the connectedUser
+     * @return Returns the friend
      */
-    public User getConnectedUser() {
-        return connectedUser;
+    public User getFriend() {
+        return friend;
     }
 
     /**
-     * Sets the connectedUser
+     * Sets the friend
      *
-     * @param connectedUser The connectedUser to set
+     * @param friend The friend to set
      */
-    public void setConnectedUser(User connectedUser) {
-        this.connectedUser = connectedUser;
+    public void setFriend(User friend) {
+        this.friend = friend;
     }
 
     /**
@@ -106,7 +106,7 @@ public class UserConnection {
      *
      * @return Returns the status
      */
-    public UserConnectionStatus getStatus() {
+    public FriendshipStatus getStatus() {
         return status;
     }
 
@@ -115,7 +115,7 @@ public class UserConnection {
      *
      * @param status The status to set
      */
-    public void setStatus(UserConnectionStatus status) {
+    public void setStatus(FriendshipStatus status) {
         this.status = status;
     }
 

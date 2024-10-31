@@ -139,7 +139,7 @@ public class SocialController {
         Optional<User> userRequesting = userRepository.findById(userRequestingId);
 
         if(userAccepting.isPresent() && userRequesting.isPresent()) {
-            Optional<UserConnection> friendRequest = userAccepting.get().getFriendRequest(userRequesting.get());
+            Optional<Friendship> friendRequest = userAccepting.get().getFriendRequest(userRequesting.get());
             if(friendRequest.isPresent()) {
                 LOGGER.info("User " + userAccepting.get().getUsername() + " accepting friend request of user " + userRequesting.get().getUsername() + ".");
                 socialService.acceptFriendRequest(userAccepting.get(), friendRequest.get());
@@ -165,7 +165,7 @@ public class SocialController {
         Optional<User> userDeclined = userRepository.findById(userDeclinedId);
 
         if(userDeclining.isPresent() && userDeclined.isPresent()) {
-            Optional<UserConnection> friendRequest = userDeclining.get().getFriendRequest(userDeclined.get());
+            Optional<Friendship> friendRequest = userDeclining.get().getFriendRequest(userDeclined.get());
             if(friendRequest.isPresent()) {
                 LOGGER.info("User " + userDeclining.get().getUsername() + " declining friend request of user " + userDeclined.get().getUsername() + ".");
                 socialService.declineFriendRequest(userDeclining.get(), userDeclined.get(), friendRequest.get());
@@ -191,10 +191,10 @@ public class SocialController {
         Optional<User> userRemoved = userRepository.findById(userRemovedId);
 
         if(userRemoving.isPresent() && userRemoved.isPresent()) {
-            Optional<UserConnection> connection = userRemoving.get().getConnection(userRemoved.get());
-            if(connection.isPresent() && !UserConnectionStatus.BLOCKED.equals(connection.get().getStatus())) {
+            Optional<Friendship> friendship = userRemoving.get().getFriend(userRemoved.get());
+            if(friendship.isPresent()) {
                 LOGGER.info("User " + userRemoving.get().getUsername() + " removing user " + userRemoved.get().getUsername() + " as friend.");
-                socialService.removeConnection(userRemoving.get(), userRemoved.get(), connection.get());
+                socialService.removeFriend(userRemoving.get(), userRemoved.get(), friendship.get());
                 removed = true;
             }
         }
@@ -217,10 +217,10 @@ public class SocialController {
         Optional<User> userBlocked = userRepository.findById(userBlockedId);
 
         if(userBlocking.isPresent() && userBlocked.isPresent()) {
-            Optional<UserConnection> connection = userBlocking.get().getConnection(userBlocked.get());
-            if(connection.isPresent() && UserConnectionStatus.FRIEND.equals(connection.get().getStatus())) {
+            Optional<Friendship> friendship = userBlocking.get().getFriend(userBlocked.get());
+            if(friendship.isPresent()) {
                 LOGGER.info("User " + userBlocking.get().getUsername() + " blocking user " + userBlocked.get().getUsername() + ".");
-                socialService.blockUser(connection.get());
+                socialService.blockUser(userBlocking.get(), userBlocked.get(), friendship.get());
                 blocked = true;
             }
         }
@@ -243,10 +243,10 @@ public class SocialController {
         Optional<User> userUnblocked = userRepository.findById(userUnblockedId);
 
         if(userUnblocking.isPresent() && userUnblocked.isPresent()) {
-            Optional<UserConnection> connection = userUnblocking.get().getConnection(userUnblocked.get());
-            if(connection.isPresent() && UserConnectionStatus.BLOCKED.equals(connection.get().getStatus())) {
+            Optional<UserRestriction> restriction = userUnblocking.get().getRestriction(userUnblocked.get()); //todo redo
+            if(restriction.isPresent()) {
                 LOGGER.info("User " + userUnblocking.get().getUsername() + " unblocking user " + userUnblocked.get().getUsername() + ".");
-                socialService.unblockUser(userUnblocking.get(), userUnblocked.get(), connection.get());
+                socialService.unblockUser(userUnblocking.get(), userUnblocked.get(), restriction.get());
                 unblocked = true;
             }
         }

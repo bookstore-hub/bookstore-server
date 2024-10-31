@@ -2,10 +2,12 @@ package com.rdv.server.core.service;
 
 
 import com.rdv.server.core.entity.User;
-import com.rdv.server.core.entity.UserConnection;
-import com.rdv.server.core.entity.UserConnectionStatus;
-import com.rdv.server.core.repository.UserConnectionRepository;
+import com.rdv.server.core.entity.Friendship;
+import com.rdv.server.core.entity.FriendshipStatus;
+import com.rdv.server.core.entity.UserRestriction;
+import com.rdv.server.core.repository.FriendshipRepository;
 import com.rdv.server.core.repository.UserRepository;
+import com.rdv.server.core.repository.UserRestrictionRepository;
 import com.rdv.server.notification.service.FirebaseMessagingService;
 import com.rdv.server.notification.to.Note;
 import org.apache.commons.lang3.LocaleUtils;
@@ -34,15 +36,17 @@ public class SocialServiceImpl implements SocialService {
     private static final String FRIEND_REQUEST_MESSAGE = "friend.request.message";
 
     private final UserRepository userRepository;
-    private final UserConnectionRepository userConnectionRepository;
+    private final FriendshipRepository friendshipRepository;
+    private final UserRestrictionRepository userRestrictionRepository;
     private final FirebaseMessagingService firebaseMessagingService;
     private final MessageSource messageSource;
 
 
-    public SocialServiceImpl(UserRepository userRepository, UserConnectionRepository userConnectionRepository,
+    public SocialServiceImpl(UserRepository userRepository, FriendshipRepository friendshipRepository, UserRestrictionRepository userRestrictionRepository,
                              FirebaseMessagingService firebaseMessagingService, MessageSource messageSource) {
         this.userRepository = userRepository;
-        this.userConnectionRepository = userConnectionRepository;
+        this.friendshipRepository = friendshipRepository;
+        this.userRestrictionRepository = userRestrictionRepository;
         this.firebaseMessagingService = firebaseMessagingService;
         this.messageSource = messageSource;
     }
@@ -52,8 +56,12 @@ public class SocialServiceImpl implements SocialService {
         userRepository.save(user);
     }
 
-    private void saveUserConnection(UserConnection userConnection) {
-        userConnectionRepository.save(userConnection);
+    private void saveFriendship(Friendship friendship) {
+        friendshipRepository.save(friendship);
+    }
+
+    private void deleteRestriction(UserRestriction restriction) {
+        userRestrictionRepository.delete(restriction);
     }
 
 
@@ -71,13 +79,13 @@ public class SocialServiceImpl implements SocialService {
 
     @Override
     public void sendFriendRequest(User userSending, User userReceiving) {
-        UserConnection connection = new UserConnection();
-        connection.setUser(userSending);
-        connection.setConnectedUser(userReceiving);
-        connection.setCreationDate(OffsetDateTime.now());
-        connection.setStatus(UserConnectionStatus.PENDING);
+        Friendship friendship = new Friendship();
+        friendship.setUser(userSending);
+        friendship.setFriend(userReceiving);
+        friendship.setCreationDate(OffsetDateTime.now());
+        friendship.setStatus(FriendshipStatus.PENDING);
 
-        userSending.addFriendRequest(userReceiving, connection);
+        userSending.addFriendRequest(userReceiving, friendship);
 
         saveUser(userSending);
         saveUser(userReceiving);
@@ -106,52 +114,60 @@ public class SocialServiceImpl implements SocialService {
 
 
     @Override
-    public void acceptFriendRequest(User userAccepting, UserConnection connection) {
-        connection.setStatus(UserConnectionStatus.FRIEND);
-        userAccepting.acceptFriendRequest(connection);
+    public void acceptFriendRequest(User userAccepting, Friendship friendship) {
+        friendship.setStatus(FriendshipStatus.CONNECTED);
+        userAccepting.acceptFriendRequest(friendship);
 
-        saveUserConnection(connection);
+        saveFriendship(friendship);
         saveUser(userAccepting);
     }
 
     @Override
-    public void declineFriendRequest(User userDeclining, User userDeclined, UserConnection connection) {
-        userDeclining.declineFriendRequest(userDeclined, connection);
+    public void declineFriendRequest(User userDeclining, User userDeclined, Friendship friendship) {
+        userDeclining.declineFriendRequest(userDeclined, friendship);
         saveUser(userDeclining);
         saveUser(userDeclined);
     }
 
     @Override
-    public void removeConnection(User userRemoving, User userRemoved, UserConnection connection) {
-        userRemoving.removeConnection(userRemoved, connection);
+    public void removeFriend(User userRemoving, User userRemoved, Friendship friendship) {
+        userRemoving.removeFriend(userRemoved, friendship);
         saveUser(userRemoving);
         saveUser(userRemoved);
     }
 
     @Override
-    public void blockUser(UserConnection connection) {
-        connection.setStatus(UserConnectionStatus.BLOCKED);
-        saveUserConnection(connection);
+    public void blockUser(User userBlocking, User userBlocked, Friendship friendship) {
+        removeFriend(userBlocking, userBlocked, friendship);
+
+        UserRestriction restriction = new UserRestriction();
+        restriction.setSourceUser(userBlocking);
+        restriction.setTargetUser(userBlocked);
+        restriction.setCreationDate(OffsetDateTime.now());
+        userBlocking.blockUser(userBlocked, restriction);
+
+        saveFriendship(friendship);
+        saveUser(userBlocking);
+        saveUser(userBlocked);
     }
 
     @Override
-    public void unblockUser(User userUnblocking, User userUnblocked, UserConnection connection) {
-        // In practice, unblocking a user means removing the connection with him/her.
-        // The unblocked user will be able to see the profile of the user who had previously blocked him/her,
-        // but they will no longer be friends or linked by any connection.
-        removeConnection(userUnblocking, userUnblocked, connection);
+    public void unblockUser(User userUnblocking, User userUnblocked, UserRestriction restriction) {
+        userUnblocking.unblockUser(userUnblocked, restriction);
+
+        saveUser(userUnblocking);
+        saveUser(userUnblocked);
+        deleteRestriction(restriction);
     }
 
     @Override
     public List<User> retrieveFriends(User user) {
-        return user.getConnections().stream()
-                .filter(connection -> UserConnectionStatus.FRIEND.equals(connection.getStatus()))
-                .map(UserConnection::getConnectedUser).toList();
+        return user.getFriends().stream().map(Friendship::getFriend).toList();
     }
 
     @Override
     public List<User> retrieveFriendRequests(User user) {
-        return user.getFriendRequests().stream().map(UserConnection::getUser).toList();
+        return user.getFriendRequests().stream().map(Friendship::getUser).toList();
     }
 
 }

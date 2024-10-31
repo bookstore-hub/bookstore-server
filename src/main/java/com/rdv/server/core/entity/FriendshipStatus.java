@@ -4,8 +4,8 @@ package com.rdv.server.core.entity;
  * @author davidgarcia
  */
 
-public enum UserConnectionStatus {
+public enum FriendshipStatus {
 
-    PENDING, FRIEND, BLOCKED
+    PENDING, CONNECTED
 
 }
