@@ -70,10 +70,10 @@ public class User extends DomainObject {
     private int selectedLocation;
 
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="user")
-    private Set<Friendship> friends = new HashSet<>();
+    private Set<UserConnection> connections = new HashSet<>();
 
-    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="friend")
-    private Set<Friendship> friendRequests = new HashSet<>();
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="connectedUser")
+    private Set<UserConnection> friendRequests = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "user_event_interest",
@@ -420,21 +420,21 @@ public class User extends DomainObject {
     }
 
     /**
-     * Returns the friends
+     * Returns the connections
      *
-     * @return Returns the friends
+     * @return Returns the connections
      */
-    public Set<Friendship> getFriends() {
-        return friends;
+    public Set<UserConnection> getConnections() {
+        return connections;
     }
 
     /**
-     * Sets the friends
+     * Sets the connections
      *
-     * @param friends The friends to set
+     * @param connections The connections to set
      */
-    public void setFriends(Set<Friendship> friends) {
-        this.friends = friends;
+    public void setConnections(Set<UserConnection> connections) {
+        this.connections = connections;
     }
 
     /**
@@ -442,7 +442,7 @@ public class User extends DomainObject {
      *
      * @return Returns the friendRequests
      */
-    public Set<Friendship> getFriendRequests() {
+    public Set<UserConnection> getFriendRequests() {
         return friendRequests;
     }
 
@@ -451,7 +451,7 @@ public class User extends DomainObject {
      *
      * @param friendRequests The friendRequests to set
      */
-    public void setFriendRequests(Set<Friendship> friendRequests) {
+    public void setFriendRequests(Set<UserConnection> friendRequests) {
         this.friendRequests = friendRequests;
     }
 
@@ -718,36 +718,36 @@ public class User extends DomainObject {
         user.getFollowers().remove(this);
     }
 
-    public void addFriendshipRelation(User userAdded, Friendship friendship) {
-        getFriends().add(friendship);
-        userAdded.getFriendRequests().add(friendship);
+    public Optional<UserConnection> getConnection(User user) {
+        return getConnections().stream().filter(friend -> friend.getConnectedUser().equals(user)).findFirst();
     }
 
-    public Optional<Friendship> getFriendRequest(User user) {
+    public void addFriendRequest(User userAdded, UserConnection connection) {
+        getConnections().add(connection);
+        userAdded.getFriendRequests().add(connection);
+    }
+
+    public Optional<UserConnection> getFriendRequest(User user) {
         return getFriendRequests().stream().filter(friendRequest -> friendRequest.getUser().equals(user)).findFirst();
     }
 
-    public Optional<Friendship> getFriend(User user) {
-        return getFriends().stream().filter(friend -> friend.getFriend().equals(user)).findFirst();
+    public void acceptFriendRequest(UserConnection connection) {
+        getConnections().add(connection);
+        getFriendRequests().remove(connection);
     }
 
-    public void acceptFriendRequest(Friendship friendship) {
-        getFriends().add(friendship);
-        getFriendRequests().remove(friendship);
+    public void declineFriendRequest(User userDeclined, UserConnection connection) {
+        getFriendRequests().remove(connection);
+        userDeclined.getConnections().remove(connection);
     }
 
-    public void declineFriendRequest(User userDeclined, Friendship friendship) {
-        getFriendRequests().remove(friendship);
-        userDeclined.getFriends().remove(friendship);
-    }
+    public void removeConnection(User userRemoved, UserConnection connection) {
+        getConnections().remove(connection);
 
-    public void removeFriend(User userRemoved, Friendship friendship) {
-        getFriends().remove(friendship);
-
-        if(FriendshipStatus.CONNECTED.equals(friendship.getStatus())) {
-            userRemoved.getFriends().remove(friendship);
-        } else if(FriendshipStatus.PENDING.equals(friendship.getStatus())) {
-            userRemoved.getFriendRequests().remove(friendship);
+        if(UserConnectionStatus.FRIEND.equals(connection.getStatus())) {
+            userRemoved.getConnections().remove(connection);
+        } else if(UserConnectionStatus.PENDING.equals(connection.getStatus())) {
+            userRemoved.getFriendRequests().remove(connection);
         }
 
     }

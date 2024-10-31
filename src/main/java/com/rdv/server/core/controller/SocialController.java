@@ -1,6 +1,7 @@
 package com.rdv.server.core.controller;
 
-import com.rdv.server.core.entity.Friendship;
+import com.rdv.server.core.entity.UserConnection;
+import com.rdv.server.core.entity.UserConnectionStatus;
 import com.rdv.server.core.entity.User;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.service.SocialService;
@@ -140,7 +141,7 @@ public class SocialController {
         Optional<User> userRequesting = userRepository.findById(userRequestingId);
 
         if(userAccepting.isPresent() && userRequesting.isPresent()) {
-            Optional<Friendship> friendRequest = userAccepting.get().getFriendRequest(userRequesting.get());
+            Optional<UserConnection> friendRequest = userAccepting.get().getFriendRequest(userRequesting.get());
             if(friendRequest.isPresent()) {
                 LOGGER.info("User " + userAccepting.get().getUsername() + " accepting friend request of user " + userRequesting.get().getUsername() + ".");
                 socialService.acceptFriendRequest(userAccepting.get(), friendRequest.get());
@@ -166,7 +167,7 @@ public class SocialController {
         Optional<User> userDeclined = userRepository.findById(userDeclinedId);
 
         if(userDeclining.isPresent() && userDeclined.isPresent()) {
-            Optional<Friendship> friendRequest = userDeclining.get().getFriendRequest(userDeclined.get());
+            Optional<UserConnection> friendRequest = userDeclining.get().getFriendRequest(userDeclined.get());
             if(friendRequest.isPresent()) {
                 LOGGER.info("User " + userDeclining.get().getUsername() + " declining friend request of user " + userDeclined.get().getUsername() + ".");
                 socialService.declineFriendRequest(userDeclining.get(), userDeclined.get(), friendRequest.get());
@@ -192,10 +193,10 @@ public class SocialController {
         Optional<User> userRemoved = userRepository.findById(userRemovedId);
 
         if(userRemoving.isPresent() && userRemoved.isPresent()) {
-            Optional<Friendship> friendship = userRemoving.get().getFriend(userRemoved.get());
-            if(friendship.isPresent()) {
+            Optional<UserConnection> connection = userRemoving.get().getConnection(userRemoved.get());
+            if(connection.isPresent() && !UserConnectionStatus.BLOCKED.equals(connection.get().getStatus())) {
                 LOGGER.info("User " + userRemoving.get().getUsername() + " removing user " + userRemoved.get().getUsername() + " as friend.");
-                socialService.removeFriend(userRemoving.get(), userRemoved.get(), friendship.get());
+                socialService.removeConnection(userRemoving.get(), userRemoved.get(), connection.get());
                 removed = true;
             }
         }
@@ -203,12 +204,60 @@ public class SocialController {
         return removed;
     }
 
+    /**
+     * Blocks a user
+     *
+     * @param userBlockingId      the user blocking
+     * @param userBlockedId      the user blocked
+     */
+    @Operation(description = "Blocks a user")
+    @PutMapping(value = "/blockUser")
+    public boolean blockUser(@Parameter(description = "The user blocking id") @RequestParam Long userBlockingId,
+                             @Parameter(description = "The user blocked id") @RequestParam Long userBlockedId) {
+        boolean blocked = false;
+        Optional<User> userBlocking = userRepository.findById(userBlockingId);
+        Optional<User> userBlocked = userRepository.findById(userBlockedId);
+
+        if(userBlocking.isPresent() && userBlocked.isPresent()) {
+            Optional<UserConnection> connection = userBlocking.get().getConnection(userBlocked.get());
+            if(connection.isPresent() && UserConnectionStatus.FRIEND.equals(connection.get().getStatus())) {
+                LOGGER.info("User " + userBlocking.get().getUsername() + " blocking user " + userBlocked.get().getUsername() + ".");
+                socialService.blockUser(connection.get());
+                blocked = true;
+            }
+        }
+
+        return blocked;
+    }
+
+    /**
+     * Unblocks a user
+     *
+     * @param userUnblockingId      the user unblocking
+     * @param userUnblockedId      the user unblocked
+     */
+    @Operation(description = "Unblocks a user")
+    @PutMapping(value = "/unblockUser")
+    public boolean unblockUser(@Parameter(description = "The user unblocking id") @RequestParam Long userUnblockingId,
+                               @Parameter(description = "The user unblocked id") @RequestParam Long userUnblockedId) {
+        boolean unblocked = false;
+        Optional<User> userUnblocking = userRepository.findById(userUnblockingId);
+        Optional<User> userUnblocked = userRepository.findById(userUnblockedId);
+
+        if(userUnblocking.isPresent() && userUnblocked.isPresent()) {
+            Optional<UserConnection> connection = userUnblocking.get().getConnection(userUnblocked.get());
+            if(connection.isPresent() && UserConnectionStatus.BLOCKED.equals(connection.get().getStatus())) {
+                LOGGER.info("User " + userUnblocking.get().getUsername() + " unblocking user " + userUnblocked.get().getUsername() + ".");
+                socialService.unblockUser(userUnblocking.get(), userUnblocked.get(), connection.get());
+                unblocked = true;
+            }
+        }
+
+        return unblocked;
+    }
 
 
-    //blockFriend()
-    //unblockFriend()
     //retrieveFriends()
-    //retrieveBlockedFriends()
 
     //retrievePersonalUserInfo
     //retrieveOtherUserInfo

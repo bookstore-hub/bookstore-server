@@ -1,7 +1,7 @@
 package com.rdv.server.core.service;
 
 
-import com.rdv.server.core.entity.Friendship;
+import com.rdv.server.core.entity.UserConnection;
 import com.rdv.server.core.entity.User;
 
 /**
@@ -14,10 +14,14 @@ public interface SocialService {
 
     void sendFriendRequest(User userSending, User userReceiving);
 
-    void acceptFriendRequest(User userAccepting, Friendship friendship);
+    void acceptFriendRequest(User userAccepting, UserConnection connection);
 
-    void declineFriendRequest(User userDeclining, User userDeclined, Friendship friendship);
+    void declineFriendRequest(User userDeclining, User userDeclined, UserConnection connection);
 
-    void removeFriend(User userRemoving, User userRemoved, Friendship friendship);
+    void removeConnection(User userRemoving, User userRemoved, UserConnection connection);
+
+    void blockUser(UserConnection connection);
+
+    void unblockUser(User userUnblocking, User userUnblocked, UserConnection connection);
 
 }
