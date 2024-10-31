@@ -749,7 +749,16 @@ public class User extends DomainObject {
         } else if(UserConnectionStatus.PENDING.equals(connection.getStatus())) {
             userRemoved.getFriendRequests().remove(connection);
         }
+    }
 
+    public boolean isFriend(User user) {
+        Optional<UserConnection> connection = getConnection(user);
+        return connection.isPresent() && UserConnectionStatus.FRIEND.equals(connection.get().getStatus());
+    }
+
+    public boolean hasBlocked(User user) { //todo revoir la logique !! (pour filtrer les bloqués en recherche entre autre-
+        Optional<UserConnection> connection = getConnection(user);
+        return connection.isPresent() && UserConnectionStatus.BLOCKED.equals(connection.get().getStatus());
     }
 
 }

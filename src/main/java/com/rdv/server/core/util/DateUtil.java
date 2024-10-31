@@ -1,7 +1,10 @@
 package com.rdv.server.core.util;
 
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +15,35 @@ import java.util.Locale;
  * @author davidgarcia
  */
 public class DateUtil {
+
+
+    public static String formatDate(LocalDate date, Locale locale) {
+        String dateFormatted = null;
+        FormatStyle dateStyle = FormatStyle.MEDIUM;
+
+        if(date != null) {
+            dateFormatted = date.format(DateTimeFormatter.ofLocalizedDate(dateStyle).withLocale(locale));
+        }
+
+        if(dateFormatted != null) {
+            return dateFormatted;
+        } else {
+            throw new DateTimeException("The date could not be formatted.");
+        }
+    }
+
+    public static String formatDateWithDayAndMonth(LocalDate date, Locale locale) {
+        String dateFormatted = null;
+        if(date != null) {
+            dateFormatted = date.format(DateTimeFormatter.ofLocalizedPattern("dd MMM").withLocale(locale));
+        }
+
+        if(dateFormatted != null) {
+            return dateFormatted;
+        } else {
+            throw new DateTimeException("The date (day and month) could not be formatted.");
+        }
+    }
 
     public static String formatDateAndTime(OffsetDateTime dateAndTime, Locale locale) {
         String dateAndTimeFormatted = null;

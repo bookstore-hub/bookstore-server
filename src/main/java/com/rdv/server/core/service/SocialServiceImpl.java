@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -139,6 +140,18 @@ public class SocialServiceImpl implements SocialService {
         // The unblocked user will be able to see the profile of the user who had previously blocked him/her,
         // but they will no longer be friends or linked by any connection.
         removeConnection(userUnblocking, userUnblocked, connection);
+    }
+
+    @Override
+    public List<User> retrieveFriends(User user) {
+        return user.getConnections().stream()
+                .filter(connection -> UserConnectionStatus.FRIEND.equals(connection.getStatus()))
+                .map(UserConnection::getConnectedUser).toList();
+    }
+
+    @Override
+    public List<User> retrieveFriendRequests(User user) {
+        return user.getFriendRequests().stream().map(UserConnection::getUser).toList();
     }
 
 }

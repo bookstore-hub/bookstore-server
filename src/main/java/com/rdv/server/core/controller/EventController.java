@@ -301,6 +301,8 @@ public class EventController {
      * Retrieve all events for a specific date
      *
      * @param userId      the user id
+     * @param date        the date
+     * @param category    the category (optional)
      */
     @Operation(description = "Retrieve all events for a specific date")
     @GetMapping(value = "/retrieveAll")

@@ -1,8 +1,6 @@
 package com.rdv.server.core.controller;
 
-import com.rdv.server.core.entity.UserConnection;
-import com.rdv.server.core.entity.UserConnectionStatus;
-import com.rdv.server.core.entity.User;
+import com.rdv.server.core.entity.*;
 import com.rdv.server.core.repository.UserRepository;
 import com.rdv.server.core.service.SocialService;
 import com.rdv.server.core.to.UserTo;
@@ -106,8 +104,8 @@ public class SocialController {
     /**
      * Sends a friend request
      *
-     * @param userSendingId      the user sending
-     * @param userReceivingId      the user receiving
+     * @param userSendingId      the sending user
+     * @param userReceivingId      the receiving user
      */
     @Operation(description = "Sends a friend request")
     @PutMapping(value = "/sendFriendRequest")
@@ -129,13 +127,13 @@ public class SocialController {
     /**
      * Accepts a friend request
      *
-     * @param userAcceptingId      the user accepting
-     * @param userRequestingId     the user requesting
+     * @param userAcceptingId      the accepting user
+     * @param userRequestingId     the requesting user
      */
     @Operation(description = "Accepts a friend request")
     @PutMapping(value = "/acceptFriendRequest")
-    public boolean acceptFriendRequest(@Parameter(description = "The user accepting id") @RequestParam Long userAcceptingId,
-                                       @Parameter(description = "The user requesting id") @RequestParam Long userRequestingId) {
+    public boolean acceptFriendRequest(@Parameter(description = "The accepting user id") @RequestParam Long userAcceptingId,
+                                       @Parameter(description = "The requesting user id") @RequestParam Long userRequestingId) {
         boolean accepted = false;
         Optional<User> userAccepting = userRepository.findById(userAcceptingId);
         Optional<User> userRequesting = userRepository.findById(userRequestingId);
@@ -155,13 +153,13 @@ public class SocialController {
     /**
      * Declines a friend request
      *
-     * @param userDecliningId      the user declining
-     * @param userDeclinedId      the user declined
+     * @param userDecliningId      the declining user
+     * @param userDeclinedId      the declined user
      */
     @Operation(description = "Declines a friend request")
     @PutMapping(value = "/declineFriendRequest")
-    public boolean declineFriendRequest(@Parameter(description = "The user declining id") @RequestParam Long userDecliningId,
-                                        @Parameter(description = "The user declined id") @RequestParam Long userDeclinedId) {
+    public boolean declineFriendRequest(@Parameter(description = "The declining user id") @RequestParam Long userDecliningId,
+                                        @Parameter(description = "The declined user id") @RequestParam Long userDeclinedId) {
         boolean declined = false;
         Optional<User> userDeclining = userRepository.findById(userDecliningId);
         Optional<User> userDeclined = userRepository.findById(userDeclinedId);
@@ -181,13 +179,13 @@ public class SocialController {
     /**
      * Removes a friend (also used to remove a friend request sent to someone)
      *
-     * @param userRemovingId      the user removing
-     * @param userRemovedId      the user removed
+     * @param userRemovingId      the removing user
+     * @param userRemovedId      the removed user
      */
     @Operation(description = "Removes a friend (also used to remove a friend request sent to someone)")
     @PutMapping(value = "/removeFriend")
-    public boolean removeFriend(@Parameter(description = "The user declining id") @RequestParam Long userRemovingId,
-                                @Parameter(description = "The user requesting id") @RequestParam Long userRemovedId) {
+    public boolean removeFriend(@Parameter(description = "The removing user id") @RequestParam Long userRemovingId,
+                                @Parameter(description = "The removed user id") @RequestParam Long userRemovedId) {
         boolean removed = false;
         Optional<User> userRemoving = userRepository.findById(userRemovingId);
         Optional<User> userRemoved = userRepository.findById(userRemovedId);
@@ -207,13 +205,13 @@ public class SocialController {
     /**
      * Blocks a user
      *
-     * @param userBlockingId      the user blocking
-     * @param userBlockedId      the user blocked
+     * @param userBlockingId      the blocking user
+     * @param userBlockedId      the blocked user
      */
     @Operation(description = "Blocks a user")
     @PutMapping(value = "/blockUser")
-    public boolean blockUser(@Parameter(description = "The user blocking id") @RequestParam Long userBlockingId,
-                             @Parameter(description = "The user blocked id") @RequestParam Long userBlockedId) {
+    public boolean blockUser(@Parameter(description = "The blocking user id") @RequestParam Long userBlockingId,
+                             @Parameter(description = "The blocked user id") @RequestParam Long userBlockedId) {
         boolean blocked = false;
         Optional<User> userBlocking = userRepository.findById(userBlockingId);
         Optional<User> userBlocked = userRepository.findById(userBlockedId);
@@ -233,13 +231,13 @@ public class SocialController {
     /**
      * Unblocks a user
      *
-     * @param userUnblockingId      the user unblocking
-     * @param userUnblockedId      the user unblocked
+     * @param userUnblockingId      the unblocking user
+     * @param userUnblockedId      the unblocked user
      */
     @Operation(description = "Unblocks a user")
     @PutMapping(value = "/unblockUser")
-    public boolean unblockUser(@Parameter(description = "The user unblocking id") @RequestParam Long userUnblockingId,
-                               @Parameter(description = "The user unblocked id") @RequestParam Long userUnblockedId) {
+    public boolean unblockUser(@Parameter(description = "The unblocking user id") @RequestParam Long userUnblockingId,
+                               @Parameter(description = "The unblocked user id") @RequestParam Long userUnblockedId) {
         boolean unblocked = false;
         Optional<User> userUnblocking = userRepository.findById(userUnblockingId);
         Optional<User> userUnblocked = userRepository.findById(userUnblockedId);
@@ -256,10 +254,85 @@ public class SocialController {
         return unblocked;
     }
 
+    /**
+     * Retrieves a user's friends
+     *
+     * @param userId      the user id
+     */
+    @Operation(description = "Retrieves a user's friends")
+    @GetMapping(value = "/retrieveFriends")
+    public List<UserTo.MinimalData> retrieveFriends(@Parameter(description = "The user id") @RequestParam Long userId) {
+        List<UserTo.MinimalData> friends = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
 
-    //retrieveFriends()
+        if(user.isPresent()) {
+            LOGGER.info("Retrieving friends of user " + user.get().getUsername());
+            List<User> friendList = socialService.retrieveFriends(user.get());
+            friends = friendList.stream().map(UserTo.MinimalData::new).toList();
+        }
 
-    //retrievePersonalUserInfo
-    //retrieveOtherUserInfo
+        return friends;
+    }
+
+    /**
+     * Retrieves a user's friend requests
+     *
+     * @param userId      the user id
+     */
+    @Operation(description = "Retrieves a user's friend requests")
+    @GetMapping(value = "/retrieveFriendRequests")
+    public List<UserTo.MinimalData> retrieveFriendRequests(@Parameter(description = "The user id") @RequestParam Long userId) {
+        List<UserTo.MinimalData> friendRequests = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+            LOGGER.info("Retrieving friends requests of user " + user.get().getUsername());
+            List<User> friendRequestList = socialService.retrieveFriendRequests(user.get());
+            friendRequests = friendRequestList.stream().map(UserTo.MinimalData::new).toList();
+        }
+
+        return friendRequests;
+    }
+
+    /**
+     * Retrieves a user's personal info
+     *
+     * @param userId      the user id
+     */
+    @Operation(description = "Retrieves a user's personal info")
+    @GetMapping(value = "/retrieveUserInfo")
+    public UserTo.FullData retrieveUserInfo(@Parameter(description = "The user id") @RequestParam Long userId) {
+        UserTo.FullData userInfo = null;
+        Optional<User> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+            LOGGER.info("Retrieving info of user " + user.get().getUsername());
+            userInfo = new UserTo.FullData(user.get());
+        }
+
+        return userInfo;
+    }
+
+    /**
+     * Retrieves another user's info
+     *
+     * @param userRequestingId      the requesting user id
+     * @param userTargetedId        the targeted user id
+     */
+    @Operation(description = "Retrieves another user's info")
+    @GetMapping(value = "/retrieveOtherUserInfo")
+    public UserTo.ProfileData retrieveOtherUserInfo(@Parameter(description = "The requesting user id") @RequestParam Long userRequestingId,
+                                                    @Parameter(description = "The targeted user id") @RequestParam Long userTargetedId) {
+        UserTo.ProfileData userInfo = null;
+        Optional<User> userRequesting = userRepository.findById(userRequestingId);
+        Optional<User> userTargeted = userRepository.findById(userTargetedId);
+
+        if(userRequesting.isPresent() && userTargeted.isPresent()) {
+            LOGGER.info("Retrieval of info of user " + userTargeted.get().getUsername() + " by user " + userRequesting.get().getUsername());
+            userInfo = new UserTo.ProfileData(userTargeted.get(), userRequesting.get());
+        }
+
+        return userInfo;
+    }
 
 }

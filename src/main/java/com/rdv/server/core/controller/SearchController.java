@@ -109,7 +109,7 @@ public class SearchController {
 
         if(user.isPresent()) {
             LOGGER.info("Search users from partial string " + searchString);
-            List<User> users = searchService.autoSearchUsers(searchString);
+            List<User> users = searchService.autoSearchUsers(user.get(), searchString);
             foundData = users.stream().map(UserTo.MinimalData::new).toList();
         }
 
@@ -131,7 +131,7 @@ public class SearchController {
 
         if(user.isPresent()) {
             LOGGER.info("Search users from full string " + searchString);
-            List<User> users = searchService.fullSearchUsers(searchString);
+            List<User> users = searchService.fullSearchUsers(user.get(), searchString);
             foundData = users.stream().map(UserTo.MinimalData::new).toList();
         }
 

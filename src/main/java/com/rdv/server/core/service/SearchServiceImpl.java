@@ -58,14 +58,14 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    public List<User> autoSearchUsers(String searchString) {
+    public List<User> autoSearchUsers(User user, String searchString) {
         List<User> matches = userMatcher.collectPossibleMatches(searchString);
         matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchString)));
-        return matches.stream().filter(user -> getLevenshteinScore(user.getUsername(), searchString) >= DISTANCE).limit(MAX_RESULTS).toList();
+        return matches.stream().filter(match -> getLevenshteinScore(match.getUsername(), searchString) >= DISTANCE).limit(MAX_RESULTS).toList();
     }
 
     @Override
-    public List<User> fullSearchUsers(String searchString) {
+    public List<User> fullSearchUsers(User user, String searchString) {
         List<User> matches = userRepository.findAllUsersMatching(searchString);
         matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchString)));
         return matches.stream().limit(MAX_RESULTS).toList();

@@ -16,8 +16,8 @@ public interface SearchService {
 
     List<Event> fullSearchEvents(String searchString);
 
-    List<User> autoSearchUsers(String searchString);
+    List<User> autoSearchUsers(User user, String searchString);
 
-    List<User> fullSearchUsers(String searchString);
+    List<User> fullSearchUsers(User user, String searchString);
 
 }
