@@ -114,18 +114,18 @@ public class UserTo {
 
     /** Profile Data **/
     public record ProfileData(Long id, String email, String userFirstName, String userLastName, String username, String userPhoto, UserGender gender,
-                              String birthDate, String phoneNr, String shortBio) {
+                              String birthDate, String phoneNr, String shortBio, UserConnectionStatus connectionStatus) {
 
         public ProfileData(User userTargeted, User userRequesting) {
             this(userTargeted.getId(), resolveEmailDisplay(userTargeted, userRequesting), userTargeted.getFirstName(), userTargeted.getLastName(),
                     userTargeted.getUsername(), userTargeted.getPhoto(), userTargeted.getGender(), resolveBirthDateDisplay(userTargeted, userRequesting),
-                    resolvePhoneNumberDisplay(userTargeted, userRequesting), userTargeted.getShortBio());
+                    resolvePhoneNumberDisplay(userTargeted, userRequesting), userTargeted.getShortBio(), resolveConnectionStatus(userTargeted, userRequesting));
         }
 
 
         private static String resolveEmailDisplay(User userTargeted, User userRequesting) {
             String email = null;
-            if(userRequesting.hasNotBlocked(userTargeted)) {
+            if(!userRequesting.hasBlocked(userTargeted)) {
                 FieldVisibility emailVisibility = userTargeted.getVisibilityEmail();
                 if(FieldVisibility.PUBLIC.equals(emailVisibility)
                         || (FieldVisibility.FRIENDS.equals(emailVisibility) && userTargeted.isFriend(userRequesting))) {
@@ -139,7 +139,7 @@ public class UserTo {
             String birthDateAsString = null;
             LocalDate birthDate = userTargeted.getBirthDate();
 
-            if(userRequesting.hasNotBlocked(userTargeted)) {
+            if(!userRequesting.hasBlocked(userTargeted)) {
                 FieldVisibility birthDateVisibility = userTargeted.getVisibilityBirthDate();
                 if(FieldVisibility.PUBLIC.equals(birthDateVisibility)
                         || (FieldVisibility.FRIENDS.equals(birthDateVisibility) && userTargeted.isFriend(userRequesting))) {
@@ -156,7 +156,7 @@ public class UserTo {
 
         private static String resolvePhoneNumberDisplay(User userTargeted, User userRequesting) {
             String phoneNr = null;
-            if(userRequesting.hasNotBlocked(userTargeted)) {
+            if(!userRequesting.hasBlocked(userTargeted)) {
                 FieldVisibility phoneNrVisibility = userTargeted.getVisibilityPhoneNr();
                 if(FieldVisibility.PUBLIC.equals(phoneNrVisibility)
                         || (FieldVisibility.FRIENDS.equals(phoneNrVisibility) && userTargeted.isFriend(userRequesting))) {
@@ -164,6 +164,24 @@ public class UserTo {
                 }
             }
             return phoneNr;
+        }
+
+        private static UserConnectionStatus resolveConnectionStatus(User userTargeted, User userRequesting) {
+            UserConnectionStatus connectionStatus;
+
+            if(userTargeted.hasBlocked(userRequesting)) {
+                connectionStatus = UserConnectionStatus.BLOCKED;
+            } else if(userTargeted.isFriend(userRequesting)) {
+                connectionStatus = UserConnectionStatus.FRIEND;
+            } else if(userTargeted.hasFriendRequest(userRequesting)) {
+                connectionStatus = UserConnectionStatus.RECEIVED_FRIEND_REQUEST;
+            } else if(userTargeted.sentFriendRequest(userRequesting)) {
+                connectionStatus = UserConnectionStatus.SENT_FRIEND_REQUEST;
+            } else {
+                connectionStatus = UserConnectionStatus.NONE;
+            }
+
+            return connectionStatus;
         }
 
     }

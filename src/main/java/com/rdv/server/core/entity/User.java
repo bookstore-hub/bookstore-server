@@ -797,6 +797,15 @@ public class User extends DomainObject {
         return getFriend(user).isPresent();
     }
 
+    public boolean hasFriendRequest(User userRequesting) {
+        return getFriendRequest(userRequesting).isPresent();
+    }
+
+    public boolean sentFriendRequest(User userRequesting) {
+        Optional<Friendship> friendship = getFriend(userRequesting);
+        return friendship.isPresent() && FriendshipStatus.PENDING.equals(friendship.get().getStatus());
+    }
+
     public Optional<UserRestriction> getRestriction(User userUnblocked) {
         return getUsersRestricted().stream().filter(restriction -> restriction.getTargetUser().equals(userUnblocked)).findFirst();
     }
@@ -812,8 +821,8 @@ public class User extends DomainObject {
         userUnblocked.getUsersRestricting().remove(restriction);
     }
 
-    public boolean hasNotBlocked(User user) {
-        return getUsersRestricted().stream().noneMatch(restriction -> restriction.getTargetUser().equals(user));
+    public boolean hasBlocked(User user) {
+        return getUsersRestricted().stream().anyMatch(restriction -> restriction.getTargetUser().equals(user));
     }
 
 }

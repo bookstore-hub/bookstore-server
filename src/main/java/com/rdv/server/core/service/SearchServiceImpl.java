@@ -61,7 +61,7 @@ public class SearchServiceImpl implements SearchService {
     public List<User> autoSearchUsers(User user, String searchString) {
         List<User> matches = userMatcher.collectPossibleMatches(searchString);
         matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchString)));
-        return matches.stream().filter(match -> match.hasNotBlocked(user) &&
+        return matches.stream().filter(match -> !match.hasBlocked(user) &&
                 getLevenshteinScore(match.getUsername(), searchString) >= DISTANCE).limit(MAX_RESULTS).toList();
     }
 
@@ -69,7 +69,7 @@ public class SearchServiceImpl implements SearchService {
     public List<User> fullSearchUsers(User user, String searchString) {
         List<User> matches = userRepository.findAllUsersMatching(searchString);
         matches.sort(Comparator.comparing(match -> new Levenshtein().distance(match.getUsername(), searchString)));
-        return matches.stream().filter(match -> match.hasNotBlocked(user)).limit(MAX_RESULTS).toList();
+        return matches.stream().filter(match -> !match.hasBlocked(user)).limit(MAX_RESULTS).toList();
     }
 
 
