@@ -124,6 +124,7 @@ public class EventTo {
         Event event = new Event();
         event.setCreationDate(OffsetDateTime.now());
         event.setState(EventState.PLANNED);
+        event.setSourceOfInformation(EventSourceOfInformation.USER);
         mapUpdatedEvent(event, eventData);
 
         return event;
