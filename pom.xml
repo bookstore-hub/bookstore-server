@@ -110,11 +110,6 @@
 			<version>2.17.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.miguelfonseca.completely</groupId>
 			<artifactId>completely-core</artifactId>
 			<version>0.9.0</version>
@@ -128,6 +123,31 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>1.12.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-core</artifactId>
+			<version>13.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-okhttp</artifactId>
+			<version>13.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-jackson</artifactId>
+			<version>13.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-slf4j</artifactId>
+			<version>13.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

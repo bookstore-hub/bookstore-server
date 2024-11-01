@@ -6,6 +6,6 @@ package com.rdv.server.core.entity;
 
 public enum EventCategory {
 
-    CLUBBING, FESTIVAL, OTHER
+    CLUBBING, FESTIVAL, SPORT, MUSIC, OTHER
 
 }
