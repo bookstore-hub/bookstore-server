@@ -23,6 +23,9 @@ public class EventTo {
         @Size(max = 70)
         @NotNull
         String title,
+        @Parameter (description = "The description")
+        @Size(max = 250)
+        String description,
         @Parameter (description = "The start date")
         @NotNull
         OffsetDateTime startDate,
@@ -52,8 +55,7 @@ public class EventTo {
         String detailsLink,
         @Parameter (description = "The ticketing link")
         @Size(max = 150)
-        String ticketingLink,
-        List<EventDescriptionTo.CreationOrUpdate> descriptions
+        String ticketingLink
     ) {}
 
 
@@ -76,13 +78,13 @@ public class EventTo {
 
     /** Full Data **/
     public record FullData(Long id, String startDate, String endDate, EventCategory type, EventTargetAudience targetAudience, String venue, String district,
-                           double cost, String poster, String detailsLink, String ticketingLink, String title, EventState state,
+                           double cost, String poster, String detailsLink, String ticketingLink, String title, String description, EventState state,
                            EventValidationStatus validationStatus, boolean editable) {
         public FullData(Event event, Language language, boolean editable) {
             this(event.getId(), DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
                     event.getCategory(), event.getTargetAudience(), event.getVenue(), event.getDistrict(), event.getCost(), event.getPoster(),
-                    event.getDetailsLink(), event.getTicketingLink(), event.getTitle(),
+                    event.getDetailsLink(), event.getTicketingLink(), event.getTitle(), event.getDescription(),
                     determineEventStateDisplayed(event.getStartDate(), event.getEndDate(), event.getState()), event.getValidationStatus(), editable);
         }
     }
@@ -133,6 +135,7 @@ public class EventTo {
     /** Mapping of updated Event **/
     public static void mapUpdatedEvent(Event event, CreationOrUpdate eventData) {
         event.setTitle(eventData.title());
+        event.setDescription(event.getDescription());
         event.setStartDate(eventData.startDate());
         event.setEndDate(eventData.endDate());
         event.setCategory(eventData.category());

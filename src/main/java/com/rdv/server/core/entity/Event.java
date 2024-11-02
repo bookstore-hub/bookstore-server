@@ -24,6 +24,9 @@ public class Event extends DomainObject {
     @Column(name = "title", length = 70)
     private String title;
 
+    @Column(name = "description" , length = 250)
+    private String description;
+
     @Column(name = "creation_date")
     private OffsetDateTime creationDate;
 
@@ -75,9 +78,6 @@ public class Event extends DomainObject {
     private Set<User> usersInterested;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
-    private List<EventDescription> descriptions = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
     private List<UserEventInvitation> invitations = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
@@ -119,6 +119,24 @@ public class Event extends DomainObject {
      */
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    /**
+     * Returns the description
+     *
+     * @return Returns the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the description
+     *
+     * @param description The description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
@@ -389,24 +407,6 @@ public class Event extends DomainObject {
      */
     public void setUsersInterested(Set<User> usersInterested) {
         this.usersInterested = usersInterested;
-    }
-
-    /**
-     * Returns the descriptions
-     *
-     * @return Returns the descriptions
-     */
-    public List<EventDescription> getDescriptions() {
-        return descriptions;
-    }
-
-    /**
-     * Sets the descriptions
-     *
-     * @param descriptions The descriptions to set
-     */
-    public void setDescriptions(List<EventDescription> descriptions) {
-        this.descriptions = descriptions;
     }
 
     /**
