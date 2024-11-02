@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
-public class TicketmasterMapper {
+public class TicketmasterMapping {
     _embedded _embeddedObject;
     _links _linksObject;
     Page PageObject;
