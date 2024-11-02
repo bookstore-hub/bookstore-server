@@ -1,7 +1,7 @@
 package com.rdv.server.datacollect.collector;
 
 import com.rdv.server.datacollect.client.TicketmasterClient;
-import com.rdv.server.datacollect.to.TicketmasterTo;
+import com.rdv.server.datacollect.mapper.TicketmasterMapper;
 import feign.Feign;
 import feign.jackson.JacksonEncoder;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +23,7 @@ public class TicketmasterCollector {
                 .target(TicketmasterClient.class, ticketmasterURL);
     }
 
-    public TicketmasterTo getMontrealEvents() {
+    public TicketmasterMapper getMontrealEvents() {
         /*TicketmasterClient ticketmasterClient = Feign.builder()
                 //.client(new OkHttpClient())
                 .encoder(new JacksonEncoder())

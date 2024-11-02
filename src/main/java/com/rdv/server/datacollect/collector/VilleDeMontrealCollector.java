@@ -1,7 +1,7 @@
 package com.rdv.server.datacollect.collector;
 
 import com.rdv.server.datacollect.client.VilleDeMontrealClient;
-import com.rdv.server.datacollect.to.VilleDeMontrealTo;
+import com.rdv.server.datacollect.mapper.VilleDeMontrealMapper;
 import feign.Feign;
 import feign.jackson.JacksonEncoder;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ public class VilleDeMontrealCollector {
     }
 
 
-    public VilleDeMontrealTo getMontrealEvents() {
+    public VilleDeMontrealMapper getMontrealEvents() {
         VilleDeMontrealClient villeDeMontrealClient = Feign.builder()
                 //.client(new OkHttpClient())
                 .encoder(new JacksonEncoder())
