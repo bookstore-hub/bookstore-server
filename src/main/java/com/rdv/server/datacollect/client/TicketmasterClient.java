@@ -8,10 +8,6 @@ public interface TicketmasterClient {
 
     @RequestLine("GET")
     @Headers("Content-Type: application/json")
-    TicketmasterObject findAllMontrealEvents();
-
-    @RequestLine("GET")
-    @Headers("Content-Type: application/json")
-    feign.Response findAllMontrealEventsAsString();
+    TicketmasterObject findAllMontrealData();
 
 }

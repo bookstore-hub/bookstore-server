@@ -1,12 +1,8 @@
 package com.rdv.server.datacollect.collector;
 
 import com.rdv.server.datacollect.builder.FeignClientBuilder;
-import com.rdv.server.datacollect.client.TicketmasterClient;
 import com.rdv.server.datacollect.client.VilleDeMontrealClient;
 import com.rdv.server.datacollect.mapper.VilleDeMontrealMapper;
-import com.rdv.server.datacollect.mapper.ticketmaster.TicketmasterObject;
-import feign.Feign;
-import feign.jackson.JacksonEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +16,9 @@ public class VilleDeMontrealCollector {
     }
 
 
-    public VilleDeMontrealMapper getMontrealEvents() {
+    public VilleDeMontrealMapper getMontrealData() {
         VilleDeMontrealClient villeDeMontrealClient = FeignClientBuilder.createClient(VilleDeMontrealClient.class, villeDeMontrealURL);
-        return villeDeMontrealClient.findAllMontrealEvents();
+        return villeDeMontrealClient.findAllMontrealData();
     }
 
 }

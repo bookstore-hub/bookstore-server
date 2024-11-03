@@ -17,9 +17,9 @@ public class TicketmasterCollector {
     }
 
 
-    public TicketmasterObject getMontrealEvents() {
+    public TicketmasterObject getMontrealData() {
         TicketmasterClient ticketmasterClient = FeignClientBuilder.createClient(TicketmasterClient.class, ticketmasterURL);
-        return ticketmasterClient.findAllMontrealEvents();
+        return ticketmasterClient.findAllMontrealData();
     }
 
 

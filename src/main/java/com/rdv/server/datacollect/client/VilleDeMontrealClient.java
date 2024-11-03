@@ -9,6 +9,6 @@ public interface VilleDeMontrealClient {
 
     @RequestLine("GET")
     @Headers("Content-Type: application/json")
-    VilleDeMontrealMapper findAllMontrealEvents();
+    VilleDeMontrealMapper findAllMontrealData();
 
 }

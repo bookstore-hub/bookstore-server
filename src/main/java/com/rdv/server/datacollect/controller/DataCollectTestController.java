@@ -32,8 +32,7 @@ public class DataCollectTestController {
     @Operation(description = "Retrieves Ticketmaster events")
     @GetMapping(value = "/ticketmaster")
     public List<TicketmasterEvent> retrieveTicketmasterEvents() {
-        List<TicketmasterEvent> events = new ArrayList<>();
-        TicketmasterObject ticketmasterObject = ticketmasterCollector.getMontrealEvents();
+        TicketmasterObject ticketmasterObject = ticketmasterCollector.getMontrealData();
         return ticketmasterObject.get_embedded().getEvents();
     }
 
