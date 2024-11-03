@@ -12,7 +12,7 @@ public class FeignClientBuilder {
 
     public static <T> T createClient(Class<T> type, String uri) {
         return Feign.builder()
-                .client(new OkHttpClient())
+                .client(new OkHttpClient()) //todo test what to keep or transform here
                 .encoder(new JacksonEncoder())
                 .decoder(new JacksonDecoder())
                 .logger(new Slf4jLogger(type))
