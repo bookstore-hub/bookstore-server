@@ -50,8 +50,8 @@ public class Event extends DomainObject {
     @Column(name = "location_district" , length = 30)
     private String district;
 
-    @Column(name = "cost")
-    private double cost;
+    @Column(name = "cost" , length = 15)
+    private String cost;
 
     @Column(name = "poster" , length = 150)
     private String poster;
@@ -270,7 +270,7 @@ public class Event extends DomainObject {
      *
      * @return Returns the cost
      */
-    public double getCost() {
+    public String getCost() {
         return cost;
     }
 
@@ -279,7 +279,7 @@ public class Event extends DomainObject {
      *
      * @param cost The cost to set
      */
-    public void setCost(double cost) {
+    public void setCost(String cost) {
         this.cost = cost;
     }
 

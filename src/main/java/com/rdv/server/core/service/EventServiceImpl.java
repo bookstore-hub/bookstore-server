@@ -218,6 +218,12 @@ public class EventServiceImpl implements EventService {
         sendEventCancelledNotification(user, event);
     }
 
+    @Override
+    public void indicateSoldOut(Event event) {
+        event.setState(EventState.SCHEDULED_SOLD_OUT);
+        saveEvent(event);
+    }
+
     private void sendEventCancelledNotification(User owner, Event event) {
         Set<User> usersToNotify = event.getUsersInterested();
         usersToNotify.remove(owner);

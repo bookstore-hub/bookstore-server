@@ -272,6 +272,29 @@ public class EventController {
     }
 
     /**
+     * Indicates an event as sold out
+     *
+     * @param userId      the user id
+     * @param eventId     the event id
+     */
+    @Operation(description = "Indicates an event as sold out")
+    @PutMapping(value = "/indicateSoldOut")
+    public boolean indicateSoldOut(@Parameter(description = "The user id") @RequestParam Long userId,
+                                   @Parameter(description = "The event id") @RequestParam Long eventId) {
+        boolean marked = false;
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Event> event = eventRepository.findById(eventId);
+
+        if(user.isPresent() && event.isPresent() && user.get().ownsEvent(event.get())) {
+            LOGGER.info("User " + user.get().getUsername() + " indicating event " + event.get().getTitle() + " as sold out.");
+            eventService.indicateSoldOut(event.get());
+            marked = true;
+        }
+
+        return marked;
+    }
+
+    /**
      * Edits an event
      *
      * @param userId      the user id

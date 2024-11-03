@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.Period;
-import java.util.List;
 
 
 public class EventTo {
@@ -46,7 +45,8 @@ public class EventTo {
         @Size(max = 30)
         String district,
         @Parameter (description = "The cost")
-        double cost,
+        @Size(max = 15)
+        String cost,
         @Parameter (description = "The promotional poster")
         @Size(max = 150)
         String poster,
@@ -67,7 +67,7 @@ public class EventTo {
     }
 
     /** Listing Data **/
-    public record ListingData(Long id, String startDate, String endDate, String venue, double cost, String poster, String title, EventState state, String additionalInfo) {
+    public record ListingData(Long id, String startDate, String endDate, String venue, String cost, String poster, String title, EventState state, String additionalInfo) {
         public ListingData(Event event, Language language) {
             this(event.getId(), DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
                     DateUtil.formatDateAndTime(event.getEndDate(), LocaleUtils.toLocale(language.name())),
@@ -78,7 +78,7 @@ public class EventTo {
 
     /** Full Data **/
     public record FullData(Long id, String startDate, String endDate, EventCategory type, EventTargetAudience targetAudience, String venue, String district,
-                           double cost, String poster, String detailsLink, String ticketingLink, String title, String description, EventState state,
+                           String cost, String poster, String detailsLink, String ticketingLink, String title, String description, EventState state,
                            EventValidationStatus validationStatus, boolean editable) {
         public FullData(Event event, Language language, boolean editable) {
             this(event.getId(), DateUtil.formatDateAndTime(event.getStartDate(), LocaleUtils.toLocale(language.name())),
@@ -125,7 +125,7 @@ public class EventTo {
     public static Event mapNewEvent(CreationOrUpdate eventData) {
         Event event = new Event();
         event.setCreationDate(OffsetDateTime.now());
-        event.setState(EventState.PLANNED);
+        event.setState(EventState.SCHEDULED);
         event.setSourceOfInformation(EventSourceOfInformation.USER);
         mapUpdatedEvent(event, eventData);
 

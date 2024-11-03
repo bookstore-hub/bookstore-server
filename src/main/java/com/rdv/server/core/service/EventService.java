@@ -29,6 +29,8 @@ public interface EventService {
 
     void cancelEvent(User user, Event event);
 
+    void indicateSoldOut(Event event);
+
     void editEvent(Event event);
 
     List<Event> retrieveEvents(LocalDate date, EventCategory category);

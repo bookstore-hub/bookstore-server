@@ -6,7 +6,8 @@ package com.rdv.server.core.entity;
 
 public enum EventState {
 
-    PLANNED,
+    SCHEDULED,
+    SCHEDULED_SOLD_OUT,
     CANCELLED,
     ONGOING    //State not saved, determined only when sending the event data to the client
 
