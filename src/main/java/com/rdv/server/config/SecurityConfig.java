@@ -72,7 +72,7 @@ public class SecurityConfig {
                 .builder()
                 .setCredentials(googleCredentials)
                 .build();
-        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "Assist");
+        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "RDV");
         return FirebaseMessaging.getInstance(app);
     }
 
@@ -102,7 +102,9 @@ public class SecurityConfig {
                         "/user/enterNewPassword/**",
                         "/retrieveTextsForLanguage/**",
                         "/checkEmailTaken/**",
-                        "/checkUsernameTaken/**"
+                        "/checkUsernameTaken/**",
+                        "/test/ticketmaster",
+                        "/"
                 ).permitAll();
         httpSecurity
                 .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);

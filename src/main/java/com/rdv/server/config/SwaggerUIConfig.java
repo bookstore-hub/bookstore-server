@@ -57,4 +57,14 @@ public class SwaggerUIConfig {
 
     }
 
+    @Bean
+    GroupedOpenApi testOpenAPI() {
+        return GroupedOpenApi.builder()
+                .group("Test endpoints")
+                .addOpenApiCustomizer(openApi -> openApi.setInfo(new Info().description("REST APIs exposed for RDV's tests")))
+                .packagesToScan("com.rdv.server.datacollect.controller")
+                .build();
+
+    }
+
 }
