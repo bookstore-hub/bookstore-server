@@ -9,7 +9,6 @@ import feign.slf4j.Slf4jLogger;
 
 
 public class FeignClientBuilder {
-    //private FeignClient bookClient = createClient(BookClient.class, "http://localhost:8081/api/books");
 
     public static <T> T createClient(Class<T> type, String uri) {
         return Feign.builder()
