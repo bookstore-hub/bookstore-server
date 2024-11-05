@@ -18,6 +18,10 @@ public interface SearchService {
 
     List<User> autoSearchUsers(User user, String searchString);
 
+    List<User> autoSearchFriends(User user, String searchString);
+
     List<User> fullSearchUsers(User user, String searchString);
+
+    List<User> fullSearchFriends(User user, String searchString);
 
 }

@@ -117,6 +117,28 @@ public class SearchController {
     }
 
     /**
+     * Search friends (auto-complete)
+     *
+     * @param userId       the searching user id
+     * @param searchString   the search data
+     */
+    @Operation(description = "Search friends (auto-complete)")
+    @GetMapping(value = "/friends/auto")
+    public List<UserTo.MinimalData> autoSearchFriends(@Parameter(description = "The searching user id") @RequestParam Long userId,
+                                                      @Parameter(description = "The search data") @RequestParam String searchString) {
+        List<UserTo.MinimalData> foundData = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+            LOGGER.info("Search friends from partial string " + searchString);
+            List<User> users = searchService.autoSearchFriends(user.get(), searchString);
+            foundData = users.stream().map(UserTo.MinimalData::new).toList();
+        }
+
+        return foundData;
+    }
+
+    /**
      * Search users (full string)
      *
      * @param userId       the searching user id
@@ -132,6 +154,28 @@ public class SearchController {
         if(user.isPresent()) {
             LOGGER.info("Search users from full string " + searchString);
             List<User> users = searchService.fullSearchUsers(user.get(), searchString);
+            foundData = users.stream().map(UserTo.MinimalData::new).toList();
+        }
+
+        return foundData;
+    }
+
+    /**
+     * Search friends (full string)
+     *
+     * @param userId       the searching user id
+     * @param searchString   the search data
+     */
+    @Operation(description = "Search friends (full string)")
+    @GetMapping(value = "/friends/full")
+    public List<UserTo.MinimalData> fullSearchFriends(@Parameter(description = "The searching user id") @RequestParam Long userId,
+                                                      @Parameter(description = "The search data") @RequestParam String searchString) {
+        List<UserTo.MinimalData> foundData = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+            LOGGER.info("Search friends from full string " + searchString);
+            List<User> users = searchService.fullSearchFriends(user.get(), searchString);
             foundData = users.stream().map(UserTo.MinimalData::new).toList();
         }
 
