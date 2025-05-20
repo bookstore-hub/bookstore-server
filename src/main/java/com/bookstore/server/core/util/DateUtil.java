@@ -5,6 +5,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Locale;
 
 /**
  * @author davidgarcia
@@ -17,7 +18,7 @@ public class DateUtil {
         FormatStyle dateStyle = FormatStyle.MEDIUM;
 
         if(date != null) {
-            dateFormatted = date.format(DateTimeFormatter.ofLocalizedDate(dateStyle));
+            dateFormatted = date.format(DateTimeFormatter.ofLocalizedDate(dateStyle).withLocale(Locale.CANADA_FRENCH));
         }
 
         if(dateFormatted != null) {
