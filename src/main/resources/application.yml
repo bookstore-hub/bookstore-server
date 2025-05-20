@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://assist-postgresql.postgres.database.azure.com:5432/assist-central-db?sslmode=require
-    username: assistadmin@assist-postgresql
-    password: QbZ2NmQvcjNz7ZF
+    url: jdbc:postgresql://localhost:5432/bookstore-db
+    username: bookstoreadmin
+    password: bookstorepassword
     hikari:
       connectionTimeout: 20000
       maximumPoolSize: 5
@@ -13,6 +13,21 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         ddl-auto: none
       show-sql: true
+
+management:
+  health:
+    probes:
+      enabled: true
+  endpoint:
+    shutdown:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info,health,shutdown
+endpoint:
+  health:
+    show-details: always
 
 server:
   shutdown: graceful

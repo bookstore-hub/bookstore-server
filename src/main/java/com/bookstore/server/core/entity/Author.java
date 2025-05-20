@@ -10,12 +10,12 @@ import java.util.Objects;
  * @author davidgarcia
  */
 @Entity
-@Table(name = "author", schema="assist")
+@Table(name = "author", schema="bookstore")
 public class Author extends DomainObject {
 
     @Id
     @GeneratedValue(generator = "author_sequence", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "author_sequence", sequenceName = "assist.author_id_seq", allocationSize = 50)
+    @SequenceGenerator(name = "author_sequence", sequenceName = "bookstore.author_id_seq", allocationSize = 50)
     private Long id;
 
     @Column(name = "code", length = 30)

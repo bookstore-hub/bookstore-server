@@ -4,7 +4,6 @@ package com.bookstore.server.core.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,12 +11,12 @@ import java.util.Objects;
  * @author davidgarcia
  */
 @Entity
-@Table(name = "book", schema="assist")
+@Table(name = "book", schema="bookstore")
 public class Book extends DomainObject {
 
     @Id
     @GeneratedValue(generator = "book_sequence", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "book_sequence", sequenceName = "assist.book_id_seq", allocationSize = 50)
+    @SequenceGenerator(name = "book_sequence", sequenceName = "bookstore.book_id_seq", allocationSize = 50)
     private Long id;
 
     @Column(name = "code", length = 30)

@@ -120,8 +120,8 @@ public class BookController {
      */
     @Operation(description = "Retrieve all books for a specific title or author")
     @GetMapping(value = "/search")
-    public List<BookTo.GetListedData> searchBooks(@Parameter(description = "The book title") @RequestParam String title,
-                                                  @Parameter(description = "The book author") @RequestParam String author) {
+    public List<BookTo.GetListedData> searchBooks(@Parameter(description = "The book title") @RequestParam(required = false) String title,
+                                                  @Parameter(description = "The book author") @RequestParam(required = false) String author) {
         List<BookTo.GetListedData> booksFound;
 
         LOGGER.info("Retrieving books to display for data " + title + "/" + author);
