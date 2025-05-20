@@ -4,6 +4,7 @@ package com.bookstore.server.core.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,7 +39,26 @@ public class Book extends DomainObject {
     @JoinTable(name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id"))
-    private List<Author> authors = List.of();
+    private List<Author> authors = new ArrayList<>();
+
+    /**
+     * Default constructor
+     */
+    public Book() {
+    }
+
+    /**
+     * Constructor with parameters
+     *
+     * @param code    The code of the book
+     * @param title   The title of the book
+     * @param authors The authors of the book
+     */
+    public Book(String code, String title, List<Author> authors) {
+        this.code = code;
+        this.title = title;
+        this.authors = authors;
+    }
 
 
     /**
@@ -155,7 +175,7 @@ public class Book extends DomainObject {
      * @return Returns the authors
      */
     public List<Author> getAuthors() {
-        return authors;
+        return new ArrayList<>(authors);
     }
 
     /**
@@ -175,6 +195,10 @@ public class Book extends DomainObject {
     public void removeAuthor(Author author) {
         getAuthors().remove(author);
         author.removeBook(this);
+    }
+
+    public boolean hasOnlyOneAuthor() {
+        return getAuthors().size() == 1;
     }
 
 

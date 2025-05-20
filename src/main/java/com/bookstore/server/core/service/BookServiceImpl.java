@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static java.util.Comparator.comparing;
-
-
 /**
  * @author david.garcia
  */
@@ -28,22 +25,22 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<Book> searchBooks(String title, String author) {
+        List<Book> books;
         List<Book> booksRetrieved = List.of();
-        List<Book> booksSorted;
 
         if(StringUtils.isNotBlank(title) && StringUtils.isNotBlank(author)) {
-            booksRetrieved = bookRepository.findByTitleAndAuthor(title, author);
+            booksRetrieved = bookRepository.findByTitleAndAuthor(title, author)
+                    .stream().sorted(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), title))).toList();
         } else if(StringUtils.isNotBlank(title)) {
-            booksRetrieved = bookRepository.findByTitle(title);
-        }else if (StringUtils.isNotBlank(author)){
+            booksRetrieved = bookRepository.findByTitle(title)
+                    .stream().sorted(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), title))).toList();
+        } else if (StringUtils.isNotBlank(author)){
             booksRetrieved = bookRepository.findByAuthor(author);
         }
 
-        booksSorted = booksRetrieved.stream()
-                .sorted(comparing(match -> new Levenshtein().distance(match.getTitle(), title)))
-                .limit(MAX_RESULTS).toList();
+        books = booksRetrieved.stream().limit(MAX_RESULTS).toList();
 
-        return booksSorted;
+        return books;
     }
 
 }

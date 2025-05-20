@@ -67,6 +67,7 @@ public class AuthorController {
         Optional<Author> authorToEdit = authorRepository.findByCode(authorCode);
         if(authorToEdit.isPresent()) {
             Author author = authorToEdit.get();
+
             LOGGER.info("Editing author entry for " + author.getName());
             author.setName(authorName);
             authorRepository.save(author);
@@ -92,6 +93,7 @@ public class AuthorController {
             if(author.hasBookWithOneAuthorOnly()) {
                 throw new PreconditionFailedException("The author can't be deleted because each book must have at least one author.");
             }
+
             LOGGER.info("Removing author " + authorToRemove.get().getName());
             authorRepository.delete(authorToRemove.get());
         } else {
@@ -116,6 +118,7 @@ public class AuthorController {
         if(authorToAdd.isPresent() && bookToAdd.isPresent()) {
             Author author = authorToAdd.get();
             Book book = bookToAdd.get();
+
             LOGGER.info("Adding author " + author.getName() + " to book " + book.getTitle());
             book.addAuthor(authorToAdd.get());
             bookRepository.save(book);
@@ -143,6 +146,10 @@ public class AuthorController {
         if(authorToRemove.isPresent() && bookToRemove.isPresent()) {
             Author author = authorToRemove.get();
             Book book = bookToRemove.get();
+            if(book.hasOnlyOneAuthor()) {
+                throw new PreconditionFailedException("The author can't be deleted because the book with code " + bookCode + " only has one author.");
+            }
+
             LOGGER.info("Removing author " + author.getName() + " from book " + book.getTitle());
             book.removeAuthor(authorToRemove.get());
             bookRepository.save(book);

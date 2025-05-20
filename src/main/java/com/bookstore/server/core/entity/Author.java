@@ -3,6 +3,7 @@ package com.bookstore.server.core.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +26,34 @@ public class Author extends DomainObject {
     private String name;
 
     @ManyToMany(mappedBy = "authors")
-    private List<Book> books;
+    private List<Book> books = new ArrayList<>();
+
+
+    /**
+     * Default constructor
+     */
+    public Author() {
+    }
+
+    /**
+     * Constructor with name
+     *
+     * @param name The name of the author
+     */
+    public Author(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Constructor with code and name
+     *
+     * @param code The code of the author
+     * @param name The name of the author
+     */
+    public Author(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
 
 
     /**
@@ -88,7 +116,7 @@ public class Author extends DomainObject {
      * @return Returns the books
      */
     public List<Book> getBooks() {
-        return books;
+        return new ArrayList<>(books);
     }
 
     /**

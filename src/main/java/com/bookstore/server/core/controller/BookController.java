@@ -63,6 +63,7 @@ public class BookController {
         Optional<Book> bookToEdit = bookRepository.findByCode(bookCode);
         if(bookToEdit.isPresent()) {
             Book book = bookToEdit.get();
+
             LOGGER.info("Editing book entry for " + book.getTitle());
             BookTo.mapUpdatedBook(book, bookData);
             bookRepository.save(book);
@@ -84,6 +85,7 @@ public class BookController {
     public void removeBook(@Parameter(description = "The book code") @RequestParam String bookCode) {
         Optional<Book> bookToRemove = bookRepository.findByCode(bookCode);
         if(bookToRemove.isPresent()) {
+
             LOGGER.info("Removing book " + bookToRemove.get().getTitle());
             bookRepository.delete(bookToRemove.get());
         } else {
@@ -102,6 +104,7 @@ public class BookController {
         BookTo.GetData bookDetails;
         Optional<Book> bookToRetrieve = bookRepository.findByCode(bookCode);
         if(bookToRetrieve.isPresent()) {
+
             LOGGER.info("Retrieving details of book " + bookToRetrieve.get().getTitle());
             bookDetails = new BookTo.GetData(bookToRetrieve.get());
             return bookDetails;
@@ -125,7 +128,6 @@ public class BookController {
         List<BookTo.GetListedData> booksFound;
 
         LOGGER.info("Retrieving books to display for data " + title + "/" + author);
-
         List<Book> books = bookService.searchBooks(title, author);
         booksFound = books.stream().map(BookTo.GetListedData::new).toList();
 

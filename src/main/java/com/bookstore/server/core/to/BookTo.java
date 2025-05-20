@@ -16,8 +16,7 @@ import java.util.stream.Collectors;
 
 public class BookTo {
 
-    /**
-     * Note :
+    /* Note:
      * Cette approche basée sur l'utilisation des records est intéressante dans ce cas précis en raison du nombre limité de champs.
      * Cela nous permet d'implémenter toute la logique DTO dans une seule classe.
      * Pour une quantité substantielle de champs, nous donnerions priorité à l'utilisation de lombok.
