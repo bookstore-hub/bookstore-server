@@ -14,6 +14,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(PreconditionFailedException.class)
+    public ResponseEntity<String> handlePreconditionFailedException(PreconditionFailedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.PRECONDITION_FAILED);
+    }
+
 }
 
 

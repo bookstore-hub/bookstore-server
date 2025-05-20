@@ -100,12 +100,16 @@ public class Author extends DomainObject {
         this.books = books;
     }
 
-    public void addBook(Book book) { //todo check
+    public void addBook(Book book) {
         getBooks().add(book);
     }
 
-    public void removeBook(Book book) { //todo check
+    public void removeBook(Book book) {
         getBooks().remove(book);
+    }
+
+    public boolean hasBookWithOneAuthorOnly() {
+        return getBooks().stream().anyMatch(book -> book.getAuthors().size() == 1);
     }
 
 

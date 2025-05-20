@@ -3,6 +3,7 @@ package com.bookstore.server.core.controller;
 
 import com.bookstore.server.core.entity.Author;
 import com.bookstore.server.core.entity.Book;
+import com.bookstore.server.core.exception.PreconditionFailedException;
 import com.bookstore.server.core.repository.AuthorRepository;
 import com.bookstore.server.core.repository.BookRepository;
 import com.bookstore.server.core.to.AuthorTo;
@@ -84,9 +85,13 @@ public class AuthorController {
     @Operation(description = "Removes an author")
     @DeleteMapping
     @ResponseStatus
-    public void removeAuthor(@Parameter(description = "The author code") @RequestParam String authorCode) { //todo refine for edge case - book without author.
+    public void removeAuthor(@Parameter(description = "The author code") @RequestParam String authorCode) {
         Optional<Author> authorToRemove = authorRepository.findByCode(authorCode);
         if(authorToRemove.isPresent()) {
+            Author author = authorToRemove.get();
+            if(author.hasBookWithOneAuthorOnly()) {
+                throw new PreconditionFailedException("The author can't be deleted because each book must have at least one author.");
+            }
             LOGGER.info("Removing author " + authorToRemove.get().getName());
             authorRepository.delete(authorToRemove.get());
         } else {

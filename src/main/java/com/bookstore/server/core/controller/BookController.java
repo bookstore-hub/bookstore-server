@@ -81,7 +81,7 @@ public class BookController {
     @Operation(description = "Removes a book")
     @DeleteMapping
     @ResponseStatus
-    public void removeBook(@Parameter(description = "The book code") @RequestParam String bookCode) { //todo refine for edge case - author without book. Also: CASCADE still ??
+    public void removeBook(@Parameter(description = "The book code") @RequestParam String bookCode) {
         Optional<Book> bookToRemove = bookRepository.findByCode(bookCode);
         if(bookToRemove.isPresent()) {
             LOGGER.info("Removing book " + bookToRemove.get().getTitle());
