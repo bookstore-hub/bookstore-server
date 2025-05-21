@@ -35,11 +35,12 @@ public class Book extends DomainObject {
     @Column(name = "number_of_pages")
     private int numberOfPages;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id"))
     private List<Author> authors = new ArrayList<>();
+
 
     /**
      * Default constructor
