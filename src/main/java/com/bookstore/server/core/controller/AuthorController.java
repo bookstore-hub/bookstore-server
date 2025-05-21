@@ -11,6 +11,7 @@ import com.bookstore.server.core.to.BookTo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,9 +49,16 @@ public class AuthorController {
     @Operation(description = "Creates a new author")
     @PostMapping
     public AuthorTo.GetData createAuthor(@Parameter(description = "The author data") @RequestParam String authorName) {
+        Optional<Author> existingAuthor = authorRepository.findByName(authorName);
+        if(existingAuthor.isPresent()) {
+            throw new EntityExistsException("The author " + authorName + " is already present in the database.");
+        }
+
         LOGGER.info("Creating author " + authorName);
+
         Author newAuthor = AuthorTo.mapNewAuthor(authorName);
         authorRepository.save(newAuthor);
+
         return new AuthorTo.GetData(newAuthor);
     }
 
@@ -71,6 +79,7 @@ public class AuthorController {
             LOGGER.info("Editing author entry for " + author.getName());
             author.setName(authorName);
             authorRepository.save(author);
+
             return new AuthorTo.GetData(author);
         } else {
             throw new EntityNotFoundException("The author to edit with code " + authorCode + " could not be found.");
@@ -122,6 +131,7 @@ public class AuthorController {
             LOGGER.info("Adding author " + author.getName() + " to book " + book.getTitle());
             book.addAuthor(authorToAdd.get());
             bookRepository.save(book);
+
             return new BookTo.GetData(book);
         } else {
             throw new EntityNotFoundException("Author could not be added to book. Either the author " + authorCode +
@@ -146,6 +156,7 @@ public class AuthorController {
         if(authorToRemove.isPresent() && bookToRemove.isPresent()) {
             Author author = authorToRemove.get();
             Book book = bookToRemove.get();
+
             if(book.hasOnlyOneAuthor()) {
                 throw new PreconditionFailedException("The author can't be deleted because the book with code " + bookCode + " only has one author.");
             }
@@ -153,6 +164,7 @@ public class AuthorController {
             LOGGER.info("Removing author " + author.getName() + " from book " + book.getTitle());
             book.removeAuthor(authorToRemove.get());
             bookRepository.save(book);
+
             return new BookTo.GetData(book);
         } else {
             throw new EntityNotFoundException("Author could not be removed from book. Either the author " + authorCode +

@@ -1,12 +1,16 @@
 package com.bookstore.server.core.controller;
 
+import com.bookstore.server.core.entity.Author;
 import com.bookstore.server.core.entity.Book;
+import com.bookstore.server.core.repository.AuthorRepository;
 import com.bookstore.server.core.repository.BookRepository;
 import com.bookstore.server.core.service.BookService;
+import com.bookstore.server.core.to.AuthorTo;
 import com.bookstore.server.core.to.BookTo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,25 +33,56 @@ public class BookController {
 
     private final BookService bookService;
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookController(BookService bookService, BookRepository bookRepository) {
+    public BookController(BookService bookService, BookRepository bookRepository, AuthorRepository authorRepository) {
         this.bookService = bookService;
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
     }
 
 
     /**
-     * Creates a new book
+     * Adds a new book
      *
      * @param bookData    the book data
      */
-    @Operation(description = "Creates a new book")
+    @Operation(description = "Adds a new book")
     @PostMapping
-    public BookTo.GetData createBook(@Parameter(description = "The book data") @RequestBody BookTo.NewData bookData) {
-        LOGGER.info("Creating book " + bookData.title());
+    public BookTo.GetData addBook(@Parameter(description = "The book data") @RequestBody BookTo.NewData bookData) {
+        Optional<Book> existingBook = bookRepository.findByTitleAndDateOfPublication(bookData.title(), bookData.dateOfPublication());
+        if(existingBook.isPresent()) {
+            throw new EntityExistsException("The book " + bookData.title() + " is already present in the database.");
+        }
+
         Book newBook = BookTo.mapNewBook(bookData);
+        List<Author> authors = handleAuthors(bookData.authors());
+
+        LOGGER.info("Creating book " + bookData.title());
+
+        newBook.getAuthors().forEach(newBook::addAuthor);
+        authors.forEach(author -> author.addBook(newBook));
         bookRepository.save(newBook);
+        authorRepository.saveAll(authors);
+
         return new BookTo.GetData(newBook);
+    }
+
+    private List<Author> handleAuthors(List<String> authorsToAdd) {
+        List<Author> authors = new ArrayList<>();
+
+        for(String authorToAdd : authorsToAdd) {
+            Optional<Author> existingAuthor = authorRepository.findByName(authorToAdd);
+            if(existingAuthor.isPresent()) {
+                authors.add(existingAuthor.get());
+            } else {
+                Author newAuthor = AuthorTo.mapNewAuthor(authorToAdd);
+                authorRepository.save(newAuthor);
+                authors.add(newAuthor);
+            }
+        }
+
+        return authors;
     }
 
     /**

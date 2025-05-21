@@ -71,9 +71,6 @@ public class BookTo {
         book.setCode(RandomCodeGenerator.generateAlphaNumericCode());
         updateBook(book, bookData);
 
-        List<Author> authors = bookData.authors().stream().map(AuthorTo::mapNewAuthor).toList();
-        authors.forEach(book::addAuthor);
-
         return book;
     }
 

@@ -3,6 +3,7 @@ package com.bookstore.server.core.controller;
 
 import com.bookstore.server.core.entity.Author;
 import com.bookstore.server.core.entity.Book;
+import com.bookstore.server.core.repository.AuthorRepository;
 import com.bookstore.server.core.repository.BookRepository;
 import com.bookstore.server.core.service.BookService;
 import com.bookstore.server.core.to.BookTo;
@@ -21,13 +22,15 @@ class BookControllerTest {
 
     private BookService bookService;
     private BookRepository bookRepository;
+    private AuthorRepository authorRepository;
     private BookController bookController;
 
     @BeforeEach
     void setUp() {
         bookService = mock(BookService.class);
         bookRepository = mock(BookRepository.class);
-        bookController = new BookController(bookService, bookRepository);
+        authorRepository = mock(AuthorRepository.class);
+        bookController = new BookController(bookService, bookRepository, authorRepository);
     }
 
     @Test
@@ -39,8 +42,9 @@ class BookControllerTest {
         Book newBook = new Book("BOOKCODE1", "Java Programming", List.of(author));
 
         when(bookRepository.save(any(Book.class))).thenReturn(newBook);
+        when(authorRepository.findByName(authorName)).thenReturn(Optional.of(author));
 
-        BookTo.GetData result = bookController.createBook(bookData);
+        BookTo.GetData result = bookController.addBook(bookData);
 
         assertNotNull(result);
         assertEquals("Java Programming", result.title());
