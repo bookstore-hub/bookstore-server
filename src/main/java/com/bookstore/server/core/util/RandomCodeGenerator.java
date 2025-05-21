@@ -6,7 +6,7 @@ package com.bookstore.server.core.util;
 public class RandomCodeGenerator {
 
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private static final int CODE_LENGTH = 10;
+    private static final int CODE_LENGTH = 5;
 
     public static String generateAlphaNumericCode() {
         StringBuilder builder = new StringBuilder();

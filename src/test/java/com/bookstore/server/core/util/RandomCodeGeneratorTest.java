@@ -9,8 +9,8 @@ class RandomCodeGeneratorTest {
     void testGenerateAlphaNumericCode() {
         String code = RandomCodeGenerator.generateAlphaNumericCode();
         assertNotNull(code, "The code can't be null");
-        assertEquals(10, code.length(), "The code length must be 10");
-        assertTrue(code.matches("[A-Z0-9]{10}"), "The code must be alphanumeric and in uppercase.");
+        assertEquals(5, code.length(), "The code length must be 10");
+        assertTrue(code.matches("[A-Z0-9]{5}"), "The code must be alphanumeric and in uppercase.");
     }
 
 }
