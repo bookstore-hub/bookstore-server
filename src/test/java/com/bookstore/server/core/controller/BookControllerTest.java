@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,7 +40,7 @@ class BookControllerTest {
         String authorCode = "AUTHORCODE1";
         String authorName = "John Doe";
         Author author = new Author(authorCode, authorName);
-        Book newBook = new Book("BOOKCODE1", "Java Programming", List.of(author));
+        Book newBook = new Book("BOOKCODE1", "Java Programming", Set.of(author));
 
         when(bookRepository.save(any(Book.class))).thenReturn(newBook);
         when(authorRepository.findByName(authorName)).thenReturn(Optional.of(author));
@@ -58,7 +59,7 @@ class BookControllerTest {
         String authorCode = "AUTHORCODE1";
         String authorName = "John Doe";
         Author author = new Author(authorCode, authorName);
-        Book existingBook = new Book(bookCode, "Java Programming", List.of(author));
+        Book existingBook = new Book(bookCode, "Java Programming", Set.of(author));
 
         when(bookRepository.findByCode(bookCode)).thenReturn(Optional.of(existingBook));
         when(bookRepository.save(existingBook)).thenReturn(existingBook);
@@ -92,7 +93,7 @@ class BookControllerTest {
         String authorCode = "AUTHORCODE1";
         String authorName = "John Doe";
         Author author = new Author(authorCode, authorName);
-        Book bookToRemove = new Book(bookCode, bookTitle, List.of(author));
+        Book bookToRemove = new Book(bookCode, bookTitle, Set.of(author));
 
         when(bookRepository.findByCode(bookCode)).thenReturn(Optional.of(bookToRemove));
 
@@ -122,7 +123,7 @@ class BookControllerTest {
         String authorCode = "AUTHORCODE1";
         String authorName = "John Doe";
         Author author = new Author(authorCode, authorName);
-        Book book = new Book(bookCode, bookTitle, List.of(author));
+        Book book = new Book(bookCode, bookTitle, Set.of(author));
         book.setDateOfPublication(LocalDate.now());
 
         when(bookRepository.findByCode(bookCode)).thenReturn(Optional.of(book));
@@ -152,7 +153,7 @@ class BookControllerTest {
         String authorName = "John Doe";
         String bookTitle = "Java Programming";
         Author author = new Author(authorCode, authorName);
-        Book book = new Book("CODE1", "Java Programming", List.of(author));
+        Book book = new Book("CODE1", "Java Programming", Set.of(author));
 
         when(bookService.searchBooks(bookTitle, authorName)).thenReturn(List.of(book));
 

@@ -3,9 +3,7 @@ package com.bookstore.server.core.entity;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author davidgarcia
@@ -26,7 +24,7 @@ public class Author extends DomainObject {
     private String name;
 
     @ManyToMany(mappedBy = "authors")
-    private List<Book> books = new ArrayList<>();
+    private Set<Book> books = new HashSet<>();
 
 
     /**
@@ -115,8 +113,8 @@ public class Author extends DomainObject {
      *
      * @return Returns the books
      */
-    public List<Book> getBooks() {
-        return new ArrayList<>(books);
+    public Set<Book> getBooks() {
+        return books;
     }
 
     /**
@@ -124,7 +122,7 @@ public class Author extends DomainObject {
      *
      * @param books The books to set
      */
-    public void setBooks(List<Book> books) {
+    public void setBooks(Set<Book> books) {
         this.books = books;
     }
 

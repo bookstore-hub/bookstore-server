@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -60,7 +61,7 @@ public class BookTo {
         return DateUtil.formatDate(dateOfPublication);
     }
 
-    private static String mapAuthors(List<Author> authors) {
+    private static String mapAuthors(Set<Author> authors) {
         return authors.stream().map(Author::getName).collect(Collectors.joining(","));
     }
 

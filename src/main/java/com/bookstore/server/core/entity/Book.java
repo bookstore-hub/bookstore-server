@@ -4,9 +4,7 @@ package com.bookstore.server.core.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author davidgarcia
@@ -39,7 +37,7 @@ public class Book extends DomainObject {
     @JoinTable(name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id"))
-    private List<Author> authors = new ArrayList<>();
+    private Set<Author> authors = new HashSet<>();
 
 
     /**
@@ -55,7 +53,7 @@ public class Book extends DomainObject {
      * @param title   The title of the book
      * @param authors The authors of the book
      */
-    public Book(String code, String title, List<Author> authors) {
+    public Book(String code, String title, Set<Author> authors) {
         this.code = code;
         this.title = title;
         this.authors = authors;
@@ -175,8 +173,8 @@ public class Book extends DomainObject {
      *
      * @return Returns the authors
      */
-    public List<Author> getAuthors() {
-        return new ArrayList<>(authors);
+    public Set<Author> getAuthors() {
+        return authors;
     }
 
     /**
@@ -184,7 +182,7 @@ public class Book extends DomainObject {
      *
      * @param authors The authors to set
      */
-    public void setAuthors(List<Author> authors) {
+    public void setAuthors(Set<Author> authors) {
         this.authors = authors;
     }
 

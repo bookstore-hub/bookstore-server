@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -28,8 +29,8 @@ class BookServiceImplTest {
 
         author1 = new Author("John Doe");
         author2 = new Author("Jane Smith");
-        book1 = new Book("CODE1", "Java Programming", List.of(author1));
-        book2 = new Book("CODE2", "Advanced C#", List.of(author2));
+        book1 = new Book("CODE1", "Java Programming", Set.of(author1));
+        book2 = new Book("CODE2", "Advanced C#", Set.of(author2));
     }
 
     @Test
