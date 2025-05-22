@@ -26,7 +26,7 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/authors")
+@RequestMapping("/author")
 @Tag(name = "AuthorController", description = "Set of endpoints to handle the Bookstore author logic")
 public class AuthorController {
 
