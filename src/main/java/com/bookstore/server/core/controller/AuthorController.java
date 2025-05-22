@@ -94,7 +94,6 @@ public class AuthorController {
      */
     @Operation(description = "Removes an author")
     @DeleteMapping
-    @ResponseStatus
     public void removeAuthor(@Parameter(description = "The author code") @RequestParam String authorCode) {
         Optional<Author> authorToRemove = authorRepository.findByCode(authorCode);
         if(authorToRemove.isPresent()) {

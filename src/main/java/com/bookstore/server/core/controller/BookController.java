@@ -55,15 +55,11 @@ public class BookController {
             throw new EntityExistsException("The book " + bookData.title() + " is already present in the database.");
         }
 
-        Book newBook = BookTo.mapNewBook(bookData);
-        List<Author> authors = handleAuthors(bookData.authors());
-
         LOGGER.info("Creating book " + bookData.title());
 
-        newBook.getAuthors().forEach(newBook::addAuthor);
-        authors.forEach(author -> author.addBook(newBook));
-        bookRepository.save(newBook);
-        authorRepository.saveAll(authors);
+        Book newBook = BookTo.mapNewBook(bookData);
+        List<Author> authors = handleAuthors(bookData.authors());
+        addBook(newBook, authors);
 
         return new BookTo.GetData(newBook);
     }
@@ -83,6 +79,13 @@ public class BookController {
         }
 
         return authors;
+    }
+
+    private void addBook(Book newBook, List<Author> authors) {
+        for(Author author : authors) {
+            newBook.addAuthor(author);
+            bookRepository.save(newBook);
+        }
     }
 
     /**
@@ -116,7 +119,6 @@ public class BookController {
      */
     @Operation(description = "Removes a book")
     @DeleteMapping
-    @ResponseStatus
     public void removeBook(@Parameter(description = "The book code") @RequestParam String bookCode) {
         Optional<Book> bookToRemove = bookRepository.findByCode(bookCode);
         if(bookToRemove.isPresent()) {

@@ -33,10 +33,13 @@ public class Book extends DomainObject {
     @Column(name = "number_of_pages")
     private int numberOfPages;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "book_author",
+    @ManyToMany
+    @JoinTable(
+            name = "book_author",
+            schema = "bookstore",
             joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id"))
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
     private Set<Author> authors = new HashSet<>();
 
 
@@ -193,7 +196,6 @@ public class Book extends DomainObject {
 
     public void removeAuthor(Author author) {
         getAuthors().remove(author);
-        author.removeBook(this);
     }
 
     public boolean hasOnlyOneAuthor() {
