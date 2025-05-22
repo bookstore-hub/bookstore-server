@@ -2,8 +2,6 @@ package com.bookstore.server.core.repository;
 
 
 import com.bookstore.server.core.entity.Book;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
