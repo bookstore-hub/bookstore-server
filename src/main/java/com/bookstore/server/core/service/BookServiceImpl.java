@@ -6,7 +6,6 @@ import com.bookstore.server.core.entity.Book;
 import com.bookstore.server.core.repository.AuthorRepository;
 import com.bookstore.server.core.repository.BookRepository;
 import com.bookstore.server.core.to.AuthorTo;
-import info.debatty.java.stringsimilarity.Levenshtein;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -49,19 +48,17 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> searchBooks(String title, String author) {
         List<Book> books;
-        List<Book> booksRetrieved = List.of();
+        List<Book> booksRetrieved = new ArrayList<>();
 
         if(StringUtils.isNotBlank(title) && StringUtils.isNotBlank(author)) {
-            booksRetrieved = bookRepository.findByTitleAndAuthor(title, author)
-                    .stream().sorted(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), title))).toList();
+            booksRetrieved = bookRepository.findByTitleAndAuthor(title, author);
         } else if(StringUtils.isNotBlank(title)) {
-            booksRetrieved = bookRepository.findByTitle(title)
-                    .stream().sorted(Comparator.comparing(match -> new Levenshtein().distance(match.getTitle(), title))).toList();
+            booksRetrieved = bookRepository.findByTitle(title);
         } else if (StringUtils.isNotBlank(author)){
             booksRetrieved = bookRepository.findByAuthor(author);
         }
 
-        books = booksRetrieved.stream().limit(MAX_RESULTS).toList();
+        books = booksRetrieved.stream().distinct().limit(MAX_RESULTS).toList();
 
         return books;
     }
