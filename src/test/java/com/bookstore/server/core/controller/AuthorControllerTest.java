@@ -39,7 +39,7 @@ class AuthorControllerTest {
         AuthorTo.GetData result = authorController.createAuthor(authorName);
 
         assertNotNull(result);
-        assertEquals(authorName, result.name());
+        assertEquals(authorName, result.authorName());
         verify(authorRepository, times(1)).save(any(Author.class));
     }
 
@@ -55,7 +55,7 @@ class AuthorControllerTest {
         AuthorTo.GetData result = authorController.editAuthor(authorCode, newAuthorName);
 
         assertNotNull(result);
-        assertEquals(newAuthorName, result.name());
+        assertEquals(newAuthorName, result.authorName());
         verify(authorRepository, times(1)).findByCode(authorCode);
         verify(authorRepository, times(1)).save(existingAuthor);
     }
