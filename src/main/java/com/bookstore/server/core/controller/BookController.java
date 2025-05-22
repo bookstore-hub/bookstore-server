@@ -25,7 +25,7 @@ import java.util.*;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/book")
+@RequestMapping("/books")
 @Tag(name = "BookController", description = "Set of endpoints to handle the Bookstore book logic")
 public class BookController {
 
