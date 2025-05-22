@@ -44,14 +44,14 @@ public class BookTo {
 
 
     /** Retrieval of Book **/
-    public record GetData(String code, String title, String dateOfPublication, String synopsis, int numberOfPages, String authors) {
+    public record GetData(String bookCode, String title, String dateOfPublication, String synopsis, int numberOfPages, List<AuthorTo.GetData> authors) {
         public GetData(Book book) {
             this(book.getCode(), book.getTitle(), resolveDate(book.getDateOfPublication()), book.getSynopsis(), book.getNumberOfPages(), mapAuthors(book.getAuthors()));
         }
     }
 
     /** Retrieval of Book for listing **/
-    public record GetListedData(String code, String title, String authors) {
+    public record GetListedData(String bookCode, String title, List<AuthorTo.GetData> authors) {
         public GetListedData(Book book) {
             this(book.getCode(), book.getTitle(), mapAuthors(book.getAuthors()));
         }
@@ -61,8 +61,8 @@ public class BookTo {
         return DateUtil.formatDate(dateOfPublication);
     }
 
-    private static String mapAuthors(Set<Author> authors) {
-        return authors.stream().map(Author::getName).collect(Collectors.joining(","));
+    private static List<AuthorTo.GetData> mapAuthors(Set<Author> authors) {
+        return authors.stream().map(AuthorTo.GetData::new).toList();
     }
 
 

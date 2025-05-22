@@ -31,6 +31,9 @@ endpoint:
 
 server:
   shutdown: graceful
+  error:
+    include-message: always
+    whitelabel.enabled: false
 
 
 #########################################################################

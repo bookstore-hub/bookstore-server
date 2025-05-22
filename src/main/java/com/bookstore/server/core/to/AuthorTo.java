@@ -10,7 +10,7 @@ public class AuthorTo {
 
 
     /** Retrieval of Author **/
-    public record GetData(String code, String name) {
+    public record GetData(String authorCode, String authorName) {
         public GetData(Author author) {
             this(author.getCode(), author.getName());
         }
