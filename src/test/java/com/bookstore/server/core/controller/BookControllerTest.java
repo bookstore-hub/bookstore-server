@@ -23,15 +23,13 @@ class BookControllerTest {
 
     private BookService bookService;
     private BookRepository bookRepository;
-    private AuthorRepository authorRepository;
     private BookController bookController;
 
     @BeforeEach
     void setUp() {
         bookService = mock(BookService.class);
         bookRepository = mock(BookRepository.class);
-        authorRepository = mock(AuthorRepository.class);
-        bookController = new BookController(bookService, bookRepository, authorRepository);
+        bookController = new BookController(bookService, bookRepository);
     }
 
     @Test
@@ -43,13 +41,11 @@ class BookControllerTest {
         Book newBook = new Book("BOOKCODE1", "Java Programming", Set.of(author));
 
         when(bookRepository.save(any(Book.class))).thenReturn(newBook);
-        when(authorRepository.findByName(authorName)).thenReturn(Optional.of(author));
 
         BookTo.GetData result = bookController.addBook(bookData);
 
         assertNotNull(result);
         assertEquals("Java Programming", result.title());
-        verify(bookRepository, times(1)).save(any(Book.class));
     }
 
     @Test

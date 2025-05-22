@@ -2,6 +2,7 @@ package com.bookstore.server.core.service;
 
 import com.bookstore.server.core.entity.Author;
 import com.bookstore.server.core.entity.Book;
+import com.bookstore.server.core.repository.AuthorRepository;
 import com.bookstore.server.core.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.*;
 class BookServiceImplTest {
 
     private BookRepository bookRepository;
+    private AuthorRepository authorRepository;
     private BookServiceImpl bookService;
 
     Author author1;
@@ -25,7 +27,7 @@ class BookServiceImplTest {
     @BeforeEach
     void setUp() {
         bookRepository = mock(BookRepository.class);
-        bookService = new BookServiceImpl(bookRepository);
+        bookService = new BookServiceImpl(bookRepository, authorRepository);
 
         author1 = new Author("John Doe");
         author2 = new Author("Jane Smith");

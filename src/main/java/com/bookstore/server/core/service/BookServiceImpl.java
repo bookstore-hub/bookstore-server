@@ -1,8 +1,11 @@
 package com.bookstore.server.core.service;
 
 
+import com.bookstore.server.core.entity.Author;
 import com.bookstore.server.core.entity.Book;
+import com.bookstore.server.core.repository.AuthorRepository;
 import com.bookstore.server.core.repository.BookRepository;
+import com.bookstore.server.core.to.AuthorTo;
 import info.debatty.java.stringsimilarity.Levenshtein;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
@@ -18,9 +21,29 @@ public class BookServiceImpl implements BookService {
     private static final int MAX_RESULTS = 5;
 
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookServiceImpl(BookRepository bookRepository) {
+    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
+    }
+
+    @Override
+    public List<Author> handleAuthors(List<String> authorsToAdd) {
+        List<Author> authors = new ArrayList<>();
+
+        for(String authorToAdd : authorsToAdd) {
+            Optional<Author> existingAuthor = authorRepository.findByName(authorToAdd);
+            if(existingAuthor.isPresent()) {
+                authors.add(existingAuthor.get());
+            } else {
+                Author newAuthor = AuthorTo.mapNewAuthor(authorToAdd);
+                authorRepository.save(newAuthor);
+                authors.add(newAuthor);
+            }
+        }
+
+        return authors;
     }
 
     @Override

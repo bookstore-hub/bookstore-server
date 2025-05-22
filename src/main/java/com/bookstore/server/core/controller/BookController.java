@@ -33,12 +33,10 @@ public class BookController {
 
     private final BookService bookService;
     private final BookRepository bookRepository;
-    private final AuthorRepository authorRepository;
 
-    public BookController(BookService bookService, BookRepository bookRepository, AuthorRepository authorRepository) {
+    public BookController(BookService bookService, BookRepository bookRepository) {
         this.bookService = bookService;
         this.bookRepository = bookRepository;
-        this.authorRepository = authorRepository;
     }
 
 
@@ -56,36 +54,14 @@ public class BookController {
         }
 
         LOGGER.info("Creating book " + bookData.title());
-
         Book newBook = BookTo.mapNewBook(bookData);
-        List<Author> authors = handleAuthors(bookData.authors());
-        addBook(newBook, authors);
-
-        return new BookTo.GetData(newBook);
-    }
-
-    private List<Author> handleAuthors(List<String> authorsToAdd) {
-        List<Author> authors = new ArrayList<>();
-
-        for(String authorToAdd : authorsToAdd) {
-            Optional<Author> existingAuthor = authorRepository.findByName(authorToAdd);
-            if(existingAuthor.isPresent()) {
-                authors.add(existingAuthor.get());
-            } else {
-                Author newAuthor = AuthorTo.mapNewAuthor(authorToAdd);
-                authorRepository.save(newAuthor);
-                authors.add(newAuthor);
-            }
-        }
-
-        return authors;
-    }
-
-    private void addBook(Book newBook, List<Author> authors) {
-        for(Author author : authors) {
+        List<Author> authors = bookService.handleAuthors(bookData.authors());
+        authors.forEach(author -> {
             newBook.addAuthor(author);
             bookRepository.save(newBook);
-        }
+        });
+
+        return new BookTo.GetData(newBook);
     }
 
     /**
@@ -149,7 +125,22 @@ public class BookController {
             throw new EntityNotFoundException("The book to retrieve with code " + bookCode + " could not be found.");
         }
 
+    }
 
+    /**
+     * Retrieves all books
+     *
+     */
+    @Operation(description = "Retrieves all books")
+    @GetMapping(value = "/all")
+    public List<BookTo.GetListedData> retrieveBooks() {
+        List<BookTo.GetListedData> books = new ArrayList<>();
+
+        LOGGER.info("Retrieving all books.");
+        Iterable<Book> booksFound = bookRepository.findAll();
+        booksFound.forEach(bookFound -> books.add(new BookTo.GetListedData(bookFound)));
+
+        return books;
     }
 
     /**
