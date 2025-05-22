@@ -1,0 +1,18 @@
+
+BASE DE DONNEES
+
+Un backup de la base de données utilisée pour ce travail a été joint au projet.
+Vous devrez créer dans postgres un utilisateur 'bookstoreadmin' avec le bon mot de passe, renseigné dans application.yml:
+
+-- Role: bookstoreadmin
+-- DROP ROLE IF EXISTS bookstoreadmin;
+
+CREATE ROLE bookstoreadmin WITH
+  LOGIN
+  SUPERUSER
+  INHERIT
+  CREATEDB
+  CREATEROLE
+  NOREPLICATION
+  NOBYPASSRLS
+  ENCRYPTED PASSWORD 'SCRAM-SHA-256$4096:ybrf9uNsA5g+RSN+VX1gkA==$co+QVO9gKqv2VSvWiVf9vNH3qfL0DUy+S4Mw8E25Ac4=:VpnciUzCBDqps/3T9Wxj23CrMBDlL3N/ZlogBJ6NNaI=';

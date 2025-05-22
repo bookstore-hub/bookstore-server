@@ -5,7 +5,7 @@
 -- Dumped from database version 17.5
 -- Dumped by pg_dump version 17.4
 
--- Started on 2025-05-21 22:53:56
+-- Started on 2025-05-22 09:49:02
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -20,7 +20,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 6 (class 2615 OID 66170)
+-- TOC entry 7 (class 2615 OID 66170)
 -- Name: bookstore; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
@@ -30,7 +30,24 @@ CREATE SCHEMA bookstore;
 ALTER SCHEMA bookstore OWNER TO postgres;
 
 --
--- TOC entry 219 (class 1259 OID 66172)
+-- TOC entry 2 (class 3079 OID 66222)
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- TOC entry 4866 (class 0 OID 0)
+-- Dependencies: 2
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
+-- TOC entry 220 (class 1259 OID 66172)
 -- Name: author_id_seq; Type: SEQUENCE; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -49,7 +66,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 221 (class 1259 OID 66179)
+-- TOC entry 222 (class 1259 OID 66179)
 -- Name: author; Type: TABLE; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -65,7 +82,7 @@ CREATE TABLE bookstore.author (
 ALTER TABLE bookstore.author OWNER TO bookstoreadmin;
 
 --
--- TOC entry 218 (class 1259 OID 66171)
+-- TOC entry 219 (class 1259 OID 66171)
 -- Name: book_id_seq; Type: SEQUENCE; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -80,7 +97,7 @@ CREATE SEQUENCE bookstore.book_id_seq
 ALTER SEQUENCE bookstore.book_id_seq OWNER TO bookstoreadmin;
 
 --
--- TOC entry 220 (class 1259 OID 66173)
+-- TOC entry 221 (class 1259 OID 66173)
 -- Name: book; Type: TABLE; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -99,7 +116,7 @@ CREATE TABLE bookstore.book (
 ALTER TABLE bookstore.book OWNER TO bookstoreadmin;
 
 --
--- TOC entry 222 (class 1259 OID 66185)
+-- TOC entry 223 (class 1259 OID 66185)
 -- Name: book_author; Type: TABLE; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -112,8 +129,8 @@ CREATE TABLE bookstore.book_author (
 ALTER TABLE bookstore.book_author OWNER TO bookstoreadmin;
 
 --
--- TOC entry 4811 (class 0 OID 66179)
--- Dependencies: 221
+-- TOC entry 4859 (class 0 OID 66179)
+-- Dependencies: 222
 -- Data for Name: author; Type: TABLE DATA; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -138,8 +155,8 @@ COPY bookstore.author (id, code, name, last_modification_date, last_modification
 
 
 --
--- TOC entry 4810 (class 0 OID 66173)
--- Dependencies: 220
+-- TOC entry 4858 (class 0 OID 66173)
+-- Dependencies: 221
 -- Data for Name: book; Type: TABLE DATA; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -152,14 +169,14 @@ COPY bookstore.book (id, code, title, date_of_publication, synopsis, number_of_p
 458	GC4MZ	Madame Bovary	1857-02-15	Madame Bovary s’ennuie. Elle n’éprouve aucun amour pour son mari, trouve sa fille laide et s’abreuve de romans à l’eau de rose. Ces nouveaux amants pourront-ils la satisfaire? À la sortie du roman, l’auteur fut accusé pour : outrage à la morale publique et religieuse et aux bonnes mœurs.	284	2025-05-21 21:49:57.580298	\N
 459	84TWJ	La Divine Comédie	1300-05-27	Immense poème écrit en tercets enchaînés, à travers l’enfer, le purgatoire et le paradis. Œuvre unique, mystique. Un des plus célèbres écrits évoquant la civilisation médiévale.	365	2025-05-21 21:50:26.650931	\N
 502	J4DV4	Guerre et Paix	1869-04-22	L’invasion française de la Russie au 19e siècle et l’impact de l’ère napoléonienne sur la société tsariste, à travers l’histoire de cinq familles. D’abord publié en feuilleton dans un périodique russe entre 1865 et 1869. Tolstoï qualifiait son œuvre de « chronique historique ».	500	2025-05-21 22:06:19.312873	\N
-505	A1B6V	Ulysse	1922-05-27	Une journée, en 1904, dans la vie des quelques habitants de Dublin, qui vaquent à leurs occupations. Structuré en 18 chapitres qui possèdent chacun leur style d’écriture propre. Œuvre monumentale, sorte de Mont Everest du lecteur.	300	2025-05-21 22:26:04.80982	\N
 552	ED090	À la recherche du temps perdu	1927-06-21	Un narrateur se remémore ses souvenirs d’enfance et se questionne sur la mémoire, l’art et le temps. Suite romanesque monumentale de sept tomes, le deuxième livre fut primé par le Goncourt en 1919. La cathédrale de la littérature française.	400	2025-05-21 22:33:02.796458	\N
+602	79AHY	Ulysse	1922-05-27	Une journée, en 1904, dans la vie des quelques habitants de Dublin, qui vaquent à leurs occupations. Structuré en 18 chapitres qui possèdent chacun leur style d’écriture propre. Œuvre monumentale, sorte de Mont Everest du lecteur.	300	2025-05-22 08:56:04.972199	\N
 \.
 
 
 --
--- TOC entry 4812 (class 0 OID 66185)
--- Dependencies: 222
+-- TOC entry 4860 (class 0 OID 66185)
+-- Dependencies: 223
 -- Data for Name: book_author; Type: TABLE DATA; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -178,15 +195,15 @@ COPY bookstore.book_author (book_id, author_id) FROM stdin;
 502	452
 502	453
 502	454
-505	457
 552	458
 459	415
+602	457
 \.
 
 
 --
--- TOC entry 4818 (class 0 OID 0)
--- Dependencies: 219
+-- TOC entry 4867 (class 0 OID 0)
+-- Dependencies: 220
 -- Name: author_id_seq; Type: SEQUENCE SET; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -194,16 +211,16 @@ SELECT pg_catalog.setval('bookstore.author_id_seq', 551, true);
 
 
 --
--- TOC entry 4819 (class 0 OID 0)
--- Dependencies: 218
+-- TOC entry 4868 (class 0 OID 0)
+-- Dependencies: 219
 -- Name: book_id_seq; Type: SEQUENCE SET; Schema: bookstore; Owner: bookstoreadmin
 --
 
-SELECT pg_catalog.setval('bookstore.book_id_seq', 601, true);
+SELECT pg_catalog.setval('bookstore.book_id_seq', 651, true);
 
 
 --
--- TOC entry 4657 (class 2606 OID 66184)
+-- TOC entry 4705 (class 2606 OID 66184)
 -- Name: author author_pkey; Type: CONSTRAINT; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -212,7 +229,7 @@ ALTER TABLE ONLY bookstore.author
 
 
 --
--- TOC entry 4660 (class 2606 OID 66201)
+-- TOC entry 4708 (class 2606 OID 66201)
 -- Name: book_author book_author_pkey; Type: CONSTRAINT; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -221,7 +238,7 @@ ALTER TABLE ONLY bookstore.book_author
 
 
 --
--- TOC entry 4654 (class 2606 OID 66178)
+-- TOC entry 4702 (class 2606 OID 66178)
 -- Name: book book_pkey; Type: CONSTRAINT; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -230,7 +247,7 @@ ALTER TABLE ONLY bookstore.book
 
 
 --
--- TOC entry 4658 (class 1259 OID 66199)
+-- TOC entry 4706 (class 1259 OID 66199)
 -- Name: idx_author_name; Type: INDEX; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -238,7 +255,7 @@ CREATE INDEX idx_author_name ON bookstore.author USING btree (name);
 
 
 --
--- TOC entry 4655 (class 1259 OID 66198)
+-- TOC entry 4703 (class 1259 OID 66198)
 -- Name: idx_book_title; Type: INDEX; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -246,7 +263,7 @@ CREATE INDEX idx_book_title ON bookstore.book USING btree (title);
 
 
 --
--- TOC entry 4661 (class 2606 OID 66217)
+-- TOC entry 4709 (class 2606 OID 66217)
 -- Name: book_author author_ref; Type: FK CONSTRAINT; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -255,7 +272,7 @@ ALTER TABLE ONLY bookstore.book_author
 
 
 --
--- TOC entry 4662 (class 2606 OID 66212)
+-- TOC entry 4710 (class 2606 OID 66212)
 -- Name: book_author book_ref; Type: FK CONSTRAINT; Schema: bookstore; Owner: bookstoreadmin
 --
 
@@ -263,7 +280,7 @@ ALTER TABLE ONLY bookstore.book_author
     ADD CONSTRAINT book_ref FOREIGN KEY (book_id) REFERENCES bookstore.book(id) NOT VALID;
 
 
--- Completed on 2025-05-21 22:53:57
+-- Completed on 2025-05-22 09:49:02
 
 --
 -- PostgreSQL database dump complete
