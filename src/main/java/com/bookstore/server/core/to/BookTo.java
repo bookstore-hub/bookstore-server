@@ -80,11 +80,14 @@ public class BookTo {
     }
 
     public static void updateBook(Book book, NewData bookData) {
-        book.setTitle(bookData.title());
-        book.setDateOfPublication(bookData.dateOfPublication());
-        book.setSynopsis(bookData.synopsis());
-        book.setNumberOfPages(bookData.numberOfPages());
+
+        if(bookData.title() != null) book.setTitle(bookData.title());
+        if(bookData.dateOfPublication() != null) book.setDateOfPublication(bookData.dateOfPublication());
+        if(bookData.synopsis() != null) book.setSynopsis(bookData.synopsis());
+        if(bookData.numberOfPages() != 0) book.setNumberOfPages(bookData.numberOfPages());
+
         book.setLastModificationDate(LocalDateTime.now());
+
     }
 
 }
