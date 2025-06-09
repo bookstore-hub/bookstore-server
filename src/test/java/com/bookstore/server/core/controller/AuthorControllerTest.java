@@ -36,7 +36,9 @@ class AuthorControllerTest {
 
         when(authorRepository.save(any(Author.class))).thenReturn(newAuthor);
 
-        AuthorTo.GetData result = authorController.createAuthor(authorName);
+        AuthorTo.NewAuthorData newAuthorData = new AuthorTo.NewAuthorData("John Doe");
+
+        AuthorTo.GetAuthorData result = authorController.createAuthor(newAuthorData);
 
         assertNotNull(result);
         assertEquals(authorName, result.authorName());
@@ -52,7 +54,7 @@ class AuthorControllerTest {
         when(authorRepository.findByCode(authorCode)).thenReturn(Optional.of(existingAuthor));
         when(authorRepository.save(existingAuthor)).thenReturn(existingAuthor);
 
-        AuthorTo.GetData result = authorController.editAuthor(authorCode, newAuthorName);
+        AuthorTo.GetAuthorData result = authorController.editAuthor(authorCode, newAuthorName);
 
         assertNotNull(result);
         assertEquals(newAuthorName, result.authorName());

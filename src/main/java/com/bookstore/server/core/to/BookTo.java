@@ -23,7 +23,7 @@ public class BookTo {
      */
 
     /** Create or Update Book **/
-    public record NewData(
+    public record NewBookData(
         @Parameter (description = "The title")
         @Size(max = 30)
         @NotNull
@@ -43,15 +43,15 @@ public class BookTo {
 
 
     /** Retrieval of Book **/
-    public record GetData(String bookCode, String title, String dateOfPublication, String synopsis, int numberOfPages, List<AuthorTo.GetData> authors) {
-        public GetData(Book book) {
+    public record GetBookData(String bookCode, String title, String dateOfPublication, String synopsis, int numberOfPages, List<AuthorTo.GetAuthorData> authors) {
+        public GetBookData(Book book) {
             this(book.getCode(), book.getTitle(), resolveDate(book.getDateOfPublication()), book.getSynopsis(), book.getNumberOfPages(), mapAuthors(book.getAuthors()));
         }
     }
 
     /** Retrieval of Book for listing **/
-    public record GetListedData(String bookCode, String title, List<AuthorTo.GetData> authors) {
-        public GetListedData(Book book) {
+    public record GetBookListedData(String bookCode, String title, List<AuthorTo.GetAuthorData> authors) {
+        public GetBookListedData(Book book) {
             this(book.getCode(), book.getTitle(), mapAuthors(book.getAuthors()));
         }
     }
@@ -60,13 +60,13 @@ public class BookTo {
         return DateUtil.formatDate(dateOfPublication);
     }
 
-    private static List<AuthorTo.GetData> mapAuthors(Set<Author> authors) {
-        return authors.stream().map(AuthorTo.GetData::new).toList();
+    private static List<AuthorTo.GetAuthorData> mapAuthors(Set<Author> authors) {
+        return authors.stream().map(AuthorTo.GetAuthorData::new).toList();
     }
 
 
     /** Mapping of new Book **/
-    public static Book mapNewBook(NewData bookData) {
+    public static Book mapNewBook(NewBookData bookData) {
         Book book = new Book();
         book.setCode(RandomCodeGenerator.generateAlphaNumericCode());
         updateBook(book, bookData);
@@ -75,11 +75,11 @@ public class BookTo {
     }
 
     /** Mapping of updated Book **/
-    public static void mapUpdatedBook(Book book, NewData bookData) {
+    public static void mapUpdatedBook(Book book, NewBookData bookData) {
         updateBook(book, bookData);
     }
 
-    public static void updateBook(Book book, NewData bookData) {
+    public static void updateBook(Book book, NewBookData bookData) {
 
         if(bookData.title() != null) book.setTitle(bookData.title());
         if(bookData.dateOfPublication() != null) book.setDateOfPublication(bookData.dateOfPublication());

@@ -3,7 +3,6 @@ package com.bookstore.server.core.controller;
 
 import com.bookstore.server.core.entity.Author;
 import com.bookstore.server.core.entity.Book;
-import com.bookstore.server.core.repository.AuthorRepository;
 import com.bookstore.server.core.repository.BookRepository;
 import com.bookstore.server.core.service.BookService;
 import com.bookstore.server.core.to.BookTo;
@@ -34,7 +33,7 @@ class BookControllerTest {
 
     @Test
     void createBook_createsNewBookSuccessfully() {
-        BookTo.NewData bookData = new BookTo.NewData("Java Programming", LocalDate.now(), "A beautiful story", 200, List.of("John Doe"));
+        BookTo.NewBookData bookData = new BookTo.NewBookData("Java Programming", LocalDate.now(), "A beautiful story", 200, List.of("John Doe"));
         String authorCode = "AUTHORCODE1";
         String authorName = "John Doe";
         Author author = new Author(authorCode, authorName);
@@ -42,7 +41,7 @@ class BookControllerTest {
 
         when(bookRepository.save(any(Book.class))).thenReturn(newBook);
 
-        BookTo.GetData result = bookController.addBook(bookData);
+        BookTo.GetBookData result = bookController.addBook(bookData);
 
         assertNotNull(result);
         assertEquals("Java Programming", result.title());
@@ -51,7 +50,7 @@ class BookControllerTest {
     @Test
     void editBook_editsExistingBookSuccessfully() {
         String bookCode = "BOOKCODE1";
-        BookTo.NewData bookData = new BookTo.NewData("Advanced Java", LocalDate.now(), "A beautiful story", 200, List.of("John Doe"));
+        BookTo.NewBookData bookData = new BookTo.NewBookData("Advanced Java", LocalDate.now(), "A beautiful story", 200, List.of("John Doe"));
         String authorCode = "AUTHORCODE1";
         String authorName = "John Doe";
         Author author = new Author(authorCode, authorName);
@@ -60,7 +59,7 @@ class BookControllerTest {
         when(bookRepository.findByCode(bookCode)).thenReturn(Optional.of(existingBook));
         when(bookRepository.save(existingBook)).thenReturn(existingBook);
 
-        BookTo.GetData result = bookController.editBook(bookCode, bookData);
+        BookTo.GetBookData result = bookController.editBook(bookCode, bookData);
 
         assertNotNull(result);
         assertEquals("Advanced Java", result.title());
@@ -71,7 +70,7 @@ class BookControllerTest {
     @Test
     void editBook_throwsExceptionWhenBookNotFound() {
         String bookCode = "CODE1";
-        BookTo.NewData bookData = new BookTo.NewData("Java Programming", LocalDate.now(), "A beautiful story", 200, List.of("John Doe"));
+        BookTo.NewBookData bookData = new BookTo.NewBookData("Java Programming", LocalDate.now(), "A beautiful story", 200, List.of("John Doe"));
 
         when(bookRepository.findByCode(bookCode)).thenReturn(Optional.empty());
 
@@ -124,7 +123,7 @@ class BookControllerTest {
 
         when(bookRepository.findByCode(bookCode)).thenReturn(Optional.of(book));
 
-        BookTo.GetData result = bookController.retrieveBookDetails(bookCode);
+        BookTo.GetBookData result = bookController.retrieveBookDetails(bookCode);
 
         assertNotNull(result);
         assertEquals("Java Programming", result.title());
@@ -153,7 +152,7 @@ class BookControllerTest {
 
         when(bookService.searchBooks(bookTitle, authorName)).thenReturn(List.of(book));
 
-        List<BookTo.GetListedData> result = bookController.searchBooks(bookTitle, authorName);
+        List<BookTo.GetBookListedData> result = bookController.searchBooks(bookTitle, authorName);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -167,7 +166,7 @@ class BookControllerTest {
 
         when(bookService.searchBooks(title, author)).thenReturn(List.of());
 
-        List<BookTo.GetListedData> result = bookController.searchBooks(title, author);
+        List<BookTo.GetBookListedData> result = bookController.searchBooks(title, author);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());

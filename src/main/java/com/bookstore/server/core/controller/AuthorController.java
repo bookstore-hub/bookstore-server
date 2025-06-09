@@ -44,11 +44,12 @@ public class AuthorController {
     /**
      * Creates a new author
      *
-     * @param authorName    the author name
+     * @param authorData    the author data
      */
     @Operation(description = "Creates a new author")
     @PostMapping
-    public AuthorTo.GetData createAuthor(@Parameter(description = "The author data") @RequestParam String authorName) {
+    public AuthorTo.GetAuthorData createAuthor(@Parameter(description = "The author data") @RequestBody AuthorTo.NewAuthorData authorData) {
+        String authorName = authorData.authorName();
         Optional<Author> existingAuthor = authorRepository.findByName(authorName);
         if(existingAuthor.isPresent()) {
             throw new EntityExistsException("The author " + authorName + " is already present in the database.");
@@ -59,7 +60,7 @@ public class AuthorController {
         Author newAuthor = AuthorTo.mapNewAuthor(authorName);
         authorRepository.save(newAuthor);
 
-        return new AuthorTo.GetData(newAuthor);
+        return new AuthorTo.GetAuthorData(newAuthor);
     }
 
     /**
@@ -69,8 +70,8 @@ public class AuthorController {
      */
     @Operation(description = "Edits an author entry")
     @PutMapping
-    public AuthorTo.GetData editAuthor(@Parameter(description = "The author code") @RequestParam String authorCode,
-                                       @Parameter(description = "The author name") @RequestParam String authorName) {
+    public AuthorTo.GetAuthorData editAuthor(@Parameter(description = "The author code") @RequestParam String authorCode,
+                                             @Parameter(description = "The author name") @RequestParam String authorName) {
 
         Optional<Author> authorToEdit = authorRepository.findByCode(authorCode);
         if(authorToEdit.isPresent()) {
@@ -80,7 +81,7 @@ public class AuthorController {
             author.setName(authorName);
             authorRepository.save(author);
 
-            return new AuthorTo.GetData(author);
+            return new AuthorTo.GetAuthorData(author);
         } else {
             throw new EntityNotFoundException("The author to edit with code " + authorCode + " could not be found.");
         }
@@ -118,8 +119,8 @@ public class AuthorController {
     @Operation(description = "Adds an author to a book")
     @PutMapping("/addToBook")
     @ResponseStatus
-    public BookTo.GetData addAuthorToBook(@Parameter(description = "The author code") @RequestParam String authorCode,
-                                          @Parameter(description = "The book code") @RequestParam String bookCode) {
+    public BookTo.GetBookData addAuthorToBook(@Parameter(description = "The author code") @RequestParam String authorCode,
+                                              @Parameter(description = "The book code") @RequestParam String bookCode) {
         Optional<Author> authorToAdd = authorRepository.findByCode(authorCode);
         Optional<Book> bookToAdd = bookRepository.findByCode(bookCode);
 
@@ -131,7 +132,7 @@ public class AuthorController {
             book.addAuthor(authorToAdd.get());
             bookRepository.save(book);
 
-            return new BookTo.GetData(book);
+            return new BookTo.GetBookData(book);
         } else {
             throw new EntityNotFoundException("Author could not be added to book. Either the author " + authorCode +
                     " or the book " + bookCode + " could not be found.");
@@ -147,8 +148,8 @@ public class AuthorController {
     @Operation(description = "Removes an author to a book")
     @PutMapping("/removeFromBook")
     @ResponseStatus
-    public BookTo.GetData removeAuthorFromBook(@Parameter(description = "The author code") @RequestParam String authorCode,
-                                               @Parameter(description = "The book code") @RequestParam String bookCode) {
+    public BookTo.GetBookData removeAuthorFromBook(@Parameter(description = "The author code") @RequestParam String authorCode,
+                                                   @Parameter(description = "The book code") @RequestParam String bookCode) {
         Optional<Author> authorToRemove = authorRepository.findByCode(authorCode);
         Optional<Book> bookToRemove = bookRepository.findByCode(bookCode);
 
@@ -164,7 +165,7 @@ public class AuthorController {
             book.removeAuthor(authorToRemove.get());
             bookRepository.save(book);
 
-            return new BookTo.GetData(book);
+            return new BookTo.GetBookData(book);
         } else {
             throw new EntityNotFoundException("Author could not be removed from book. Either the author " + authorCode +
                     " or the book " + bookCode + " could not be found.");
