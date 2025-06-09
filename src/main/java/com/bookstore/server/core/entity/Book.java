@@ -196,6 +196,7 @@ public class Book extends DomainObject {
 
     public void removeAuthor(Author author) {
         getAuthors().remove(author);
+        author.removeBook(this);
     }
 
     public boolean hasOnlyOneAuthor() {
