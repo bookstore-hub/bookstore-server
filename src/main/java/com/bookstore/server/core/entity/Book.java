@@ -211,4 +211,9 @@ public class Book extends DomainObject {
         return Objects.equals(code, book.code);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(code);
+    }
+
 }

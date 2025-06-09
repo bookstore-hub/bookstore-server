@@ -147,4 +147,9 @@ public class Author extends DomainObject {
         return Objects.equals(code, author.code);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(code);
+    }
+
 }
