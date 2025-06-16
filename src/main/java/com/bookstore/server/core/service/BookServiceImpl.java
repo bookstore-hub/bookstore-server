@@ -58,7 +58,7 @@ public class BookServiceImpl implements BookService {
             booksRetrieved = bookRepository.findByAuthor(author);
         }
 
-        books = booksRetrieved.stream().distinct().limit(MAX_RESULTS).toList();
+        books = booksRetrieved.stream().limit(MAX_RESULTS).toList();
 
         return books;
     }
